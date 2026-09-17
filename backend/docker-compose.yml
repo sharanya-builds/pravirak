@@ -1,0 +1,19 @@
+# Convenience local Postgres for development.
+#   docker compose up -d
+# Then set DATABASE_URL=postgres://pravirak:pravirak@localhost:5432/pravirak
+# in backend/.env (this is already the default in .env.example).
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pravirak
+      POSTGRES_PASSWORD: pravirak
+      POSTGRES_DB: pravirak
+    ports:
+      - '5432:5432'
+    volumes:
+      - pravirak_pgdata:/var/lib/postgresql/data
+
+volumes:
+  pravirak_pgdata:

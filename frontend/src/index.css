@@ -1,0 +1,609 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --navy-900: #0A192F;
+  --navy-800: #172A45;
+  --ash-bg: #F8FAFC;
+  /* Larger base font scale */
+  font-size: 17px;
+}
+
+html {
+  font-size: 17px;
+}
+
+body {
+  background-color: #F8FAFC;
+  color: #0A0F1E;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure Leaflet stays within container bounds */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  z-index: 10;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #0A0F1E;
+  font-weight: 800;
+}
+
+/* 
+  MANDATORY: Any button or container with dark backgrounds MUST have white fonts.
+  Only match actual background classes so outline, text-only, or inactive buttons are not affected.
+*/
+.text-white,
+.text-white *,
+button[class*="bg-[#1E3A8A]"],
+button[class*="bg-[#1E3A8A]"] *,
+button[class*="bg-[#1e3a8a]"],
+button[class*="bg-[#1e3a8a]"] *,
+button[class*="bg-[#1E40AF]"],
+button[class*="bg-[#1E40AF]"] *,
+button[class*="bg-[#1e40af]"],
+button[class*="bg-[#1e40af]"] *,
+button[class*="bg-blue-900"],
+button[class*="bg-blue-900"] *,
+button[class*="bg-blue-800"],
+button[class*="bg-blue-800"] *,
+[class*="bg-[#1E3A8A]"]:not(button[class*="bg-white"]),
+[class*="bg-[#1E3A8A]"]:not(button[class*="bg-white"]) *,
+[class*="bg-[#1e3a8a]"]:not(button[class*="bg-white"]),
+[class*="bg-[#1e3a8a]"]:not(button[class*="bg-white"]) *,
+button[class*="bg-[#0F1E36]"],
+button[class*="bg-[#0F1E36]"] *,
+button[class*="bg-[#0f1e36]"],
+button[class*="bg-[#0f1e36]"] *,
+[class*="bg-[#0F1E36]"]:not(button[class*="bg-white"]),
+[class*="bg-[#0F1E36]"]:not(button[class*="bg-white"]) *,
+[class*="bg-[#0f1e36]"]:not(button[class*="bg-white"]),
+[class*="bg-[#0f1e36]"]:not(button[class*="bg-white"]) *,
+.bg-navy-main,
+.bg-navy-main *,
+button.text-white,
+button.text-white *,
+button[class*="bg-slate-9"],
+button[class*="bg-slate-9"] *,
+button[class*="bg-slate-8"],
+button[class*="bg-slate-8"] *,
+button[class*="bg-slate-7"],
+button[class*="bg-slate-7"] *,
+button[class*="bg-indigo-9"],
+button[class*="bg-indigo-9"] *,
+button[class*="bg-indigo-8"],
+button[class*="bg-indigo-8"] *,
+button[class*="bg-indigo-7"],
+button[class*="bg-indigo-7"] *,
+button[class*="bg-indigo-6"],
+button[class*="bg-indigo-6"] *,
+button[class*="bg-emerald-6"],
+button[class*="bg-emerald-6"] *,
+button[class*="bg-emerald-7"],
+button[class*="bg-emerald-7"] *,
+button[class*="bg-rose-6"],
+button[class*="bg-rose-6"] *,
+button[class*="bg-rose-7"],
+button[class*="bg-rose-7"] *,
+button[class*="bg-gray-9"],
+button[class*="bg-gray-9"] *,
+button[class*="bg-gray-8"],
+button[class*="bg-gray-8"] *,
+button[class*="bg-zinc-9"],
+button[class*="bg-zinc-9"] *,
+button[class*="bg-zinc-8"],
+button[class*="bg-zinc-8"] *,
+a.text-white,
+a.text-white *,
+a[class*="bg-slate-9"],
+a[class*="bg-slate-9"] *,
+a[class*="bg-slate-8"],
+a[class*="bg-slate-8"] *,
+a[class*="bg-indigo-6"],
+a[class*="bg-indigo-6"] *,
+a[class*="bg-indigo-7"],
+a[class*="bg-indigo-7"] *,
+a[class*="bg-[#0F1E36]"],
+a[class*="bg-[#0F1E36]"] *,
+.bg-indigo-950,
+.bg-indigo-900,
+.bg-slate-900,
+.bg-slate-800,
+.bg-slate-950,
+.bg-gray-900,
+[class*="bg-indigo-9"],
+[class*="bg-slate-9"],
+[class*="bg-slate-8"] {
+  color: #FFFFFF !important;
+}
+
+/* 
+  LIGHT MODE ONLY: White, light, or unselected buttons MUST ALWAYS have dark legible text.
+*/
+html:not(.dark) button.bg-white,
+html:not(.dark) button.bg-white *,
+html:not(.dark) button[class*="bg-white"],
+html:not(.dark) button[class*="bg-white"] *,
+html:not(.dark) button[class*="bg-slate-50"],
+html:not(.dark) button[class*="bg-slate-50"] *,
+html:not(.dark) button[class*="bg-slate-100"],
+html:not(.dark) button[class*="bg-slate-100"] *,
+html:not(.dark) button[class*="bg-slate-200"],
+html:not(.dark) button[class*="bg-slate-200"] *,
+html:not(.dark) button[class*="bg-gray-50"],
+html:not(.dark) button[class*="bg-gray-50"] *,
+html:not(.dark) button[class*="bg-gray-100"],
+html:not(.dark) button[class*="bg-gray-100"] * {
+  color: #0F172A !important;
+}
+
+/* Light mode button hover */
+html:not(.dark) button[class*="bg-white"]:hover,
+html:not(.dark) button[class*="bg-white"]:hover *,
+html:not(.dark) button[class*="bg-slate-50"]:hover,
+html:not(.dark) button[class*="bg-slate-50"]:hover *,
+html:not(.dark) button[class*="bg-slate-100"]:hover,
+html:not(.dark) button[class*="bg-slate-100"]:hover * {
+  color: #1E3A8A !important;
+}
+
+/* Outline button text */
+button[class*="border-[#1E3A8A]"][class*="bg-transparent"],
+button[class*="border-[#1E3A8A]"][class*="bg-transparent"] * {
+  color: #1E3A8A !important;
+}
+
+/* Card hover float elevation effect across the application */
+.card-hover-float,
+.hover-float {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease !important;
+}
+
+.card-hover-float:hover,
+.hover-float:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.12), 0 6px 14px -2px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Preserve accent colored badges and icons within buttons & dark containers */
+button [class*="text-amber"],
+[class*="bg-indigo-9"] [class*="text-amber"],
+[class*="bg-slate-9"] [class*="text-amber"],
+[class*="bg-slate-8"] [class*="text-amber"],
+[class*="bg-indigo-6"] [class*="text-amber"] {
+  color: #FBBF24 !important;
+}
+
+button [class*="text-emerald"],
+[class*="bg-indigo-9"] [class*="text-emerald"],
+[class*="bg-slate-9"] [class*="text-emerald"],
+[class*="bg-slate-8"] [class*="text-emerald"],
+[class*="bg-indigo-6"] [class*="text-emerald"] {
+  color: #34D399 !important;
+}
+
+button [class*="text-rose"],
+[class*="bg-indigo-9"] [class*="text-rose"],
+[class*="bg-slate-9"] [class*="text-rose"],
+[class*="bg-slate-8"] [class*="text-rose"],
+[class*="bg-indigo-6"] [class*="text-rose"] {
+  color: #FB7185 !important;
+}
+
+[class*="bg-indigo-9"] [class*="text-slate-4"],
+[class*="bg-slate-9"] [class*="text-slate-4"],
+[class*="bg-slate-8"] [class*="text-slate-4"] {
+  color: #94A3B8 !important;
+}
+
+[class*="bg-indigo-9"] [class*="text-slate-3"],
+[class*="bg-slate-9"] [class*="text-slate-3"],
+[class*="bg-slate-8"] [class*="text-slate-3"] {
+  color: #CBD5E1 !important;
+}
+
+/* Base button text inheritance */
+button {
+  color: inherit;
+}
+
+/* Custom scrollbar for data tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styling for Bank-Ready Project Report */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-break-before {
+    page-break-before: always;
+  }
+}
+
+/* =========================================================================
+   PRISTINE LIGHT MODE GUARANTEE
+   Ensures light mode is always soft ash-slate (#F8FAFC) and white cards.
+   ========================================================================= */
+
+html:not(.dark),
+html:not(.dark) body {
+  background-color: #F8FAFC !important;
+  color: #0A0F1E !important;
+}
+
+html:not(.dark) header {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+html:not(.dark) .bg-white,
+html:not(.dark) [class*="bg-white"] {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #0A0F1E !important;
+}
+
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) h5,
+html:not(.dark) h6 {
+  color: #0A0F1E !important;
+}
+
+/* =========================================================================
+   CALM, EYE-FRIENDLY PURE BLACK DARK MODE STYLES
+   - Pitch neutral black #000000 background
+   - Dark neutral surfaces (#0D0D0D, #111111, #161616)
+   - Soft, calm, non-flashy off-white text (#D1D5DB / #9CA3AF)
+   - Absolutely NO glare or blinding stark #FFFFFF
+   - Absolutely NO blue text pollution (all indigo/blue/sky text becomes #D1D5DB)
+   ========================================================================= */
+
+html.dark {
+  color-scheme: dark;
+}
+
+.dark,
+.dark body {
+  background-color: #000000 !important;
+  color: #D1D5DB !important;
+}
+
+.dark header {
+  background-color: #0A0A0A !important;
+  border-color: #262626 !important;
+}
+
+/* Primary card surfaces (pure neutral black / dark charcoal) */
+.dark .bg-white,
+.dark [class*="bg-white"] {
+  background-color: #111111 !important;
+  border-color: #262626 !important;
+  color: #D1D5DB !important;
+}
+
+/* Secondary neutral containers */
+.dark .bg-slate-50,
+.dark [class*="bg-slate-50"],
+.dark .bg-gray-50,
+.dark [class*="bg-gray-50"] {
+  background-color: #141414 !important;
+  border-color: #262626 !important;
+}
+
+.dark .bg-slate-100,
+.dark [class*="bg-slate-100"],
+.dark .bg-gray-100,
+.dark [class*="bg-gray-100"] {
+  background-color: #181818 !important;
+  border-color: #2C2C2C !important;
+}
+
+.dark .bg-slate-200,
+.dark [class*="bg-slate-200"],
+.dark .bg-gray-200,
+.dark [class*="bg-gray-200"] {
+  background-color: #202020 !important;
+  border-color: #333333 !important;
+}
+
+/* Neutral borders */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .divide-slate-100,
+.dark .divide-slate-200 {
+  border-color: #262626 !important;
+}
+
+/* Headings in dark mode: calm, gentle, non-flashy soft off-white (NOT stark blinding white) */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #D1D5DB !important;
+  font-weight: 700 !important;
+}
+
+/* Body text in dark mode: calm, muted soft grey (easy on eyes) */
+.dark p,
+.dark label,
+.dark li,
+.dark td,
+.dark th {
+  color: #9CA3AF !important;
+}
+
+.dark span:not([class*="text-emerald"]):not([class*="text-amber"]):not([class*="text-rose"]):not([class*="text-cyan"]) {
+  color: #9CA3AF;
+}
+
+.dark strong,
+.dark b,
+.dark [class*="font-bold"],
+.dark [class*="font-extrabold"],
+.dark [class*="font-black"] {
+  color: #D1D5DB !important;
+}
+
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-gray-950,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-neutral-900,
+.dark .text-neutral-800,
+.dark .text-white {
+  color: #D1D5DB !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-neutral-700,
+.dark .text-neutral-600,
+.dark .text-neutral-500,
+.dark .text-neutral-400,
+.dark .text-slate-400,
+.dark .text-gray-400 {
+  color: #9CA3AF !important;
+}
+
+/* 
+  ELIMINATE ALL BLUE TEXT IN DARK MODE:
+  Convert all indigo, blue, and sky text classes to calm soft off-white.
+*/
+.dark .text-indigo-950,
+.dark .text-indigo-900,
+.dark .text-indigo-800,
+.dark .text-indigo-700,
+.dark .text-indigo-600,
+.dark .text-indigo-500,
+.dark .text-indigo-400,
+.dark .text-indigo-300,
+.dark .text-indigo-200,
+.dark .text-blue-950,
+.dark .text-blue-900,
+.dark .text-blue-800,
+.dark .text-blue-700,
+.dark .text-blue-600,
+.dark .text-blue-500,
+.dark .text-blue-400,
+.dark .text-blue-300,
+.dark .text-blue-200,
+.dark .text-sky-950,
+.dark .text-sky-900,
+.dark .text-sky-800,
+.dark .text-sky-700,
+.dark .text-sky-600,
+.dark .text-sky-500,
+.dark .text-sky-400,
+.dark .text-sky-300,
+.dark .text-sky-200 {
+  color: #D1D5DB !important;
+}
+
+/* Also catch Tailwind arbitrary dark:text classes */
+.dark [class*="dark:text-indigo"],
+.dark [class*="dark:text-blue"],
+.dark [class*="dark:text-sky"],
+.dark [class*="dark:text-white"] {
+  color: #D1D5DB !important;
+}
+
+/* Subtle icon tint in dark mode - soft muted pearl */
+.dark svg[class*="text-indigo"],
+.dark svg[class*="text-blue"],
+.dark svg[class*="text-sky"] {
+  color: #9CA3AF !important;
+}
+
+/* Tinted cards in dark mode: subtle dark backgrounds WITHOUT forcing child text to blue */
+.dark [class*="bg-emerald-50"],
+.dark [class*="bg-emerald-100"] {
+  background-color: #042114 !important;
+  border-color: #065F46 !important;
+}
+
+.dark [class*="bg-amber-50"],
+.dark [class*="bg-amber-100"] {
+  background-color: #221402 !important;
+  border-color: #78350F !important;
+}
+
+.dark [class*="bg-rose-50"],
+.dark [class*="bg-rose-100"] {
+  background-color: #22060A !important;
+  border-color: #881337 !important;
+}
+
+.dark [class*="bg-sky-50"],
+.dark [class*="bg-sky-100"],
+.dark [class*="bg-blue-50"],
+.dark [class*="bg-blue-100"] {
+  background-color: #061726 !important;
+  border-color: #0369A1 !important;
+}
+
+.dark [class*="bg-indigo-50"],
+.dark [class*="bg-indigo-100"] {
+  background-color: #121216 !important;
+  border-color: #2C2C35 !important;
+}
+
+.dark [class*="bg-purple-50"],
+.dark [class*="bg-purple-100"],
+.dark [class*="bg-violet-50"],
+.dark [class*="bg-violet-100"] {
+  background-color: #170724 !important;
+  border-color: #5B21B6 !important;
+}
+
+.dark [class*="bg-teal-50"],
+.dark [class*="bg-teal-100"] {
+  background-color: #04201E !important;
+  border-color: #115E59 !important;
+}
+
+/* Specific status & category badge pills in dark mode: gentle muted colored text */
+.dark span[class*="text-emerald"] {
+  color: #6EE7B7 !important;
+}
+
+.dark span[class*="text-amber"] {
+  color: #FCD34D !important;
+}
+
+.dark span[class*="text-rose"] {
+  color: #FDA4AF !important;
+}
+
+/* Inputs, selects, and textareas in dark mode */
+.dark input[type="text"],
+.dark input[type="number"],
+.dark input[type="password"],
+.dark input[type="email"],
+.dark textarea,
+.dark select {
+  background-color: #141414 !important;
+  border-color: #2E2E2E !important;
+  color: #D1D5DB !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6B7280 !important;
+}
+
+/* Buttons in dark mode: sleek neutral dark with soft readable off-white text */
+.dark button.bg-white,
+.dark button[class*="bg-white"],
+.dark button[class*="bg-slate-50"],
+.dark button[class*="bg-slate-100"],
+.dark button[class*="bg-gray-50"],
+.dark button[class*="bg-gray-100"] {
+  background-color: #181818 !important;
+  border-color: #2E2E2E !important;
+  color: #D1D5DB !important;
+}
+
+.dark button.bg-white *,
+.dark button[class*="bg-white"] *,
+.dark button[class*="bg-slate-50"] *,
+.dark button[class*="bg-slate-100"] *,
+.dark button[class*="bg-gray-50"] *,
+.dark button[class*="bg-gray-100"] * {
+  color: #D1D5DB !important;
+}
+
+.dark button.bg-white:hover,
+.dark button[class*="bg-white"]:hover,
+.dark button[class*="bg-slate-50"]:hover,
+.dark button[class*="bg-slate-100"]:hover {
+  background-color: #242424 !important;
+  color: #E5E7EB !important;
+}
+
+/* Dropdowns in dark mode */
+.dark .shadow-2xl,
+.dark .shadow-xl {
+  background-color: #0F0F0F !important;
+  border-color: #262626 !important;
+}
+
+/* Card hover float in dark mode */
+.dark .card-hover-float:hover,
+.dark .hover-float:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tables in dark mode */
+.dark table thead tr {
+  background-color: #141414 !important;
+  border-color: #262626 !important;
+}
+
+.dark table thead th {
+  color: #D1D5DB !important;
+}
+
+.dark table tbody td {
+  border-color: #1E1E1E !important;
+  color: #9CA3AF !important;
+}
+
+/* Dark mode scrollbars */
+.dark ::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #383838;
+}
