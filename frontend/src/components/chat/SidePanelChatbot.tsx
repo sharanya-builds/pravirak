@@ -10,10 +10,12 @@ import {
   VolumeX, 
   ChevronRight,
   MapPin,
-  MessageSquare
+  MessageSquare,
+  Info
 } from 'lucide-react';
 import { BusinessDecisionResult, BusinessInput, FinancialAnalysis, LocationData } from '../../types';
 import { advisorApi } from '../../api/client';
+import { buildAnalysisContext } from '../../utils/buildAnalysisContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { VoiceInputButton } from '../common/VoiceInputButton';
 
@@ -29,6 +31,7 @@ interface ChatMessage {
   sender: 'user' | 'assistant';
   text: string;
   model?: string;
+  aiGenerated?: boolean;
   timestamp: string;
 }
 
@@ -161,33 +164,44 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
     setIsLoading(true);
 
     try {
+      const analysisContext = (input && location && financials && decisionResult)
+        ? buildAnalysisContext(input, location, financials, decisionResult)
+        : {
+            businessIdea: input?.businessIdea || 'Small Business Venture',
+            businessCategory: input?.category || 'Retail & Services',
+            location: location ? {
+              village: location.village ?? null,
+              block: location.block ?? null,
+              district: location.district ?? null,
+              state: location.state,
+              areaName: location.areaName,
+              city: location.city
+            } : {
+              village: null,
+              block: null,
+              district: null,
+              state: 'India',
+              areaName: 'Location',
+              city: 'India'
+            },
+            ownCapital: financials?.ownCapital || 0,
+            projectCost: financials?.projectCost || 0,
+            loanRequired: financials?.loanRequired || 0,
+            monthlyEMI: financials?.monthlyEMI || 0,
+            quarterlyPayment: Math.round((financials?.monthlyEMI || 0) * 3),
+            dscr: financials?.dscr || 0,
+            safetyStatus: financials?.safetyStatus || 'UNKNOWN',
+            decision: decisionResult?.decision || 'PENDING',
+            competitorCount: location?.competitorsNearbyCount || 0,
+            competitorCountProvenance: location?.competitorsCountProvenance || 'ESTIMATED',
+            topRisks: (decisionResult?.riskFactors ?? []).slice(0, 3).map((r) => r.title),
+            schemeName: null
+          };
+
       const response = await advisorApi.ask({
         question: textToSend,
-        businessIdea: input?.businessIdea || 'Small Business Venture',
-        category: input?.category || 'Retail & Services',
-        location: location ? {
-          areaName: location.areaName,
-          city: location.city,
-          state: location.state,
-          competitorsNearbyCount: location.competitorsNearbyCount,
-          footfallMonthly: location.footfallMonthly
-        } : undefined,
-        financials: financials ? {
-          projectCost: financials.projectCost,
-          ownCapital: financials.ownCapital,
-          loanRequired: financials.loanRequired,
-          monthlyEMI: financials.monthlyEMI,
-          projectedMonthlyRevenue: financials.projectedMonthlyRevenue,
-          projectedMonthlyOpex: financials.projectedMonthlyOpex,
-          monthlyNetSurplus: financials.monthlyNetSurplus,
-          dscr: financials.dscr,
-          safetyStatus: financials.safetyStatus
-        } : undefined,
-        decision: decisionResult ? {
-          decision: decisionResult.decision,
-          headline: decisionResult.headline
-        } : undefined,
-        language
+        language,
+        analysisContext
       });
 
       const assistantMessage: ChatMessage = {
@@ -195,6 +209,7 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
         sender: 'assistant',
         text: response.answer || (language === 'te' ? 'సమాధానాన్ని పొందలేకపోయాము.' : language === 'hi' ? 'उत्तर प्राप्त करने में असमर्थ।' : 'Could not generate an answer at this time.'),
         model: response.model,
+        aiGenerated: true,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -289,7 +304,7 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
                   {t.askPravirakTitle}
                 </h3>
                 <span className="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold rounded-full">
-                  LIVE NLP
+                  AI Grounded
                 </span>
               </div>
               {input?.businessIdea && (
@@ -372,6 +387,14 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
                 <div className="whitespace-pre-wrap font-normal select-text">
                   {msg.text}
                 </div>
+
+                {/* Attribution line */}
+                {msg.sender === 'assistant' && msg.aiGenerated && (
+                  <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/70 flex items-start gap-1 text-[10px] text-slate-500 dark:text-slate-500 leading-snug">
+                    <Info className="w-3 h-3 shrink-0 mt-0.5 text-indigo-400 dark:text-indigo-500" />
+                    <span>{t.aiAnswerAttribution}</span>
+                  </div>
+                )}
 
                 {msg.model && (
                   <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 text-right italic font-mono">

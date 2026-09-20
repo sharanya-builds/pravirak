@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { LocalFeasibilityReport, LocationData, Provenance } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import {
@@ -36,6 +37,9 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
   isPrintView = false
 }) => {
   const { t } = useLanguage();
+  const [showAllOpps, setShowAllOpps] = useState(false);
+  const [showAllSwot, setShowAllSwot] = useState(false);
+  const [showAllThreats, setShowAllThreats] = useState(false);
 
   if (isLoading) {
     return (
@@ -249,7 +253,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          {report.opportunities.map((opp, idx) => (
+          {(showAllOpps ? report.opportunities : report.opportunities.slice(0, 3)).map((opp, idx) => (
             <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
               <div>
                 <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-indigo-100 text-indigo-800 mb-2">
@@ -261,6 +265,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             </div>
           ))}
         </div>
+        {report.opportunities.length > 3 && (
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={() => setShowAllOpps(!showAllOpps)}
+              className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+            >
+              {showAllOpps ? t.showLess : `${t.showMore} (${report.opportunities.length - 3})`}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Subsection 3: SWOT Analysis (2x2 Grid) */}
@@ -270,9 +285,14 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700">
               <Grid2X2 className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
-              {t.swotTitle}
-            </h3>
+            <div>
+              <h3 className="text-base font-extrabold text-slate-950">
+                {t.swotTitle}
+              </h3>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Strengths, Weaknesses, Opportunities, Threats (SWOT)
+              </p>
+            </div>
           </div>
           {renderBadge(report.provenance)}
         </div>
@@ -283,11 +303,11 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="flex items-center gap-2 mb-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-700" />
               <h4 className="text-xs sm:text-sm font-extrabold text-emerald-950 uppercase tracking-wider">
-                {t.swotStrengths}
+                {t.swotStrengths} (Internal Advantages)
               </h4>
             </div>
             <ul className="space-y-1.5 text-xs text-emerald-900 font-medium">
-              {report.swot.strengths.map((s, i) => (
+              {(showAllSwot ? report.swot.strengths : report.swot.strengths.slice(0, 3)).map((s, i) => (
                 <li key={i} className="flex items-start gap-1.5">
                   <span className="text-emerald-600 font-bold">•</span>
                   <span>{s}</span>
@@ -301,11 +321,11 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="flex items-center gap-2 mb-2.5">
               <AlertTriangle className="w-4 h-4 text-amber-700" />
               <h4 className="text-xs sm:text-sm font-extrabold text-amber-950 uppercase tracking-wider">
-                {t.swotWeaknesses}
+                {t.swotWeaknesses} (Internal Limitations)
               </h4>
             </div>
             <ul className="space-y-1.5 text-xs text-amber-900 font-medium">
-              {report.swot.weaknesses.map((w, i) => (
+              {(showAllSwot ? report.swot.weaknesses : report.swot.weaknesses.slice(0, 3)).map((w, i) => (
                 <li key={i} className="flex items-start gap-1.5">
                   <span className="text-amber-600 font-bold">•</span>
                   <span>{w}</span>
@@ -319,11 +339,11 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="flex items-center gap-2 mb-2.5">
               <TrendingUp className="w-4 h-4 text-indigo-700" />
               <h4 className="text-xs sm:text-sm font-extrabold text-indigo-950 uppercase tracking-wider">
-                {t.swotOpportunities}
+                {t.swotOpportunities} (External Potentials)
               </h4>
             </div>
             <ul className="space-y-1.5 text-xs text-indigo-900 font-medium">
-              {report.swot.opportunities.map((o, i) => (
+              {(showAllSwot ? report.swot.opportunities : report.swot.opportunities.slice(0, 3)).map((o, i) => (
                 <li key={i} className="flex items-start gap-1.5">
                   <span className="text-indigo-600 font-bold">•</span>
                   <span>{o}</span>
@@ -337,11 +357,11 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="flex items-center gap-2 mb-2.5">
               <ShieldAlert className="w-4 h-4 text-rose-700" />
               <h4 className="text-xs sm:text-sm font-extrabold text-rose-950 uppercase tracking-wider">
-                {t.swotThreats}
+                {t.swotThreats} (External Hazards)
               </h4>
             </div>
             <ul className="space-y-1.5 text-xs text-rose-900 font-medium">
-              {report.swot.threats.map((th, i) => (
+              {(showAllSwot ? report.swot.threats : report.swot.threats.slice(0, 3)).map((th, i) => (
                 <li key={i} className="flex items-start gap-1.5">
                   <span className="text-rose-600 font-bold">•</span>
                   <span>{th}</span>
@@ -350,6 +370,18 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             </ul>
           </div>
         </div>
+
+        {(report.swot.strengths.length > 3 || report.swot.weaknesses.length > 3 || report.swot.opportunities.length > 3 || report.swot.threats.length > 3) && (
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setShowAllSwot(!showAllSwot)}
+              className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+            >
+              {showAllSwot ? t.showLess : t.showMore}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Subsection 4: Threats & Mitigations */}
@@ -367,7 +399,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
         </div>
 
         <div className="space-y-3">
-          {report.threats.map((threat, idx) => {
+          {(showAllThreats ? report.threats : report.threats.slice(0, 3)).map((threat, idx) => {
             const badge = getThreatBadge(threat.type);
             return (
               <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200">
@@ -387,6 +419,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             );
           })}
         </div>
+        {report.threats.length > 3 && (
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={() => setShowAllThreats(!showAllThreats)}
+              className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+            >
+              {showAllThreats ? t.showLess : `${t.showMore} (${report.threats.length - 3})`}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Subsection 5: Competitor Map (from Overpass) */}
@@ -396,9 +439,11 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
               <MapPin className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
-              {t.competitorMapTitle}
-            </h3>
+            <div>
+              <h3 className="text-base font-extrabold text-slate-950">
+                {t.competitorMapTitle} (OpenStreetMap - OSM)
+              </h3>
+            </div>
           </div>
           {renderBadge(location.competitorsCountProvenance || 'MEASURED')}
         </div>

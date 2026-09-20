@@ -71,9 +71,15 @@ export function useSpeechRecognition(options: SpeechRecognitionHookOptions = {})
         return;
       }
 
-      // Abort any existing instance first
+      // Abort and detach any existing instance first
       if (recognitionRef.current) {
-        try { recognitionRef.current.abort(); } catch { /* ignore */ }
+        const old = recognitionRef.current;
+        recognitionRef.current = null;
+        old.onstart = null;
+        old.onresult = null;
+        old.onerror = null;
+        old.onend = null;
+        try { old.abort(); } catch { /* ignore */ }
       }
 
       try {
@@ -116,9 +122,11 @@ export function useSpeechRecognition(options: SpeechRecognitionHookOptions = {})
             return;
           }
 
-          // "language-not-supported": retry once with a broader locale tag.
-          if (errType === 'language-not-supported' && !isFallback) {
-            const fallback = LANG_FALLBACKS[locale];
+          // "language-not-supported" or "network": in many Chrome/Chromium builds,
+          // unsupported or failed regional locales (like te-IN, hi-IN, en-IN) return
+          // "network" or "language-not-supported". Retry once with a broader fallback locale.
+          if ((errType === 'language-not-supported' || errType === 'network') && !isFallback) {
+            const fallback = LANG_FALLBACKS[locale] || (locale !== 'en-US' ? 'en-US' : undefined);
             if (fallback) {
               setIsListening(false);
               // Small delay before retrying so Chrome releases the mic handle
