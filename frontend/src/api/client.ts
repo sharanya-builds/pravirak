@@ -148,17 +148,38 @@ export const reportApi = {
 
 export interface AdvisorAskPayload {
   question: string;
-  businessIdea: string;
+  language?: string;
+  /** Compact deterministic context produced by buildAnalysisContext(). Preferred over the legacy flat fields. */
+  analysisContext?: {
+    businessIdea?: string;
+    businessCategory?: string;
+    location?: Record<string, string | null>;
+    ownCapital?: number;
+    projectCost?: number;
+    loanRequired?: number;
+    monthlyEMI?: number;
+    quarterlyPayment?: number;
+    dscr?: number;
+    safetyStatus?: string;
+    decision?: string;
+    competitorCount?: number;
+    competitorCountProvenance?: string;
+    topRisks?: string[];
+    schemeName?: string | null;
+    [key: string]: unknown;
+  };
+  // Legacy flat fields — still accepted by the backend fallback
+  businessIdea?: string;
   category?: string;
   location?: any;
   financials?: any;
   decision?: any;
-  language?: string;
 }
 
 export interface AdvisorAskResponse {
   answer: string;
   grounded?: boolean;
+  fallback?: boolean;
   model?: string;
 }
 

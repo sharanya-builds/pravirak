@@ -45,7 +45,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
           {t.loadingFeasibility}
         </h3>
         <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-          Scanning spatial catchment radius (5 km & 10 km) via OpenStreetMap and compiling multi-dimensional feasibility schedule.
+          {t.loadingFeasibilityScanning}
         </p>
       </div>
     );
@@ -179,7 +179,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="text-xl font-extrabold text-slate-950 font-mono">
               {report.marketReach.competitors5kmCount ?? location.competitorsNearbyCount}
             </div>
-            <span className="text-[11px] text-slate-500">OpenStreetMap 5 km radial scan</span>
+            <span className="text-[11px] text-slate-500">{t.osm5kmScan}</span>
           </div>
 
           {/* 10 km Count */}
@@ -191,7 +191,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <div className="text-xl font-extrabold text-slate-950 font-mono">
               {report.marketReach.competitors10kmCount ?? Math.max(location.competitorsNearbyCount, 5)}
             </div>
-            <span className="text-[11px] text-slate-500">Expanded 10 km trade catchment</span>
+            <span className="text-[11px] text-slate-500">{t.expanded10kmCatchment}</span>
           </div>
 
           {/* Density per 10,000 */}
@@ -205,7 +205,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
                 <div className="text-xl font-extrabold text-indigo-950 font-mono">
                   {report.marketReach.densityPer10kAt5km} / 10k
                 </div>
-                <span className="text-[11px] text-slate-500">Calculated against verified population</span>
+                <span className="text-[11px] text-slate-500">{t.calculatedAgainstPop}</span>
               </>
             ) : (
               <div className="text-[11px] text-slate-500 font-medium leading-tight mt-1">
@@ -380,7 +380,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
                   {threat.description}
                 </p>
                 <div className="p-2.5 bg-emerald-50/70 rounded-lg border border-emerald-200 text-xs text-emerald-950">
-                  <strong className="font-bold text-emerald-900">Mitigation Strategy:</strong>{' '}
+                  <strong className="font-bold text-emerald-900">{t.mitigationStrategyLabel}</strong>{' '}
                   <span className="font-medium">{threat.mitigation}</span>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
         </div>
 
         <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed mb-3">
-          Spatial scan mapped <strong className="font-bold text-slate-950">{location.competitorsNearbyCount} direct competitors</strong> within the primary 1.5 km zone of <span className="font-semibold text-slate-900">{location.areaName}</span>.
+          Spatial scan mapped <strong className="font-bold text-slate-950">{location.competitorsNearbyCount} {t.competitorsNearby.toLowerCase()}</strong> {t.withinPrimary15kmZone} <span className="font-semibold text-slate-900">{location.areaName}</span>.
         </p>
 
         {location.competitors && location.competitors.length > 0 ? (
@@ -412,10 +412,10 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                 <tr>
-                  <th className="p-2.5 font-bold">Competitor Name</th>
-                  <th className="p-2.5 font-bold">Distance from Site</th>
-                  <th className="p-2.5 font-bold">Category Tag</th>
-                  <th className="p-2.5 font-bold">Data Provenance</th>
+                  <th className="p-2.5 font-bold">{t.competitorNameHeader}</th>
+                  <th className="p-2.5 font-bold">{t.distanceFromSiteHeader}</th>
+                  <th className="p-2.5 font-bold">{t.categoryTagHeader}</th>
+                  <th className="p-2.5 font-bold">{t.dataProvenanceHeader}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -478,7 +478,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       {/* Assumptions Footer */}
       {report.assumptions && report.assumptions.length > 0 && (
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600">
-          <span className="font-bold text-slate-800 block mb-1">Feasibility Model Assumptions:</span>
+          <span className="font-bold text-slate-800 block mb-1">{t.feasibilityAssumptionsTitle}</span>
           <ul className="list-disc list-inside space-y-1 font-medium">
             {report.assumptions.map((a, i) => (
               <li key={i}>{a}</li>

@@ -179,7 +179,7 @@ export const SchemeLoanBreakdown: React.FC<SchemeLoanBreakdownProps> = ({
           </div>
 
           <div className="bg-white/70 dark:bg-black/30 rounded-2xl p-4 text-xs text-rose-950 dark:text-rose-200 space-y-1.5">
-            <p className="font-bold">Observations:</p>
+            <p className="font-bold">{t.observationsLabel}</p>
             <ul className="list-disc pl-5 space-y-1">
               {calculationResult.assumptions.map((item, idx) => (
                 <li key={idx}>{item}</li>
@@ -307,7 +307,7 @@ export const SchemeLoanBreakdown: React.FC<SchemeLoanBreakdownProps> = ({
           className="bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-xl p-3 text-xs text-indigo-950 dark:text-indigo-200"
           data-testid="scheme-reason"
         >
-          <span className="font-bold mr-1">Selection Reason:</span>
+          <span className="font-bold mr-1">{t.selectionReasonLabel}</span>
           <span>{whySelectedText}</span>
         </div>
       </div>

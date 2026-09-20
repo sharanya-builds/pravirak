@@ -4,6 +4,7 @@ import { ExplorerShell, NoActiveAnalysis } from './ExplorerShell';
 import { EvidenceCard } from '../../common/EvidenceCard';
 import { ActiveAnalysis } from './types';
 import { ConfidenceLevel } from '../../../types';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface EvidenceExplorerProps {
   analysis: ActiveAnalysis | null;
@@ -14,6 +15,7 @@ interface EvidenceExplorerProps {
 const FILTERS: Array<ConfidenceLevel | 'ALL'> = ['ALL', 'HIGH', 'MEDIUM', 'LOW'];
 
 export const EvidenceExplorer: React.FC<EvidenceExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<ConfidenceLevel | 'ALL'>('ALL');
 
   const filtered = useMemo(() => {
@@ -31,7 +33,7 @@ export const EvidenceExplorer: React.FC<EvidenceExplorerProps> = ({ analysis, on
   }, [analysis]);
 
   return (
-    <ExplorerShell icon={FileSearch} title="Evidence Explorer" description="Data sources and evidence quality" onBack={onBack}>
+    <ExplorerShell icon={FileSearch} title={t.exploreEvidence} description={t.exploreEvidenceDesc} onBack={onBack}>
       {!analysis ? (
         <NoActiveAnalysis onStartNew={onStartNew} />
       ) : (
@@ -68,9 +70,7 @@ export const EvidenceExplorer: React.FC<EvidenceExplorerProps> = ({ analysis, on
           </div>
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed">
-            <strong className="text-slate-800">Provenance discipline:</strong> PRAVIRAK distinguishes
-            observed/map-derived, sourced, estimated, demo and AI-interpreted information so you always know
-            how confident to be in each data point above.
+            {t.provenanceDisciplineNote}
           </div>
         </div>
       )}

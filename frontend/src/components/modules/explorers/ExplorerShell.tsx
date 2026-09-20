@@ -10,13 +10,14 @@ interface ExplorerShellProps {
 }
 
 export const ExplorerShell: React.FC<ExplorerShellProps> = ({ icon: Icon, title, description, onBack, children }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
           className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
-          aria-label="Back"
+          aria-label={t.backAriaLabel}
         >
           <ArrowLeft className="w-4.5 h-4.5" />
         </button>

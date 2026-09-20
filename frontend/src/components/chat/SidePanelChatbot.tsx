@@ -15,6 +15,7 @@ import {
 import { BusinessDecisionResult, BusinessInput, FinancialAnalysis, LocationData } from '../../types';
 import { advisorApi } from '../../api/client';
 import { useLanguage } from '../../context/LanguageContext';
+import { VoiceInputButton } from '../common/VoiceInputButton';
 
 interface SidePanelChatbotProps {
   input?: BusinessInput | null;
@@ -271,7 +272,7 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
       <div 
         role="dialog"
         aria-modal="true"
-        aria-label="Ask Pravirak Chatbot"
+        aria-label={t.askPravirakAriaLabel}
         className={`fixed top-0 right-0 h-full w-[460px] max-w-[95vw] bg-white dark:bg-[#0C1222] border-l border-slate-200 dark:border-slate-800 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-out transform ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -311,6 +312,7 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
             <button
               onClick={() => setIsOpen(false)}
               title={t.closeChat}
+              aria-label={t.closeChatAriaLabel}
               className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -423,15 +425,26 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
             }}
             className="flex items-center gap-2"
           >
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={t.chatPlaceholder}
-              disabled={isLoading}
-              className="flex-1 text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:bg-white dark:focus:bg-slate-900 font-medium"
-            />
+            <div className="relative flex-1 flex items-center">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={t.chatPlaceholder}
+                disabled={isLoading}
+                className="w-full text-xs sm:text-sm pl-3.5 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:bg-white dark:focus:bg-slate-900 font-medium"
+              />
+              <div className="absolute right-2">
+                <VoiceInputButton
+                  size="sm"
+                  disabled={isLoading}
+                  onTranscript={(spokenText) => {
+                    setInputText((prev) => (prev.trim() ? `${prev.trim()} ${spokenText}` : spokenText));
+                  }}
+                />
+              </div>
+            </div>
             <button
               type="submit"
               disabled={isLoading || !inputText.trim()}

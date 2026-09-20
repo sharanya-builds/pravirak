@@ -16,6 +16,7 @@ import { calculatePS } from '../../engine/psCalculator';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { GooglePlacesSearch, GooglePlacesSearchHandle } from '../common/GooglePlacesSearch';
 import { GoogleMapPreview } from '../common/GoogleMapPreview';
+import { VoiceInputButton } from '../common/VoiceInputButton';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface NewBusinessFlowProps {
@@ -353,14 +354,24 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
                 <p className="text-sm text-slate-600 mb-3">
                   {t.describeInOwnWords}
                 </p>
-                <textarea
-                  required
-                  rows={3}
-                  value={businessIdea}
-                  onChange={(e) => setBusinessIdea(e.target.value)}
-                  placeholder={t.describeHint}
-                  className="w-full text-base px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden text-slate-900 font-medium"
-                />
+                <div className="relative">
+                  <textarea
+                    required
+                    rows={3}
+                    value={businessIdea}
+                    onChange={(e) => setBusinessIdea(e.target.value)}
+                    placeholder={t.describeHint}
+                    className="w-full text-base px-4 py-3.5 pr-12 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden text-slate-900 font-medium"
+                  />
+                  <div className="absolute right-3 bottom-3">
+                    <VoiceInputButton
+                      size="sm"
+                      onTranscript={(spokenText) => {
+                        setBusinessIdea((prev) => (prev.trim() ? `${prev.trim()} ${spokenText}` : spokenText));
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>

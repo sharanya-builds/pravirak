@@ -90,7 +90,7 @@ CRITICAL RULES:
 1. Use ONLY the inputs provided.
 2. If data is not provided, state "data not available" instead of guessing or hallucinating.
 3. Tailor all advice strictly to the stated capital and micro-enterprise scale.
-4. Output in the requested language: ${langInstruction}
+4. Output in the requested language: ${langInstruction}. Keep official scheme names, programs, and statutory terms (such as PMEGP, MUDRA, Udyam, GST, FSSAI) in their original English form.
 5. NEVER invent or output rupee amounts or numerical counts that were not explicitly given. In pricing, provide qualitative strategic guidance only (e.g. cost-plus margin, local mandi benchmark matching). Do not invent prices.
 6. Return only a valid JSON object matching the schema.`;
 }

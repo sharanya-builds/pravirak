@@ -86,7 +86,7 @@ export const MarketMap: React.FC<MarketMapProps> = ({
     });
 
     L.marker([location.lat, location.lng], { icon: primaryIcon })
-      .bindPopup(`<strong>${location.areaName}</strong><br/>Proposed Business Operating Location<br/>Coordinates: ${location.lat.toFixed(4)}°N, ${location.lng.toFixed(4)}°E`)
+      .bindPopup(`<strong>${location.areaName}</strong><br/>${t.proposedLocationTitle}<br/>Coordinates: ${location.lat.toFixed(4)}°N, ${location.lng.toFixed(4)}°E`)
       .addTo(layerGroup);
 
     // 2. Alternative Recommended Site Marker
@@ -330,11 +330,11 @@ export const MarketMap: React.FC<MarketMapProps> = ({
               </button>
             </div>
             <div className="text-slate-600 space-y-1 mt-1">
-              <div className="text-[11px]">Type: <strong className="text-slate-800">{selectedEntity.type}</strong></div>
+              <div className="text-[11px]">{t.typeLabel} <strong className="text-slate-800">{selectedEntity.type}</strong></div>
               {selectedEntity.distance && <div className="text-[11px]">Distance: {selectedEntity.distance}</div>}
               <div className="text-[11px] text-slate-700 leading-snug">{selectedEntity.notes}</div>
               <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                <span className="text-slate-400">Data Origin:</span>
+                <span className="text-slate-400">{t.dataOriginLabel}</span>
                 <span className="font-extrabold px-1.5 py-0.2 rounded-xs bg-slate-100 text-slate-700 border border-slate-200">
                   {selectedEntity.provenance}
                 </span>

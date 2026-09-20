@@ -2,6 +2,7 @@ import React from 'react';
 import { Truck, Zap, Package, Users } from 'lucide-react';
 import { ExplorerShell, NoActiveAnalysis } from './ExplorerShell';
 import { ActiveAnalysis } from './types';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface OperationsExplorerProps {
   analysis: ActiveAnalysis | null;
@@ -71,13 +72,14 @@ const SECTION_LABELS: Record<string, string> = {
 };
 
 export const OperationsExplorer: React.FC<OperationsExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t } = useLanguage();
   const checklist = analysis ? buildOperationsChecklist(analysis.input.businessIdea) : null;
 
   return (
     <ExplorerShell
       icon={Truck}
-      title="Operations Explorer"
-      description="Suppliers, infrastructure and logistics"
+      title={t.exploreOperations}
+      description={t.exploreOperationsDesc}
       onBack={onBack}
     >
       {!analysis || !checklist ? (
@@ -110,18 +112,18 @@ export const OperationsExplorer: React.FC<OperationsExplorerProps> = ({ analysis
 
           {/* Location-derived logistics context */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Nearby Transit & Commercial Context</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t.nearbyTransitContext}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <p className="font-semibold text-slate-700 mb-1.5">Transit Points</p>
+                <p className="font-semibold text-slate-700 mb-1.5">{t.transitPointsTitle}</p>
                 <ul className="space-y-1 text-slate-500">
-                  {analysis.location.transitPoints.map((t, i) => (
-                    <li key={i}>• {t}</li>
+                  {analysis.location.transitPoints.map((tr, i) => (
+                    <li key={i}>• {tr}</li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p className="font-semibold text-slate-700 mb-1.5">Commercial Hubs Nearby</p>
+                <p className="font-semibold text-slate-700 mb-1.5">{t.commercialHubsNearbyTitle}</p>
                 <ul className="space-y-1 text-slate-500">
                   {analysis.location.commercialHubs.map((c, i) => (
                     <li key={i}>• {c}</li>

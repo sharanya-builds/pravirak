@@ -540,6 +540,124 @@ export interface TranslationStrings {
   densityPer10kLabel: string;
   aiReportBadge: string;
   templateReportBadge: string;
+
+  // Audit Additions - Shell & Navigation
+  browsingAsGuestNotice: string;
+  platformFooterSub: string;
+  platformEthos: string;
+  platformTaglineBuiltFor: string;
+  ariaNotifications: string;
+  ariaOpenNav: string;
+  guestUser: string;
+
+  // Help Modal
+  helpModalTitle: string;
+  helpPoint1Title: string;
+  helpPoint1Desc: string;
+  helpPoint2Title: string;
+  helpPoint2Desc: string;
+  helpPoint3Title: string;
+  helpPoint3Desc: string;
+  helpPoint4Title: string;
+  helpPoint4Desc: string;
+  helpPoint5Title: string;
+  helpPoint5Desc: string;
+
+  // Explorer Descriptions
+  exploreMarketDesc: string;
+  exploreFinanceDesc: string;
+  exploreBusinessDesc: string;
+  exploreOperationsDesc: string;
+  exploreRiskDesc: string;
+  exploreComplianceDesc: string;
+  exploreGrowthDesc: string;
+  exploreEvidenceDesc: string;
+  exploreAskDesc: string;
+
+  // Final Business Plan & Scheme Loan Breakdown
+  identifiedCompetitorsOsm: string;
+  promoterCapitalM: string;
+  planProjectCostB: string;
+  requiredMarginPercent: string;
+  maxSupportableM: string;
+  appliedCaseLabel: string;
+  statutorySchemeRulesApplied: string;
+  platformEnterpriseDecisionPlatform: string;
+  planCopiedAlert: string;
+  shareSummaryTitle: string;
+  observationsLabel: string;
+  selectionReasonLabel: string;
+  footfallInRadialCatchment: string;
+
+  // Local Feasibility View
+  loadingFeasibilityScanning: string;
+  osm5kmScan: string;
+  expanded10kmCatchment: string;
+  calculatedAgainstPop: string;
+  mitigationStrategyLabel: string;
+  withinPrimary15kmZone: string;
+  competitorNameHeader: string;
+  distanceFromSiteHeader: string;
+  categoryTagHeader: string;
+  dataProvenanceHeader: string;
+  feasibilityAssumptionsTitle: string;
+
+  // Existing Business Flow
+  includesStockRentWages: string;
+  enterZeroIfDebtFree: string;
+  adjustFinancialInputs: string;
+  expansionRequiresOutlay: string;
+  afterDebtServicingSurplus: string;
+  currentMonthlyNetProfitLabel: string;
+  monthlyTurnoverLabel: string;
+  expansionCapitalNeededLabel: string;
+  placeholderBusinessIdea: string;
+  placeholderLocation: string;
+
+  // Explorers & Dashboard
+  whatShouldYouDoNext: string;
+  higherScoringNearbyArea: string;
+  scaleUpScenario15x: string;
+  alreadyRunningThisBusiness: string;
+  executionMilestonesTitle: string;
+  comparableOpportunitiesTitle: string;
+  businessTypeHeader: string;
+  typicalCapexHeader: string;
+  typicalRevenueHeader: string;
+  typicalOpexHeader: string;
+  nearbyTransitContext: string;
+  transitPointsTitle: string;
+  commercialHubsNearbyTitle: string;
+  recommendedLoanAmountLabel: string;
+  allMatchedSchemesTitle: string;
+  identifiedRiskFactorsTitle: string;
+  requiredLikelyLicensesTitle: string;
+  implementationPlan306090: string;
+  provenanceDisciplineNote: string;
+  readAnswerAloud: string;
+  backAriaLabel: string;
+  askPravirakAriaLabel: string;
+  closeChatAriaLabel: string;
+
+  // Voice Input
+  voiceInputStart: string;
+  voiceInputStop: string;
+  voiceInputListening: string;
+  voiceInputErrorPermission: string;
+  voiceInputErrorNetwork: string;
+  voiceInputErrorGeneric: string;
+  aiAnswerAttribution: string;
+
+  // Error & Progress & Map
+  somethingWentWrong: string;
+  unexpectedErrorDesc: string;
+  reloadPage: string;
+  publicVerificationChecklist: string;
+  statusComplete: string;
+  statusProcessing: string;
+  proposedLocationTitle: string;
+  typeLabel: string;
+  dataOriginLabel: string;
 }
 
 export const TRANSLATIONS: Record<Language, TranslationStrings> = {
@@ -1083,6 +1201,124 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     densityPer10kLabel: 'Density per 10,000 population',
     aiReportBadge: 'AI Generated',
     templateReportBadge: 'Deterministic Template',
+
+    // Audit Additions - Shell & Navigation
+    browsingAsGuestNotice: 'Browsing as guest · Analyses save to this device only',
+    platformFooterSub: 'AI-assisted business decision platform for Indian entrepreneurs',
+    platformEthos: 'Never promise profit. Deterministic financial math without hallucination.',
+    platformTaglineBuiltFor: "Built for India's entrepreneurs • Unbiased public feasibility modeling",
+    ariaNotifications: 'Notifications',
+    ariaOpenNav: 'Open navigation menu',
+    guestUser: 'Guest',
+
+    // Help Modal
+    helpModalTitle: 'How PRAVIRAK Works',
+    helpPoint1Title: '1. Business Decision Platform:',
+    helpPoint1Desc: 'PRAVIRAK is not a generic chatbot. It performs rigorous deterministic underwriting across local market competition, location suitability, debt service safety, and sensitivity stress scenarios.',
+    helpPoint2Title: '2. Deterministic Arithmetic:',
+    helpPoint2Desc: 'All debt, EMI, capex, and DSCR metrics are calculated using authoritative banking math. AI is only used to explain findings in accessible language.',
+    helpPoint3Title: '3. Government Financing:',
+    helpPoint3Desc: 'We automatically check eligibility against official schemes like PMEGP, PM MUDRA, and CGTMSE to minimize debt interest drag.',
+    helpPoint4Title: '4. Sensitive to Risk:',
+    helpPoint4Desc: 'We never guarantee profit. Every recommendation highlights the confidence level and underlying data vintage.',
+    helpPoint5Title: '5. Explore Hub:',
+    helpPoint5Desc: 'Once you have an active analysis, use Explore Hub to dig deeper into market, finance, business, operations, risk, compliance, growth and evidence — or ask PRAVIRAK directly.',
+
+    // Explorer Descriptions
+    exploreMarketDesc: 'Local demand and markets',
+    exploreFinanceDesc: 'Schemes, loans and eligibility',
+    exploreBusinessDesc: 'Business opportunities and comparisons',
+    exploreOperationsDesc: 'Suppliers, infrastructure and logistics',
+    exploreRiskDesc: 'Risks, seasonality and stress scenarios',
+    exploreComplianceDesc: 'Licences, registrations and approvals',
+    exploreGrowthDesc: 'Expansion and new opportunities',
+    exploreEvidenceDesc: 'Data sources and evidence quality',
+    exploreAskDesc: 'Questions about the current analysis',
+
+    // Final Business Plan & Scheme Loan Breakdown
+    identifiedCompetitorsOsm: 'Identified Competitors (OpenStreetMap):',
+    promoterCapitalM: 'Promoter Capital (M):',
+    planProjectCostB: 'Plan Project Cost (B):',
+    requiredMarginPercent: '10% Required Margin (0.10×B):',
+    maxSupportableM: 'Max Supportable (M / 0.10):',
+    appliedCaseLabel: 'Applied Case:',
+    statutorySchemeRulesApplied: 'Statutory scheme rules & thresholds applied:',
+    platformEnterpriseDecisionPlatform: 'Pravirak Enterprise Decision Platform',
+    planCopiedAlert: 'Business Plan Summary copied to clipboard for sharing!',
+    shareSummaryTitle: 'Share summary',
+    observationsLabel: 'Observations:',
+    selectionReasonLabel: 'Selection Reason:',
+    footfallInRadialCatchment: 'within 1.5 km radial catchment. Monthly estimated consumer pedestrian footfall stands at',
+
+    // Local Feasibility View
+    loadingFeasibilityScanning: 'Scanning spatial catchment radius (5 km & 10 km) via OpenStreetMap and compiling multi-dimensional feasibility schedule.',
+    osm5kmScan: 'OpenStreetMap 5 km radial scan',
+    expanded10kmCatchment: 'Expanded 10 km trade catchment',
+    calculatedAgainstPop: 'Calculated against verified population',
+    mitigationStrategyLabel: 'Mitigation Strategy:',
+    withinPrimary15kmZone: 'within the primary 1.5 km zone of',
+    competitorNameHeader: 'Competitor Name',
+    distanceFromSiteHeader: 'Distance from Site',
+    categoryTagHeader: 'Category Tag',
+    dataProvenanceHeader: 'Data Provenance',
+    feasibilityAssumptionsTitle: 'Feasibility Model Assumptions:',
+
+    // Existing Business Flow
+    includesStockRentWages: 'Includes stock purchase, rent & wages',
+    enterZeroIfDebtFree: 'Enter 0 if currently debt-free',
+    adjustFinancialInputs: 'Adjust Financial Inputs',
+    expansionRequiresOutlay: 'Executing this initiative requires capital outlay of',
+    afterDebtServicingSurplus: 'After debt servicing, projected new monthly net cash surplus reaches',
+    currentMonthlyNetProfitLabel: 'Current Monthly Net Profit',
+    monthlyTurnoverLabel: 'Monthly Turnover',
+    expansionCapitalNeededLabel: 'Expansion Capital Needed',
+    placeholderBusinessIdea: 'e.g. Kirana Store, Garment Retail, Bakery',
+    placeholderLocation: 'e.g. Sigra, Varanasi or Indiranagar, Bengaluru',
+
+    // Explorers & Dashboard
+    whatShouldYouDoNext: 'What should you do next?',
+    higherScoringNearbyArea: 'Higher-Scoring Nearby Area',
+    scaleUpScenario15x: 'Scale-Up Scenario (1.5x Capital)',
+    alreadyRunningThisBusiness: 'Already running this business?',
+    executionMilestonesTitle: 'Execution Milestones',
+    comparableOpportunitiesTitle: 'Comparable Business Opportunities',
+    businessTypeHeader: 'Business Type',
+    typicalCapexHeader: 'Typical Capex',
+    typicalRevenueHeader: 'Typical Monthly Revenue',
+    typicalOpexHeader: 'Typical Monthly Opex',
+    nearbyTransitContext: 'Nearby Transit & Commercial Context',
+    transitPointsTitle: 'Transit Points',
+    commercialHubsNearbyTitle: 'Commercial Hubs Nearby',
+    recommendedLoanAmountLabel: 'Recommended loan amount',
+    allMatchedSchemesTitle: 'All Matched Schemes',
+    identifiedRiskFactorsTitle: 'Identified Risk Factors',
+    requiredLikelyLicensesTitle: 'Required & Likely-Required Licenses',
+    implementationPlan306090: '30 / 60 / 90-Day Implementation Plan',
+    provenanceDisciplineNote: 'Provenance discipline: Every metric displays its origin (Measured via verified registry, Estimated via audited arithmetic, or Sourced from public census benchmarks).',
+    readAnswerAloud: 'Read answer aloud',
+    backAriaLabel: 'Back',
+    askPravirakAriaLabel: 'Ask Pravirak Chatbot',
+    closeChatAriaLabel: 'Close chat',
+
+    // Voice Input
+    voiceInputStart: 'Start voice input',
+    voiceInputStop: 'Stop listening',
+    voiceInputListening: 'Listening...',
+    voiceInputErrorPermission: 'Microphone access blocked. Please allow microphone permissions in your browser.',
+    voiceInputErrorNetwork: 'Voice recognition needs an internet connection. Please check your network.',
+    voiceInputErrorGeneric: 'Could not recognize speech. Please try speaking again.',
+    aiAnswerAttribution: 'AI-generated explanation. Numbers come from PRAVIRAK\u2019s calculations.',
+
+    // Error & Progress & Map
+    somethingWentWrong: 'Something went wrong',
+    unexpectedErrorDesc: 'An unexpected error occurred. Please refresh the page or return to dashboard.',
+    reloadPage: 'Reload Page',
+    publicVerificationChecklist: 'Public Verification Checklist',
+    statusComplete: 'Complete',
+    statusProcessing: 'Processing...',
+    proposedLocationTitle: 'Proposed Business Operating Location',
+    typeLabel: 'Type:',
+    dataOriginLabel: 'Data Origin:',
   },
 
   hi: {
@@ -1625,6 +1861,124 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     densityPer10kLabel: 'प्रति 10,000 आबादी पर घनत्व',
     aiReportBadge: 'AI विश्लेषित',
     templateReportBadge: 'निश्चित टेम्पलेट',
+
+    // Audit Additions - Shell & Navigation
+    browsingAsGuestNotice: 'अतिथि के रूप में ब्राउज़ कर रहे हैं · विश्लेषण केवल इसी डिवाइस पर सहेजे जाएंगे',
+    platformFooterSub: 'भारतीय उद्यमियों के लिए एआई-सहायता प्राप्त व्यावसायिक निर्णय मंच',
+    platformEthos: 'कभी भी लाभ का झूठा वादा न करें। बिना किसी भ्रम के सटीक वित्तीय गणना।',
+    platformTaglineBuiltFor: 'भारत के उद्यमियों के लिए निर्मित • निष्पक्ष सार्वजनिक व्यवहार्यता मॉडलिंग',
+    ariaNotifications: 'सूचनाएं',
+    ariaOpenNav: 'नेविगेशन मेनू खोलें',
+    guestUser: 'अतिथि',
+
+    // Help Modal
+    helpModalTitle: 'प्रवीरक कैसे काम करता है',
+    helpPoint1Title: '1. व्यावसायिक निर्णय मंच:',
+    helpPoint1Desc: 'प्रवीरक कोई सामान्य चैटबॉट नहीं है। यह स्थानीय बाजार प्रतिस्पर्धा, स्थान उपयुक्तता, ऋण सेवा सुरक्षा और संवेदनशीलता तनाव परिदृश्यों पर सटीक और पारदर्शी मूल्यांकन करता है।',
+    helpPoint2Title: '2. सटीक अंकगणित:',
+    helpPoint2Desc: 'सभी ऋण, ईएमआई, पूंजीगत व्यय और डीएससीआर मेट्रिक्स आधिकारिक बैंकिंग गणित का उपयोग करके गिने जाते हैं। एआई का उपयोग केवल निष्कर्षों को सरल भाषा में समझाने के लिए किया जाता है।',
+    helpPoint3Title: '3. सरकारी वित्तपोषण:',
+    helpPoint3Desc: 'हम ब्याज के बोझ को कम करने के लिए PMEGP, PM MUDRA और CGTMSE जैसी आधिकारिक योजनाओं के विरुद्ध पात्रता की स्वचालित जांच करते हैं।',
+    helpPoint4Title: '4. जोखिम के प्रति संवेदनशील:',
+    helpPoint4Desc: 'हम कभी मुनाफे की गारंटी नहीं देते। प्रत्येक सिफ़ारिश विश्वास स्तर और अंतर्निहित डेटा स्रोत को स्पष्ट रूप से दर्शाती है।',
+    helpPoint5Title: '5. एक्सप्लोर हब:',
+    helpPoint5Desc: 'सक्रिय विश्लेषण मिलने के बाद, बाजार, वित्त, व्यापार, संचालन, जोखिम, अनुपालन, विकास और साक्ष्यों की गहराई से जांच करने के लिए एक्सप्लोर हब का उपयोग करें - या सीधे प्रवीरक से पूछें।',
+
+    // Explorer Descriptions
+    exploreMarketDesc: 'स्थानीय मांग और बाजार',
+    exploreFinanceDesc: 'योजनाएं, ऋण और पात्रता',
+    exploreBusinessDesc: 'व्यावसायिक अवसर और तुलना',
+    exploreOperationsDesc: 'आपूर्तिकर्ता, बुनियादी ढांचा और रसद',
+    exploreRiskDesc: 'जोखिम, मौसमी प्रभाव और तनाव परिदृश्य',
+    exploreComplianceDesc: 'लाइसेंस, पंजीकरण और अनुमोदन',
+    exploreGrowthDesc: 'विस्तार और नए अवसर',
+    exploreEvidenceDesc: 'डेटा स्रोत और साक्ष्य गुणवत्ता',
+    exploreAskDesc: 'वर्तमान विश्लेषण के बारे में प्रश्न',
+
+    // Final Business Plan & Scheme Loan Breakdown
+    identifiedCompetitorsOsm: 'पहचाने गए प्रतिस्पर्धी (OpenStreetMap):',
+    promoterCapitalM: 'प्रवर्तक पूंजी (M):',
+    planProjectCostB: 'योजना परियोजना लागत (B):',
+    requiredMarginPercent: '10% आवश्यक मार्जिन (0.10×B):',
+    maxSupportableM: 'अधिकतम समर्थित लागत (M / 0.10):',
+    appliedCaseLabel: 'लागू स्थिति:',
+    statutorySchemeRulesApplied: 'वैधानिक योजना नियम एवं सीमाएं लागू:',
+    platformEnterpriseDecisionPlatform: 'प्रवीरक एंटरप्राइज निर्णय मंच',
+    planCopiedAlert: 'साझा करने के लिए व्यावसायिक योजना का सारांश क्लिपबोर्ड पर कॉपी किया गया!',
+    shareSummaryTitle: 'सारांश साझा करें',
+    observationsLabel: 'अवलोकन:',
+    selectionReasonLabel: 'चयन का कारण:',
+    footfallInRadialCatchment: '1.5 किमी के दायरे में। अनुमानित मासिक ग्राहक फुटफॉल है',
+
+    // Local Feasibility View
+    loadingFeasibilityScanning: 'OpenStreetMap के माध्यम से 5 किमी और 10 किमी के दायरे को स्कैन किया जा रहा है और बहु-आयामी व्यवहार्यता रिपोर्ट तैयार की जा रही है।',
+    osm5kmScan: 'OpenStreetMap 5 किमी रेडियल स्कैन',
+    expanded10kmCatchment: 'विस्तारित 10 किमी व्यापार क्षेत्र',
+    calculatedAgainstPop: 'सत्यापित जनसंख्या के आधार पर गणना',
+    mitigationStrategyLabel: 'निवारण रणनीति:',
+    withinPrimary15kmZone: 'के प्राथमिक 1.5 किमी क्षेत्र में',
+    competitorNameHeader: 'प्रतिस्पर्धी का नाम',
+    distanceFromSiteHeader: 'स्थान से दूरी',
+    categoryTagHeader: 'श्रेणी टैग',
+    dataProvenanceHeader: 'डेटा स्रोत / प्रामाणिकता',
+    feasibilityAssumptionsTitle: 'व्यवहार्यता मॉडल की मान्यताएं:',
+
+    // Existing Business Flow
+    includesStockRentWages: 'स्टॉक खरीद, किराया और वेतन शामिल है',
+    enterZeroIfDebtFree: 'यदि वर्तमान में कोई ऋण नहीं है तो 0 दर्ज करें',
+    adjustFinancialInputs: 'वित्तीय इनपुट समायोजित करें',
+    expansionRequiresOutlay: 'इस पहल को क्रियान्वित करने के लिए पूंजीगत व्यय की आवश्यकता है:',
+    afterDebtServicingSurplus: 'ऋण चुकाने के बाद, अनुमानित नया मासिक शुद्ध नकद अधिशेष पहुंचता है:',
+    currentMonthlyNetProfitLabel: 'वर्तमान मासिक शुद्ध लाभ',
+    monthlyTurnoverLabel: 'मासिक कारोबार (टर्नओवर)',
+    expansionCapitalNeededLabel: 'आवश्यक विस्तार पूंजी',
+    placeholderBusinessIdea: 'उदा. किराना स्टोर, वस्त्र भंडार, बेकरी',
+    placeholderLocation: 'उदा. सिगरा, वाराणसी या इंदिरानगर, बेंगलुरु',
+
+    // Explorers & Dashboard
+    whatShouldYouDoNext: 'आपको आगे क्या करना चाहिए?',
+    higherScoringNearbyArea: 'उच्च स्कोर वाला नजदीकी क्षेत्र',
+    scaleUpScenario15x: 'विस्तार परिदृश्य (1.5x पूंजी)',
+    alreadyRunningThisBusiness: 'क्या पहले से ही यह व्यवसाय चला रहे हैं?',
+    executionMilestonesTitle: 'कार्यान्वयन के चरण',
+    comparableOpportunitiesTitle: 'समान व्यावसायिक अवसर',
+    businessTypeHeader: 'व्यवसाय प्रकार',
+    typicalCapexHeader: 'सामान्य पूंजीगत व्यय (Capex)',
+    typicalRevenueHeader: 'सामान्य मासिक राजस्व',
+    typicalOpexHeader: 'सामान्य मासिक संचालन व्यय (Opex)',
+    nearbyTransitContext: 'नजदीकी पारगमन और वाणिज्यिक संदर्भ',
+    transitPointsTitle: 'पारगमन बिंदु (बस/ट्रेन/मेट्रो)',
+    commercialHubsNearbyTitle: 'नजदीकी वाणिज्यिक केंद्र',
+    recommendedLoanAmountLabel: 'अनुशंसित ऋण राशि',
+    allMatchedSchemesTitle: 'सभी मेल खाने वाली योजनाएं',
+    identifiedRiskFactorsTitle: 'पहचाने गए जोखिम कारक',
+    requiredLikelyLicensesTitle: 'आवश्यक और संभावित लाइसेंस',
+    implementationPlan306090: '30 / 60 / 90-दिनों की कार्यान्वयन योजना',
+    provenanceDisciplineNote: 'प्रामाणिकता अनुशासन: प्रत्येक मीट्रिक अपनी उत्पत्ति प्रदर्शित करता है (सत्यापित रजिस्ट्री के माध्यम से मापा गया, ऑडिट किए गए अंकगणित के माध्यम से अनुमानित, या सार्वजनिक जनगणना मानकों से प्राप्त)।',
+    readAnswerAloud: 'उत्तर बोलकर सुनाएं',
+    backAriaLabel: 'वापस',
+    askPravirakAriaLabel: 'प्रवीरक चैटबॉट से पूछें',
+    closeChatAriaLabel: 'चैट बंद करें',
+
+    // Voice Input
+    voiceInputStart: 'वॉइस इनपुट शुरू करें',
+    voiceInputStop: 'सुनना बंद करें',
+    voiceInputListening: 'सुन रहे हैं...',
+    voiceInputErrorPermission: 'माइक्रोफ़ोन अनुमति अवरुद्ध है। कृपया अपने ब्राउज़र में अनुमति दें।',
+    voiceInputErrorNetwork: 'वॉइस पहचान के लिए इंटरनेट कनेक्शन चाहिए। कृपया नेटवर्क जांचें।',
+    voiceInputErrorGeneric: 'आवाज़ पहचानी नहीं जा सकी। कृपया पुनः बोलें।',
+    aiAnswerAttribution: 'AI-जनित विवरण। संख्याएँ PRAVIRAK की गणनाओं से आती हैं।',
+
+    // Error & Progress & Map
+    somethingWentWrong: 'कुछ गलत हो गया',
+    unexpectedErrorDesc: 'एक अप्रत्याशित त्रुटि हुई। कृपया पृष्ठ को रीफ़्रेश करें या डैशबोर्ड पर वापस जाएं।',
+    reloadPage: 'पेज रीलोड करें',
+    publicVerificationChecklist: 'सार्वजनिक सत्यापन चेकलिस्ट',
+    statusComplete: 'पूर्ण',
+    statusProcessing: 'प्रसंस्करण जारी है...',
+    proposedLocationTitle: 'प्रस्तावित व्यावसायिक संचालन स्थान',
+    typeLabel: 'प्रकार:',
+    dataOriginLabel: 'डेटा का स्रोत:',
   },
 
   te: {
@@ -2122,5 +2476,123 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     densityPer10kLabel: 'ప్రతి 10,000 జనాభాకు సాంద్రత',
     aiReportBadge: 'AI విశ్లేషణ',
     templateReportBadge: 'ఖచ్చితమైన టెంప్లేట్',
+
+    // Audit Additions - Shell & Navigation
+    browsingAsGuestNotice: 'అతిథిగా బ్రౌజ్ చేస్తున్నారు · విశ్లేషణలు ఈ పరికరంలో మాత్రమే భద్రపరచబడతాయి',
+    platformFooterSub: 'భారతీయ వ్యవస్థాపకుల కోసం AI-ఆధారిత వ్యాపార నిర్ణయ వేదిక',
+    platformEthos: 'లాభాన్ని ఎప్పుడూ హామీ ఇవ్వవద్దు. ఊహలకు తావులేని ఖచ్చితమైన ఆర్థిక గణన.',
+    platformTaglineBuiltFor: 'భారతీయ వ్యవస్థాపకుల కోసం నిర్మించబడింది • నిష్పక్షపాత ప్రజా సాధ్యాసాధ్యాల మోడలింగ్',
+    ariaNotifications: 'నోటిఫికేషన్‌లు',
+    ariaOpenNav: 'నావిగేషన్ మెనూ తెరవండి',
+    guestUser: 'అతిథి',
+
+    // Help Modal
+    helpModalTitle: 'ప్రవీరక్ ఎలా పనిచేస్తుంది',
+    helpPoint1Title: '1. వ్యాపార నిర్ణయ వేదిక:',
+    helpPoint1Desc: 'ప్రవీరక్ సాధారణ చాట్‌బాట్ కాదు. ఇది స్థానిక మార్కెట్ పోటీ, స్థల అనుకూలత, రుణ చెల్లింపు భద్రత మరియు ఒత్తిడి పరీక్ష పరిస్థితులపై ఖచ్చితమైన విశ్లేషణను అందిస్తుంది.',
+    helpPoint2Title: '2. ఖచ్చితమైన అంకగణితం:',
+    helpPoint2Desc: 'రుణం, ఈఎంఐ, పెట్టుబడి మరియు డిఎస్‌సిఆర్ గణాంకాలన్నీ అధికారిక బ్యాంకింగ్ సూత్రాల ద్వారా లెక్కించబడతాయి. AI కేవలం ఫలితాలను సులభమైన భాషలో వివరించడానికి మాత్రమే ఉపయోగించబడుతుంది.',
+    helpPoint3Title: '3. ప్రభుత్వ ఆర్థిక సహాయం:',
+    helpPoint3Desc: 'వడ్డీ భారాన్ని తగ్గించడానికి మేము PMEGP, PM MUDRA మరియు CGTMSE వంటి అధికారిక ప్రభుత్వ పథకాల అర్హతను స్వయంచాలకంగా తనిఖీ చేస్తాము.',
+    helpPoint4Title: '4. నష్టభయాల పట్ల జాగ్రత్త:',
+    helpPoint4Desc: 'మేము ఎప్పుడూ లాభాలకు హామీ ఇవ్వము. ప్రతి సిఫార్సు డేటా మూలం మరియు విశ్వసనీయత స్థాయిని స్పష్టంగా తెలియజేస్తుంది.',
+    helpPoint5Title: '5. ఎక్స్‌ప్లోర్ హబ్:',
+    helpPoint5Desc: 'విశ్లేషణ పూర్తయిన తర్వాత, మార్కెట్, ఫైనాన్స్, కార్యకలాపాలు, నష్టాలు, లైసెన్సులు మరియు వృద్ధి అవకాశాలను లోతుగా తెలుసుకోవడానికి ఎక్స్‌ప్లోర్ హబ్‌ను ఉపయోగించండి - లేదా ప్రవీరక్‌ను నేరుగా అడగండి.',
+
+    // Explorer Descriptions
+    exploreMarketDesc: 'స్థానిక డిమాండ్ మరియు మార్కెట్లు',
+    exploreFinanceDesc: 'పథకాలు, రుణాలు మరియు అర్హత',
+    exploreBusinessDesc: 'వ్యాపార అవకాశాలు మరియు పోలికలు',
+    exploreOperationsDesc: 'సరఫరాదారులు, మౌలిక సదుపాయాలు మరియు లాజిస్టిక్స్',
+    exploreRiskDesc: 'నష్టాలు, కాలానుగుణ మార్పులు మరియు ఒత్తిడి పరిస్థితులు',
+    exploreComplianceDesc: 'లైసెన్సులు, రిజిస్ట్రేషన్లు మరియు అనుమతులు',
+    exploreGrowthDesc: 'వ్యాపార విస్తరణ మరియు కొత్త అవకాశాలు',
+    exploreEvidenceDesc: 'డేటా వనరులు మరియు సాక్ష్యాల నాణ్యత',
+    exploreAskDesc: 'ప్రస్తుత విశ్లేషణపై సందేహాలు',
+
+    // Final Business Plan & Scheme Loan Breakdown
+    identifiedCompetitorsOsm: 'గుర్తించిన పోటీదారులు (OpenStreetMap):',
+    promoterCapitalM: 'ప్రమోటర్ పెట్టుబడి (M):',
+    planProjectCostB: 'ప్రణాళికా ప్రాజెక్ట్ వ్యయం (B):',
+    requiredMarginPercent: '10% తప్పనిసరి మార్జిన్ (0.10×B):',
+    maxSupportableM: 'గరిష్టంగా మద్దతు ఇవ్వగల వ్యయం (M / 0.10):',
+    appliedCaseLabel: 'వర్తించిన నిబంధన:',
+    statutorySchemeRulesApplied: 'వర్తించిన చట్టబద్ధమైన పథక నిబంధనలు మరియు పరిమితులు:',
+    platformEnterpriseDecisionPlatform: 'ప్రవీరక్ ఎంటర్‌ప్రైజ్ నిర్ణయ వేదిక',
+    planCopiedAlert: 'షేర్ చేయడానికి వ్యాపార ప్రణాళిక సారాంశం క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది!',
+    shareSummaryTitle: 'సారాంశాన్ని పంచుకోండి',
+    observationsLabel: 'గమనికలు:',
+    selectionReasonLabel: 'ఎంపిక కారణం:',
+    footfallInRadialCatchment: '1.5 కి.మీ పరిధిలో. అంచనా వేసిన నెలవారీ కస్టమర్ రద్దీ',
+
+    // Local Feasibility View
+    loadingFeasibilityScanning: 'OpenStreetMap ద్వారా 5 కి.మీ & 10 కి.మీ ప్రాంతాన్ని స్కాన్ చేస్తూ బహుముఖ సాధ్యాసాధ్యాల నివేదికను రూపొందిస్తున్నాము.',
+    osm5kmScan: 'OpenStreetMap 5 కి.మీ విస్తీర్ణ స్కాన్',
+    expanded10kmCatchment: 'విస్తరించిన 10 కి.మీ వ్యాపార ప్రాంతం',
+    calculatedAgainstPop: 'ధృవీకరించబడిన జనాభా ఆధారంగా లెక్కించబడింది',
+    mitigationStrategyLabel: 'పరిష్కార వ్యూహం:',
+    withinPrimary15kmZone: 'యొక్క ప్రధాన 1.5 కి.మీ పరిధిలో',
+    competitorNameHeader: 'పోటీదారు పేరు',
+    distanceFromSiteHeader: 'వ్యాపార స్థలం నుండి దూరం',
+    categoryTagHeader: 'వర్గం ట్యాగ్',
+    dataProvenanceHeader: 'డేటా మూలం',
+    feasibilityAssumptionsTitle: 'సాధ్యాసాధ్యాల మోడల్ ఊహలు:',
+
+    // Existing Business Flow
+    includesStockRentWages: 'సరుకుల కొనుగోలు, అద్దె మరియు జీతాలు కలిపి',
+    enterZeroIfDebtFree: 'ప్రస్తుతం రుణం లేకపోతే 0 నమోదు చేయండి',
+    adjustFinancialInputs: 'ఆర్థిక వివరాలను సవరించండి',
+    expansionRequiresOutlay: 'ఈ విస్తరణను ప్రారంభించడానికి అవసరమైన పెట్టుబడి:',
+    afterDebtServicingSurplus: 'రుణ వాయిదాలు చెల్లించిన తర్వాత, కొత్త నెలవారీ నికర మిగులు నగదు:',
+    currentMonthlyNetProfitLabel: 'ప్రస్తుత నెలవారీ నికర లాభం',
+    monthlyTurnoverLabel: 'నెలవారీ టర్నోవర్',
+    expansionCapitalNeededLabel: 'విస్తరణకు అవసరమైన పెట్టుబడి',
+    placeholderBusinessIdea: 'ఉదా. కిరాణా షాప్, దుస్తుల వ్యాపారం, బేకరీ',
+    placeholderLocation: 'ఉదా. సిగ్రా, వారణాసి లేదా ఇందిరానగర్, బెంగళూరు',
+
+    // Explorers & Dashboard
+    whatShouldYouDoNext: 'మీరు తర్వాత ఏమి చేయాలి?',
+    higherScoringNearbyArea: 'ఎక్కువ స్కోరు ఉన్న సమీప ప్రాంతం',
+    scaleUpScenario15x: 'విస్తరణ పరిస్థితి (1.5 రెట్ల పెట్టుబడి)',
+    alreadyRunningThisBusiness: 'ఇప్పటికే ఈ వ్యాపారం నడుపుతున్నారా?',
+    executionMilestonesTitle: 'అమలు దశలు',
+    comparableOpportunitiesTitle: 'సరిపోలే వ్యాపార అవకాశాలు',
+    businessTypeHeader: 'వ్యాపార రకం',
+    typicalCapexHeader: 'సాధారణ ప్రాజెక్ట్ ఖర్చు',
+    typicalRevenueHeader: 'సాధారణ నెలవారీ ఆదాయం',
+    typicalOpexHeader: 'సాధారణ నెలవారీ నిర్వహణ ఖర్చు',
+    nearbyTransitContext: 'సమీప రవాణా మరియు వాణిజ్య వివరాలు',
+    transitPointsTitle: 'రవాణా కేంద్రాలు',
+    commercialHubsNearbyTitle: 'సమీప వాణిజ్య కేంద్రాలు',
+    recommendedLoanAmountLabel: 'సిఫార్సు చేయబడిన రుణ మొత్తం',
+    allMatchedSchemesTitle: 'సరిపోలిన అన్ని పథకాలు',
+    identifiedRiskFactorsTitle: 'గుర్తించిన ప్రమాద అంశాలు',
+    requiredLikelyLicensesTitle: 'తప్పనిసరి మరియు అవసరమైన లైసెన్సులు',
+    implementationPlan306090: '30 / 60 / 90 రోజుల కార్యాచరణ ప్రణాళిక',
+    provenanceDisciplineNote: 'డేటా క్రమశిక్షణ: ప్రతి కొలమానం దాని మూలాన్ని స్పష్టంగా చూపుతుంది (ధృవీకరించబడిన రిజిస్ట్రీ నుండి సేకరించబడింది, లెక్కల ద్వారా అంచనా వేయబడింది లేదా పబ్లిక్ సెన్సస్ బెంచ్‌మార్క్‌ల నుండి పొందబడింది).',
+    readAnswerAloud: 'సమాధానాన్ని బిగ్గరగా చదవండి',
+    backAriaLabel: 'వెనుకకు',
+    askPravirakAriaLabel: 'ప్రవీరక్ చాట్‌బాట్‌ను అడగండి',
+    closeChatAriaLabel: 'చాట్ మూసివేయండి',
+
+    // Voice Input
+    voiceInputStart: 'వాయిస్ ఇన్‌పుట్ ప్రారంభించండి',
+    voiceInputStop: 'వినడం ఆపండి',
+    voiceInputListening: 'వింటున్నారు...',
+    voiceInputErrorPermission: 'మైక్రోఫోన్ అనుమతి నిరోధించబడింది. దయచేసి బ్రౌజర్‌లో అనుమతించండి.',
+    voiceInputErrorNetwork: 'వాయిస్ గుర్తింపుకు ఇంటర్నెట్ అవసరం. దయచేసి నెట్‌వర్క్ తనిఖీ చేయండి.',
+    voiceInputErrorGeneric: 'వాయిస్‌ను గుర్తించలేకపోయాము. దయచేసి మళ్ళీ మాట్లాడండి.',
+    aiAnswerAttribution: 'AI రూపొందించిన వివరణ. సంఖ్యలు PRAVIRAK లెక్కల నుండి వస్తాయి.',
+
+    // Error & Progress & Map
+    somethingWentWrong: 'ఏదో పొరపాటు జరిగింది',
+    unexpectedErrorDesc: 'అనుకోని లోపం ఏర్పడింది. దయచేసి పేజీని రీఫ్రెష్ చేయండి లేదా డ్యాష్‌బోర్డ్‌కు తిరిగి వెళ్లండి.',
+    reloadPage: 'పేజీని మళ్లీ లోడ్ చేయండి',
+    publicVerificationChecklist: 'పబ్లిక్ వెరిఫికేషన్ చెక్‌లిస్ట్',
+    statusComplete: 'పూర్తయింది',
+    statusProcessing: 'ప్రాసెస్ అవుతోంది...',
+    proposedLocationTitle: 'ప్రతిపాదిత వ్యాపార నిర్వహణ స్థలం',
+    typeLabel: 'రకం:',
+    dataOriginLabel: 'డేటా మూలం:',
   }
 };

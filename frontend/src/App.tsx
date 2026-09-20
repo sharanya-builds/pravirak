@@ -364,9 +364,9 @@ function AppShellRouter() {
         </div>
         <footer className="text-center text-[11px] text-slate-400 py-6">
           {user ? (
-            <span>Signed in as {user.name}</span>
+            <span>{t.signedInAs} {user.name}</span>
           ) : (
-            <span>Browsing as guest · Analyses save to this device only</span>
+            <span>{t.browsingAsGuestNotice}</span>
           )}
         </footer>
       </div>
@@ -516,36 +516,29 @@ function AppShellRouter() {
             <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-900 mb-3 border border-indigo-100">
               <HelpCircle className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">How PRAVIRAK Works</h3>
+            <h3 className="text-lg font-bold text-slate-900">{t.helpModalTitle}</h3>
             <div className="text-xs text-slate-600 mt-2 space-y-3 leading-relaxed">
               <p>
-                <strong>1. Business Decision Platform:</strong> PRAVIRAK is not a generic chatbot. It performs
-                rigorous deterministic underwriting across local market competition, location suitability, debt
-                service safety, and sensitivity stress scenarios.
+                <strong>{t.helpPoint1Title}</strong> {t.helpPoint1Desc}
               </p>
               <p>
-                <strong>2. Deterministic Arithmetic:</strong> All debt, EMI, capex, and DSCR metrics are calculated
-                using authoritative banking math. AI is only used to explain findings in accessible language.
+                <strong>{t.helpPoint2Title}</strong> {t.helpPoint2Desc}
               </p>
               <p>
-                <strong>3. Government Financing:</strong> We automatically check eligibility against official
-                schemes like PMEGP, PM MUDRA, and CGTMSE to minimize debt interest drag.
+                <strong>{t.helpPoint3Title}</strong> {t.helpPoint3Desc}
               </p>
               <p>
-                <strong>4. Sensitive to Risk:</strong> We never guarantee profit. Every recommendation highlights
-                the confidence level and underlying data vintage.
+                <strong>{t.helpPoint4Title}</strong> {t.helpPoint4Desc}
               </p>
               <p>
-                <strong>5. Explore Hub:</strong> Once you have an active analysis, use Explore Hub to dig deeper
-                into market, finance, business, operations, risk, compliance, growth and evidence — or ask
-                PRAVIRAK directly.
+                <strong>{t.helpPoint5Title}</strong> {t.helpPoint5Desc}
               </p>
             </div>
             <button
               onClick={() => setHelpModalOpen(false)}
               className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
             >
-              Close Guide
+              {t.closeGuide}
             </button>
           </div>
         </div>
