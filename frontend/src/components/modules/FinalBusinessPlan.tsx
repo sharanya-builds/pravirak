@@ -16,7 +16,8 @@ import {
   BusinessInput, 
   FinancialAnalysis, 
   GovernmentScheme, 
-  LocationData 
+  LocationData,
+  LocalFeasibilityReport
 } from '../../types';
 import { formatINR } from '../../engine/financialEngine';
 import { formatLocationField } from '../../engine/locationParser';
@@ -24,6 +25,8 @@ import { reconcileSchemeLoan } from '../../engine/schemeReconciliation';
 import { SchemeLoanBreakdown } from '../common/SchemeLoanBreakdown';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { useLanguage } from '../../context/LanguageContext';
+import { LocalFeasibilityReportView } from './LocalFeasibilityReportView';
+import { fetchLocalFeasibilityReport } from '../../services/localFeasibilityService';
 
 interface FinalBusinessPlanProps {
   input: BusinessInput;
@@ -32,6 +35,7 @@ interface FinalBusinessPlanProps {
   decisionResult: BusinessDecisionResult;
   recommendedScheme: GovernmentScheme;
   onReset: () => void;
+  feasibilityReport?: LocalFeasibilityReport | null;
 }
 
 export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
@@ -40,9 +44,26 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
   financials,
   decisionResult,
   recommendedScheme,
-  onReset
+  onReset,
+  feasibilityReport
 }) => {
   const { t, language } = useLanguage();
+  const [internalFeasibility, setInternalFeasibility] = useState<LocalFeasibilityReport | null>(null);
+  const activeFeasibility = feasibilityReport !== undefined ? feasibilityReport : internalFeasibility;
+
+  React.useEffect(() => {
+    if (feasibilityReport === undefined) {
+      fetchLocalFeasibilityReport({
+        category: input.category || input.businessIdea,
+        location: location,
+        ownCapital: input.ownCapital,
+        projectCost: financials.projectCost,
+        competitorCount: location.competitorsNearbyCount,
+        catchmentPopulationEstimate: null,
+        language: language
+      }).then(setInternalFeasibility).catch(() => {});
+    }
+  }, [feasibilityReport, input, location, financials.projectCost, language]);
 
   // Checkbox state for next steps
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({
@@ -158,6 +179,30 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           </div>
         </div>
 
+        {/* Data Provenance Legend */}
+        <div className="bg-slate-50 rounded-xl px-4 py-2 border border-slate-200 flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-700">
+          <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+            {t.provenanceLegendTitle}:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <strong className="text-emerald-800 font-semibold">{t.badgeMeasured}</strong>
+            <span className="text-slate-500 text-[11px]">({t.provenanceMeasuredDesc})</span>
+          </div>
+          <span className="text-slate-300 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            <strong className="text-amber-800 font-semibold">{t.badgeEstimated}</strong>
+            <span className="text-slate-500 text-[11px]">({t.provenanceEstimatedDesc})</span>
+          </div>
+          <span className="text-slate-300 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+            <strong className="text-purple-800 font-semibold">{t.badgeAi}</strong>
+            <span className="text-slate-500 text-[11px]">({t.provenanceAiDesc})</span>
+          </div>
+        </div>
+
         {/* Report Sections */}
         <div className="space-y-6 text-xs sm:text-sm text-slate-900">
           {/* Section 1: Executive Summary */}
@@ -191,9 +236,9 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
             <div className="mt-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <span className="text-slate-500 font-medium block">{t.villageLabel}:</span>
-                <strong className="text-slate-900 font-semibold block mt-0.5" data-testid="plan-village">
-                  {formatLocationField(location.village || input.location?.village)}
-                </strong>
+                <span className="text-slate-900 font-bold" data-testid="plan-village">
+                  {formatLocationField(location.village || input.location?.village, t.notAvailableForAddress)}
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 font-medium block">{t.blockLabel}:</span>
@@ -216,15 +261,27 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
             </div>
           </div>
 
-          {/* Section 2: Market Outlook & Competition */}
+          {/* Section 2: Catchment Market & Demographic Outlook */}
           <div>
             <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-950 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
               <span className="w-1.5 h-4 bg-indigo-950 rounded-xs"></span>
               {t.marketOutlook}
             </h3>
-            <p className="text-sm sm:text-base text-slate-950 font-medium leading-relaxed mb-4">
+            <p className="text-sm sm:text-base text-slate-950 font-medium leading-relaxed mb-2">
               Spatial radius scanning mapped <strong className="text-slate-950 font-bold">{location.competitorsNearbyCount} {t.competitorsNearby.toLowerCase()}</strong> within 1.5 km radial catchment. Monthly estimated consumer pedestrian footfall stands at <strong className="text-slate-950 font-bold">{location.footfallMonthly.toLocaleString('en-IN')}</strong> across major residential colonies ({location.customerColonies.join(', ')}).
             </p>
+            {location.competitors && location.competitors.length > 0 ? (
+              <p className="text-xs text-slate-700 mb-4 bg-emerald-50/60 p-2.5 rounded-lg border border-emerald-200">
+                <strong className="text-emerald-950 font-bold">Identified Competitors (OpenStreetMap):</strong>{' '}
+                {location.competitors.map((c) => c.name).filter(Boolean).join(', ')}
+              </p>
+            ) : location.competitorsNote ? (
+              <p className="text-xs text-amber-900 mb-4 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200">
+                {location.competitorsNote}
+              </p>
+            ) : (
+              <div className="mb-4" />
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
               <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
                 <span className="font-extrabold text-slate-950 block mb-1.5">{t.demandSignals}</span>
@@ -243,6 +300,16 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 </ul>
               </div>
             </div>
+          </div>
+
+          {/* Section: Local Feasibility Report */}
+          <div data-testid="plan-local-feasibility-section" className="border-t border-slate-200 pt-5">
+            <LocalFeasibilityReportView
+              report={activeFeasibility}
+              location={location}
+              category={input.category || input.businessIdea}
+              isPrintView={true}
+            />
           </div>
 
           {/* Section 3: Financial Feasibility & Debt Schedule */}

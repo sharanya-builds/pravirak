@@ -175,10 +175,10 @@ export const MarketMap: React.FC<MarketMapProps> = ({
             type: cb.type,
             distance: `${cb.distanceKm} km from site`,
             notes: cb.synergy,
-            provenance: cb.provenance
+            provenance: cb.provenance || 'ESTIMATED'
           });
         });
-        marker.bindPopup(`<strong>${cb.name}</strong><br/>Type: ${cb.type}<br/>${cb.synergy}<br/><small style="color: #64748b;">Provenance: ${cb.provenance}</small>`);
+        marker.bindPopup(`<strong>${cb.name}</strong><br/>Type: ${cb.type}<br/>${cb.synergy}<br/><small style="color: #64748b;">Provenance: ${cb.provenance || 'ESTIMATED'}</small>`);
         marker.addTo(layerGroup);
       });
     }
@@ -206,10 +206,10 @@ export const MarketMap: React.FC<MarketMapProps> = ({
             title: dm.title,
             type: dm.type,
             notes: dm.detail,
-            provenance: dm.provenance
+            provenance: dm.provenance || 'ESTIMATED'
           });
         });
-        marker.bindPopup(`<strong>${dm.title}</strong><br/>${dm.detail}<br/><small style="color: #64748b;">Provenance: ${dm.provenance}</small>`);
+        marker.bindPopup(`<strong>${dm.title}</strong><br/>${dm.detail}<br/><small style="color: #64748b;">Provenance: ${dm.provenance || 'ESTIMATED'}</small>`);
         marker.addTo(layerGroup);
       });
     }
@@ -354,16 +354,33 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Store className="w-4 h-4 text-rose-600" />
                 <span>{t.competitorsNearby}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded-sm">
-                ESTIMATED
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm border ${
+                location.competitorsCountProvenance === 'MEASURED'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-amber-50 text-amber-900 border-amber-300'
+              }`}>
+                {location.competitorsCountProvenance === 'MEASURED' ? 'Measured' : 'Estimated'}
               </span>
             </div>
             <div className="text-xl font-extrabold text-slate-900 mb-1">
               {location.competitorsNearbyCount} {t.outletsUnit}
             </div>
-            <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed mt-1">
-              Within 1.5 km radial zone. Closest direct competitor is {location.competitors[0]?.distanceKm || 0.4} km away.
-            </p>
+            {location.competitors && location.competitors.length > 0 ? (
+              <div className="mt-1 space-y-1">
+                <p className="text-xs text-slate-800 font-medium">
+                  Closest mapped: <strong className="font-bold">{location.competitors[0].name}</strong> ({location.competitors[0].distanceKm} km)
+                </p>
+                {location.competitors.length > 1 && (
+                  <p className="text-[11px] text-slate-600 truncate">
+                    Other: {location.competitors.slice(1, 4).map((c) => c.name).filter(Boolean).join(', ')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-700 font-medium mt-1">
+                {location.competitorsNote || 'Within 1.5 km radial zone. Count is a model estimate.'}
+              </p>
+            )}
           </div>
 
           {/* Demand Signals */}
@@ -373,8 +390,8 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Users className="w-4 h-4 text-indigo-600" />
                 <span>{t.demandSignals}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded-sm">
-                SOURCED
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+                Estimated
               </span>
             </div>
             <div className="text-xl font-extrabold text-slate-900 mb-1">
@@ -392,15 +409,15 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Building2 className="w-4 h-4 text-emerald-600" />
                 <span>{t.customerColonies}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded-sm">
-                OBSERVED
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+                Estimated
               </span>
             </div>
             <div className="text-sm font-extrabold text-slate-950 mb-1 truncate">
               {location.customerColonies.slice(0, 2).join(', ')}
             </div>
             <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed mt-1">
-              {location.residentialColoniesNearby} dense residential / corporate clusters feeding walk-in footfall.
+              {location.residentialColoniesNearby} residential / commercial clusters feeding walk-in footfall.
             </p>
           </div>
 
@@ -411,15 +428,15 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Briefcase className="w-4 h-4 text-blue-700" />
                 <span>{t.nearbyAnchors}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded-sm">
-                DEMO
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+                Estimated
               </span>
             </div>
             <div className="text-sm font-extrabold text-slate-950 mb-1 truncate">
-              {location.complementaryBusinesses?.[0]?.name || 'Corporate Office Complex'}
+              {location.complementaryBusinesses?.[0]?.name || 'Commercial Hub'}
             </div>
             <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed mt-1">
-              {location.complementaryBusinesses?.[0]?.synergy || 'Generates steady daytime consumer walk-in traffic.'}
+              {location.complementaryBusinesses?.[0]?.synergy || 'Generates daytime consumer walk-in traffic.'}
             </p>
           </div>
         </div>

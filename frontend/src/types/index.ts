@@ -17,7 +17,14 @@ export type SafetyStatus = 'SAFE' | 'WATCH' | 'RISKY';
 export type EvidenceType = 'Observed' | 'Sourced' | 'Estimated' | 'AI interpretation';
 export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 
-export type Provenance = 'OBSERVED' | 'SOURCED' | 'ESTIMATED' | 'DEMO' | 'AI INTERPRETATION';
+export type Provenance = 
+  | 'MEASURED' 
+  | 'ESTIMATED' 
+  | 'AI_GENERATED'
+  | 'OBSERVED' 
+  | 'SOURCED' 
+  | 'DEMO' 
+  | 'AI INTERPRETATION';
 
 export interface ScoreFactor {
   name: string;
@@ -42,6 +49,7 @@ export interface EvidenceItem {
   type: EvidenceType;
   vintage?: string;
   confidence: ConfidenceLevel;
+  provenance?: Provenance;
 }
 
 export interface CompetitorPOI {
@@ -52,8 +60,8 @@ export interface CompetitorPOI {
   lat: number;
   lng: number;
   estimatedTurnoverMonthly?: number;
-  strength: 'Strong' | 'Moderate' | 'Weak';
-  provenance?: 'OBSERVED' | 'SOURCED' | 'ESTIMATED' | 'DEMO / ESTIMATED DATA';
+  strength?: 'Strong' | 'Moderate' | 'Weak';
+  provenance?: Provenance;
 }
 
 export interface ComplementaryBusinessPOI {
@@ -64,7 +72,7 @@ export interface ComplementaryBusinessPOI {
   lat: number;
   lng: number;
   synergy: string;
-  provenance: 'OBSERVED' | 'SOURCED' | 'DEMO / ESTIMATED DATA';
+  provenance?: Provenance;
 }
 
 export interface DemandOpportunityMarker {
@@ -74,7 +82,7 @@ export interface DemandOpportunityMarker {
   lat: number;
   lng: number;
   detail: string;
-  provenance: 'OBSERVED' | 'SOURCED' | 'DEMO / ESTIMATED DATA';
+  provenance?: Provenance;
 }
 
 export interface SelectedLocation {
@@ -89,6 +97,35 @@ export interface SelectedLocation {
   district?: string | null;
   postalCode?: string;
   source: 'GOOGLE_PLACES' | 'USER_INPUT' | 'DEMO_SAMPLE' | 'OPENSTREETMAP' | 'USER_INPUT_APPROX';
+}
+
+export interface LocationMetricsProvenance {
+  score: Provenance;
+  footfallMonthly: Provenance;
+  residentialColoniesNearby: Provenance;
+  competitorsNearbyCount: Provenance;
+  marketDistanceKm: Provenance;
+  alternativeLocation: Provenance;
+}
+
+export interface NearbyPlaceItem {
+  id: string;
+  name: string;
+  type: string;
+  distanceKm: number;
+  lat: number;
+  lng: number;
+  provenance: Provenance;
+}
+
+export interface NearbyPlacesResult {
+  count: number;
+  names: string[];
+  places: NearbyPlaceItem[];
+  provenance: Provenance;
+  note?: string | null;
+  category?: string;
+  radiusKm?: number;
 }
 
 export interface LocationData {
@@ -125,7 +162,16 @@ export interface LocationData {
     footfallGainPct: number;
     rentDifferentialPct: number;
     competitorDensity: 'Lower' | 'Similar' | 'Higher';
+    provenance?: Provenance;
   };
+  provenance: Provenance;
+  competitorsCountProvenance: Provenance;
+  competitorsNote?: string;
+  footfallMonthlyProvenance: Provenance;
+  residentialColoniesNearbyProvenance: Provenance;
+  marketDistanceKmProvenance: Provenance;
+  scoreProvenance: Provenance;
+  metricsProvenance: LocationMetricsProvenance;
 }
 
 export interface BusinessInput {
@@ -252,3 +298,53 @@ export interface ExistingBusinessDiagnosis {
     actionChecklist: string[];
   };
 }
+
+// Local Feasibility Report
+export interface MarketReachData {
+  catchmentKm: number;
+  summary: string;
+  distributionChannels: string[];
+  competitors5kmCount?: number;
+  competitors10kmCount?: number;
+  competitors5kmProvenance?: Provenance;
+  competitors10kmProvenance?: Provenance;
+  population5km?: number | null;
+  population10km?: number | null;
+  densityPer10kAt5km?: number | null;
+  densityPer10kAt10km?: number | null;
+}
+
+export interface OpportunityItem {
+  niche: string;
+  why: string;
+}
+
+export interface SwotData {
+  strengths: string[];
+  weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
+}
+
+export interface ThreatItem {
+  type: 'supply_chain' | 'seasonal' | 'single_buyer' | 'other';
+  description: string;
+  mitigation: string;
+}
+
+export interface PricingGuidanceData {
+  strategy: string;
+  priceBandNote: string;
+}
+
+export interface LocalFeasibilityReport {
+  marketReach: MarketReachData;
+  opportunities: OpportunityItem[];
+  swot: SwotData;
+  threats: ThreatItem[];
+  pricing: PricingGuidanceData;
+  assumptions: string[];
+  aiGenerated: boolean;
+  provenance: Provenance;
+}
+

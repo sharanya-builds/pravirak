@@ -501,6 +501,45 @@ export interface TranslationStrings {
   optionAddCapitalTitle: string;
   optionScaleDownTitle: string;
   optionPhasedTitle: string;
+
+  // Data Provenance
+  provenanceLegendTitle: string;
+  badgeMeasured: string;
+  badgeEstimated: string;
+  badgeAi: string;
+  provenanceMeasuredDesc: string;
+  provenanceEstimatedDesc: string;
+  provenanceAiDesc: string;
+
+  // Local Feasibility Report
+  localFeasibilityReportTitle: string;
+  localFeasibilityReportSubtitle: string;
+  marketReachTitle: string;
+  opportunityAnalysisTitle: string;
+  swotTitle: string;
+  threatsTitle: string;
+  competitorMapTitle: string;
+  pricingGuidanceTitle: string;
+  swotStrengths: string;
+  swotWeaknesses: string;
+  swotOpportunities: string;
+  swotThreats: string;
+  threatSupplyChain: string;
+  threatSeasonal: string;
+  threatSingleBuyer: string;
+  threatOther: string;
+  pricingGuidanceNoteLabel: string;
+  competitorDensityNotice: string;
+  loadingFeasibility: string;
+  errorFeasibility: string;
+  retryFeasibility: string;
+  channelsLabel: string;
+  catchmentRadiusLabel: string;
+  competitorsIn5km: string;
+  competitorsIn10km: string;
+  densityPer10kLabel: string;
+  aiReportBadge: string;
+  templateReportBadge: string;
 }
 
 export const TRANSLATIONS: Record<Language, TranslationStrings> = {
@@ -672,7 +711,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     sectionAdvisor: '6. Ask Pravirak AI Advisor',
     verifiableAuditTrail: 'Verifiable Audit Trail',
     whyThisDecision: 'WHY THIS DECISION?',
-    multiSourceSynthesis: 'Multi-source empirical data synthesis',
+    multiSourceSynthesis: 'Multi-source data & estimates synthesis',
     vulnerabilityAssessment: 'Vulnerability Assessment',
     identifiedRiskFactors: 'Identified Business Risk Factors',
     whatShouldDoNext: 'What should you do next?',
@@ -870,7 +909,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dossierRef: 'Dossier Ref:',
     dateOfAppraisal: 'Date of Appraisal:',
     statusLabel: 'Status:',
-    verifiedAnalysis: 'Empirically Verified & Complete',
+    verifiedAnalysis: 'Analysis Complete & Evaluated',
     executiveSummary: 'Executive Summary & Appraisal Verdict',
     marketOutlook: 'Catchment Market & Demographic Outlook',
     financialFeasibilitySchedule: 'Deterministic Financial Schedule',
@@ -887,7 +926,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     // Additional UI & Table Keys
     nextStepMapMsg: 'Explore OpenStreetMap spatial layers and see if an alternative location gives higher viability.',
     nextStepMapCta: 'View Market Map',
-    nextStepFinMsg: 'Now that you have verified location footfall and competition, evaluate whether your capital covers machinery and debt repayment.',
+    nextStepFinMsg: 'Now that you have reviewed location footfall and competition estimates, evaluate whether your capital covers machinery and debt repayment.',
     nextStepFinCta: 'Check Financial Feasibility',
     nextStepStressMsg: 'Before applying for bank loans, simulate what happens if customer demand drops by 20%.',
     nextStepStressCta: 'Test Economic Shocks (Stress Test)',
@@ -1005,6 +1044,45 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     optionAddCapitalTitle: '1. Infuse Additional Capital',
     optionScaleDownTitle: '2. Scale Down Initial Capex',
     optionPhasedTitle: '3. Execute in Phased Rollout',
+
+    // Data Provenance
+    provenanceLegendTitle: 'Data Provenance',
+    badgeMeasured: 'Measured',
+    badgeEstimated: 'Estimated',
+    badgeAi: 'AI',
+    provenanceMeasuredDesc: 'Real API / OSM',
+    provenanceEstimatedDesc: 'Model estimate / benchmark',
+    provenanceAiDesc: 'LLM reasoning',
+
+    // Local Feasibility Report
+    localFeasibilityReportTitle: 'Local Feasibility Report',
+    localFeasibilityReportSubtitle: 'Empirical micro-catchment analysis and strategic feasibility assessment.',
+    marketReachTitle: '1. Market Reach & Catchment',
+    opportunityAnalysisTitle: '2. Opportunity Analysis',
+    swotTitle: '3. SWOT Analysis',
+    threatsTitle: '4. Threats & Mitigations',
+    competitorMapTitle: '5. Competitor Map (OpenStreetMap)',
+    pricingGuidanceTitle: '6. Pricing Guidance',
+    swotStrengths: 'Strengths',
+    swotWeaknesses: 'Weaknesses',
+    swotOpportunities: 'Opportunities',
+    swotThreats: 'Threats',
+    threatSupplyChain: 'Supply Chain Risk',
+    threatSeasonal: 'Seasonal Risk',
+    threatSingleBuyer: 'Customer Concentration Risk',
+    threatOther: 'Operational Risk',
+    pricingGuidanceNoteLabel: 'Pricing Band Notice',
+    competitorDensityNotice: 'Competitor density per 10,000 omitted (population census count not available for this rural micro-market)',
+    loadingFeasibility: 'Compiling Local Feasibility Report...',
+    errorFeasibility: 'Unable to contact live advisor. Showing deterministic template fallback.',
+    retryFeasibility: 'Retry Analysis',
+    channelsLabel: 'Key Distribution Channels',
+    catchmentRadiusLabel: 'Catchment Radius',
+    competitorsIn5km: 'Competitors within 5 km',
+    competitorsIn10km: 'Competitors within 10 km',
+    densityPer10kLabel: 'Density per 10,000 population',
+    aiReportBadge: 'AI Generated',
+    templateReportBadge: 'Deterministic Template',
   },
 
   hi: {
@@ -1175,7 +1253,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     sectionAdvisor: '6. प्रवीरक एआई सलाहकार से पूछें',
     verifiableAuditTrail: 'सत्यापन योग्य ऑडिट ट्रेल',
     whyThisDecision: 'यह निर्णय क्यों?',
-    multiSourceSynthesis: 'बहु-स्रोत अनुभवजन्य डेटा संश्लेषण',
+    multiSourceSynthesis: 'बहु-स्रोत डेटा और अनुमान संश्लेषण',
     vulnerabilityAssessment: 'जोखिम मूल्यांकन',
     identifiedRiskFactors: 'पहचाने गए व्यावसायिक जोखिम कारक',
     whatShouldDoNext: 'आगे क्या करना चाहिए?',
@@ -1373,7 +1451,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dossierRef: 'डोजियर संदर्भ:',
     dateOfAppraisal: 'मूल्यांकन तिथि:',
     statusLabel: 'स्थिति:',
-    verifiedAnalysis: 'प्रमाणित एवं पूर्ण',
+    verifiedAnalysis: 'विश्लेषण पूर्ण एवं मूल्यांकित',
     executiveSummary: 'कार्यकारी सारांश एवं मूल्यांकन निर्णय',
     marketOutlook: 'कैचमेंट बाजार और जनसांख्यिकीय दृष्टिकोण',
     financialFeasibilitySchedule: 'निश्चित वित्तीय अनुसूची',
@@ -1390,7 +1468,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     // Additional UI & Table Keys
     nextStepMapMsg: 'ओपनस्ट्रीटमैप स्थानिक परतों का अन्वेषण करें और देखें कि क्या कोई वैकल्पिक स्थान उच्च व्यवहार्यता देता है।',
     nextStepMapCta: 'बाज़ार मानचित्र देखें',
-    nextStepFinMsg: 'अब जब आपने स्थान, फुटफॉल और प्रतिस्पर्धा का सत्यापन कर लिया है, तो मूल्यांकन करें कि क्या आपकी पूंजी मशीनरी और ऋण चुकौती को कवर करती है।',
+    nextStepFinMsg: 'अब जब आपने स्थान, फुटफॉल और प्रतिस्पर्धा के अनुमानों की समीक्षा कर ली है, तो मूल्यांकन करें कि क्या आपकी पूंजी मशीनरी और ऋण चुकौती को कवर करती है।',
     nextStepFinCta: 'वित्तीय व्यवहार्यता जांचें',
     nextStepStressMsg: 'बैंक ऋण के लिए आवेदन करने से पहले अनुकरण करें कि मांग में 20% की गिरावट आने पर क्या होगा।',
     nextStepStressCta: 'आर्थिक झटके का परीक्षण (तनाव परीक्षण)',
@@ -1508,6 +1586,45 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     optionAddCapitalTitle: '1. अतिरिक्त पूंजी जोड़ें',
     optionScaleDownTitle: '2. प्रारंभिक पूंजीगत व्यय कम करें',
     optionPhasedTitle: '3. चरणबद्ध तरीके से लागू करें',
+
+    // Data Provenance
+    provenanceLegendTitle: 'डेटा स्रोत (Provenance)',
+    badgeMeasured: 'मापा गया (Measured)',
+    badgeEstimated: 'अनुमानित (Estimated)',
+    badgeAi: 'एआई (AI)',
+    provenanceMeasuredDesc: 'वास्तविक API / OSM',
+    provenanceEstimatedDesc: 'मॉडल अनुमान / बेंचमार्क',
+    provenanceAiDesc: 'एलएलएम विश्लेषण',
+
+    // Local Feasibility Report
+    localFeasibilityReportTitle: 'स्थानीय व्यवहार्यता रिपोर्ट (Local Feasibility Report)',
+    localFeasibilityReportSubtitle: 'स्थानिक कैचमेंट विश्लेषण और रणनीतिक व्यवहार्यता मूल्यांकन।',
+    marketReachTitle: '1. बाज़ार पहुंच और कैचमेंट',
+    opportunityAnalysisTitle: '2. अवसर विश्लेषण (अनछुए क्षेत्र)',
+    swotTitle: '3. स्वाट (SWOT) विश्लेषण',
+    threatsTitle: '4. व्यावसायिक खतरे और समाधान',
+    competitorMapTitle: '5. प्रतिस्पर्धी मानचित्र (OpenStreetMap)',
+    pricingGuidanceTitle: '6. मूल्य निर्धारण मार्गदर्शन',
+    swotStrengths: 'ताकत (Strengths)',
+    swotWeaknesses: 'कमजोरियां (Weaknesses)',
+    swotOpportunities: 'अवसर (Opportunities)',
+    swotThreats: 'खतरे (Threats)',
+    threatSupplyChain: 'आपूर्ति श्रृंखला जोखिम',
+    threatSeasonal: 'मौसमी जोखिम',
+    threatSingleBuyer: 'ग्राहक निर्भरता जोखिम',
+    threatOther: 'परिचालन जोखिम',
+    pricingGuidanceNoteLabel: 'मूल्य निर्धारण सूचना',
+    competitorDensityNotice: 'प्रति 10,000 आबादी पर घनत्व छोड़ दिया गया है (इस ग्रामीण क्षेत्र के लिए जनसंख्या डेटा उपलब्ध नहीं है)',
+    loadingFeasibility: 'स्थानीय व्यवहार्यता रिपोर्ट तैयार की जा रही है...',
+    errorFeasibility: 'लाइव सलाहकार से संपर्क नहीं हो सका। निश्चित टेम्पलेट प्रदर्शित।',
+    retryFeasibility: 'पुनः प्रयास करें',
+    channelsLabel: 'प्रमुख वितरण चैनल',
+    catchmentRadiusLabel: 'कैचमेंट दायरा',
+    competitorsIn5km: '5 किमी के दायरे में प्रतिस्पर्धी',
+    competitorsIn10km: '10 किमी के दायरे में प्रतिस्पर्धी',
+    densityPer10kLabel: 'प्रति 10,000 आबादी पर घनत्व',
+    aiReportBadge: 'AI विश्लेषित',
+    templateReportBadge: 'निश्चित टेम्पलेट',
   },
 
   te: {
@@ -1659,7 +1776,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     sectionAdvisor: '6. ప్రవీరక్ ఏఐ సలహాదారుని అడగండి',
     verifiableAuditTrail: 'ధృవీకరించదగిన ఆడిట్ వివరాలు',
     whyThisDecision: 'ఈ నిర్ణయానికి కారణాలు',
-    multiSourceSynthesis: 'బహుళ వనరుల వాస్తవిక డేటా సంశ్లేషణ',
+    multiSourceSynthesis: 'బహుళ వనరుల డేటా మరియు అంచనాల సంశ్లేషణ',
     vulnerabilityAssessment: 'నష్టాల & సంక్షోభాల అంచనా',
     identifiedRiskFactors: 'గుర్తించబడిన వ్యాపార నష్ట కారకాలు',
     whatShouldDoNext: 'తదుపరి మీరు ఏమి చేయాలి?',
@@ -1831,7 +1948,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dossierRef: 'నివేదిక సంఖ్య:',
     dateOfAppraisal: 'విశ్లేషణ తేదీ:',
     statusLabel: 'స్థితి:',
-    verifiedAnalysis: 'ధృవీకరించబడింది & పూర్తయింది',
+    verifiedAnalysis: 'విశ్లేషణ పూర్తయింది & అంచనా వేయబడింది',
     executiveSummary: 'కార్యనిర్వాహక సారాంశం మరియు విశ్లేషణ తీర్పు',
     marketOutlook: 'మార్కెట్ మరియు జనాభా వివరాలు',
     financialFeasibilitySchedule: 'కచ్చితమైన ఆర్థిక ప్రణాళిక',
@@ -1848,7 +1965,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     // Additional UI & Table Keys
     nextStepMapMsg: 'ఓపెన్‌స్ట్రీట్‌మ్యాప్ ప్రాదేశిక పొరలను అన్వేషించండి మరియు ప్రత్యామ్నాయ స్థానం ఎక్కువ లాభదాయకతను ఇస్తుందో లేదో చూడండి.',
     nextStepMapCta: 'మార్కెట్ మ్యాప్ చూడండి',
-    nextStepFinMsg: 'ఇప్పుడు మీరు స్థానం, రద్దీ మరియు పోటీని ధృవీకరించిన తర్వాత, మీ పెట్టుబడి యంత్రాలు మరియు రుణ వాయిదాలను కవర్ చేస్తుందో లేదో అంచనా వేయండి.',
+    nextStepFinMsg: 'ఇప్పుడు మీరు స్థానం, రద్దీ మరియు పోటీ అంచనాలను సమీక్షించిన తర్వాత, మీ పెట్టుబడి యంత్రాలు మరియు రుణ వాయిదాలను కవర్ చేస్తుందో లేదో అంచనా వేయండి.',
     nextStepFinCta: 'ఆర్థిక సాధ్యాసాధ్యాలను తనిఖీ చేయండి',
     nextStepStressMsg: 'బ్యాంకు రుణాల కోసం దరఖాస్తు చేసుకునే ముందు కస్టమర్ల డిమాండ్ 20% తగ్గితే ఏమి జరుగుతుందో తెలుసుకోండి.',
     nextStepStressCta: 'ఆర్థిక ఒడిదుడుకుల పరీక్ష (ఒత్తిడి పరీక్ష)',
@@ -1966,5 +2083,44 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     optionAddCapitalTitle: '1. అదనపు మూలధనాన్ని చేర్చండి',
     optionScaleDownTitle: '2. ప్రారంభ ప్రాజెక్ట్ పరిమాణాన్ని తగ్గించండి',
     optionPhasedTitle: '3. దశలవారీగా ప్రారంభించండి',
+
+    // Data Provenance
+    provenanceLegendTitle: 'డేటా మూలం (Provenance)',
+    badgeMeasured: 'వాస్తవికమైనది (Measured)',
+    badgeEstimated: 'అంచనా (Estimated)',
+    badgeAi: 'AI',
+    provenanceMeasuredDesc: 'నిజమైన API / OSM',
+    provenanceEstimatedDesc: 'మోడల్ అంచనా / బెంచ్‌మార్క్',
+    provenanceAiDesc: 'LLM విశ్లేషణ',
+
+    // Local Feasibility Report
+    localFeasibilityReportTitle: 'స్థానిక సాధ్యాసాధ్యాల నివేదిక (Local Feasibility Report)',
+    localFeasibilityReportSubtitle: 'ప్రాంతీయ క్యాచ్‌మెంట్ విశ్లేషణ మరియు వ్యాపార సాధ్యత అంచనా.',
+    marketReachTitle: '1. మార్కెట్ పరిధి & క్యాచ్‌మెంట్',
+    opportunityAnalysisTitle: '2. అవకాశాల విశ్లేషణ',
+    swotTitle: '3. SWOT విశ్లేషణ',
+    threatsTitle: '4. వ్యాపార ముప్పులు & పరిష్కారాలు',
+    competitorMapTitle: '5. పోటీదారుల మ్యాప్ (OpenStreetMap)',
+    pricingGuidanceTitle: '6. ధరల మార్గదర్శకత్వం',
+    swotStrengths: 'బలాలు (Strengths)',
+    swotWeaknesses: 'బలహీనతలు (Weaknesses)',
+    swotOpportunities: 'అవకాశాలు (Opportunities)',
+    swotThreats: 'ముప్పులు (Threats)',
+    threatSupplyChain: 'సరఫరా గొలుసు ముప్పు',
+    threatSeasonal: 'సీజనల్ ముప్పు',
+    threatSingleBuyer: 'కస్టమర్ ఆధారిత ముప్పు',
+    threatOther: 'ఇతర కార్యాచరణ ముప్పు',
+    pricingGuidanceNoteLabel: 'ధరల మార్గదర్శక సూచన',
+    competitorDensityNotice: 'జనాభా గణాంకాలు అందుబాటులో లేనందున ప్రతి 10,000 జనాభాకు పోటీ సాంద్రత నిలిపివేయబడింది',
+    loadingFeasibility: 'స్థానిక సాధ్యాసాధ్యాల నివేదిక రూపొందించబడుతోంది...',
+    errorFeasibility: 'లైవ్ నివేదికను రూపొందించడంలో విఫలమైంది. ఖచ్చితమైన టెంప్లేట్ చూపబడుతోంది.',
+    retryFeasibility: 'మళ్లీ ప్రయత్నించండి',
+    channelsLabel: 'ప్రధాన పంపిణీ మార్గాలు',
+    catchmentRadiusLabel: 'క్యాచ్‌మెంట్ పరిధి',
+    competitorsIn5km: '5 కి.మీ పరిధిలోని పోటీదారులు',
+    competitorsIn10km: '10 కి.మీ పరిధిలోని పోటీదారులు',
+    densityPer10kLabel: 'ప్రతి 10,000 జనాభాకు సాంద్రత',
+    aiReportBadge: 'AI విశ్లేషణ',
+    templateReportBadge: 'ఖచ్చితమైన టెంప్లేట్',
   }
 };

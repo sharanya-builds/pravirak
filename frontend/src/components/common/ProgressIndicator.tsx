@@ -117,7 +117,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                     isDone ? 'text-slate-800' : isCurrent ? 'text-indigo-950' : 'text-slate-400'
                   }`}>
                     <span>{step.label}</span>
-                    {isDone && <span className="text-[10px] text-emerald-700 font-semibold uppercase">Verified</span>}
+                    {isDone && <span className="text-[10px] text-emerald-700 font-semibold uppercase">Complete</span>}
                     {isCurrent && <span className="text-[10px] text-indigo-700 font-semibold uppercase animate-pulse">Processing...</span>}
                   </div>
                   <p className={`text-[11px] mt-0.5 ${

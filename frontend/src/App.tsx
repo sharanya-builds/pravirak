@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   BusinessDecisionResult,
   BusinessInput,
   FinancialAnalysis,
   LocationData,
+  NearbyPlacesResult,
+  LocalFeasibilityReport,
   SelectedLocation
 } from './types';
 
@@ -44,6 +46,8 @@ import { GOVERNMENT_SCHEMES } from './data/schemes';
 import { computeFinancialAnalysis } from './engine/financialEngine';
 import { synthesizeDecision } from './engine/decisionEngine';
 import { analyzeLocationForBusiness } from './engine/locationAnalysisEngine';
+import { fetchNearbyPlaces } from './services/placesService';
+import { fetchLocalFeasibilityReport } from './services/localFeasibilityService';
 
 import { HelpCircle, X, ShieldCheck } from 'lucide-react';
 
@@ -94,11 +98,36 @@ function AppShellRouter() {
   const [activeBusinessDbId, setActiveBusinessDbId] = useState<number | null>(null);
   const [isAlternativeAdopted, setIsAlternativeAdopted] = useState(false);
   const [hasActiveAnalysis, setHasActiveAnalysis] = useState(false);
+  const [realCompetitors, setRealCompetitors] = useState<NearbyPlacesResult | null>(null);
+
+  // Fetch real competitor places from Overpass API proxy when location/category changes
+  useEffect(() => {
+    let isCancelled = false;
+    const loc = businessInput.location;
+    if (loc && typeof loc.latitude === 'number' && typeof loc.longitude === 'number') {
+      fetchNearbyPlaces(loc.latitude, loc.longitude, 1.5, businessInput.category || businessInput.businessIdea)
+        .then((res) => {
+          if (!isCancelled) {
+            setRealCompetitors(res);
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setRealCompetitors(null);
+          }
+        });
+    } else {
+      setRealCompetitors(null);
+    }
+    return () => {
+      isCancelled = true;
+    };
+  }, [businessInput.location?.latitude, businessInput.location?.longitude, businessInput.category, businessInput.businessIdea]);
 
   // Derive base location analysis from the current business input
   const baseLocation: LocationData = useMemo(() => {
-    return analyzeLocationForBusiness(businessInput.businessIdea, businessInput.location);
-  }, [businessInput.businessIdea, businessInput.location]);
+    return analyzeLocationForBusiness(businessInput.businessIdea, businessInput.location, realCompetitors);
+  }, [businessInput.businessIdea, businessInput.location, realCompetitors]);
 
   const activeLocation: LocationData = useMemo(() => {
     if (isAlternativeAdopted && baseLocation.alternativeLocation) {
@@ -136,6 +165,39 @@ function AppShellRouter() {
   }, [businessInput, activeLocation, financials, currentLanguage]);
 
   const schemes = GOVERNMENT_SCHEMES;
+
+  const [feasibilityReport, setFeasibilityReport] = useState<LocalFeasibilityReport | null>(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+    fetchLocalFeasibilityReport({
+      category: businessInput.category || businessInput.businessIdea,
+      location: activeLocation,
+      ownCapital: businessInput.ownCapital,
+      projectCost: financials.projectCost,
+      competitorCount: activeLocation.competitorsNearbyCount,
+      catchmentPopulationEstimate: null,
+      language: currentLanguage
+    })
+      .then((res) => {
+        if (!isCancelled) {
+          setFeasibilityReport(res);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    businessInput.category,
+    businessInput.businessIdea,
+    activeLocation.lat,
+    activeLocation.lng,
+    activeLocation.competitorsNearbyCount,
+    businessInput.ownCapital,
+    financials.projectCost,
+    currentLanguage
+  ]);
 
   // Not authenticated and not guest -> show login
   if (isLoading) {
@@ -380,6 +442,7 @@ function AppShellRouter() {
           onToggleAlternativeLocation={toggleAlternativeLocation}
           onEditInputs={() => setCurrentView('NEW_INPUT')}
           onViewFullDossier={handleViewFullDossier}
+          feasibilityReport={feasibilityReport}
         />
       )}
 
@@ -391,6 +454,7 @@ function AppShellRouter() {
           decisionResult={decisionResult}
           recommendedScheme={schemes[0]}
           onReset={() => setCurrentView('NEW_INPUT')}
+          feasibilityReport={feasibilityReport}
         />
       )}
 

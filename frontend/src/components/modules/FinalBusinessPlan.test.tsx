@@ -41,7 +41,21 @@ const mockLocation: LocationData = {
   demandSignals: ['High local dairy demand'],
   customerColonies: ['Colony 1'],
   transitPoints: ['Main bus stop'],
-  commercialHubs: ['Market square']
+  commercialHubs: ['Market square'],
+  provenance: 'ESTIMATED',
+  competitorsCountProvenance: 'ESTIMATED',
+  footfallMonthlyProvenance: 'ESTIMATED',
+  residentialColoniesNearbyProvenance: 'ESTIMATED',
+  marketDistanceKmProvenance: 'ESTIMATED',
+  scoreProvenance: 'ESTIMATED',
+  metricsProvenance: {
+    score: 'ESTIMATED',
+    footfallMonthly: 'ESTIMATED',
+    residentialColoniesNearby: 'ESTIMATED',
+    competitorsNearbyCount: 'ESTIMATED',
+    marketDistanceKm: 'ESTIMATED',
+    alternativeLocation: 'ESTIMATED'
+  }
 };
 
 const mockFinancials: FinancialAnalysis = {

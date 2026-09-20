@@ -4,10 +4,13 @@ import {
   DemandOpportunityMarker, 
   LocationData, 
   LocationFitAnalysis, 
+  NearbyPlacesResult,
+  Provenance,
   ScoreFactor, 
   SelectedLocation 
 } from '../types';
 import { matchBusinessCategory } from './financialEngine';
+import { fetchNearbyPlaces } from '../services/placesService';
 
 /**
  * Deterministic seeded PRNG (mulberry32) so the same business+location
@@ -77,7 +80,8 @@ const BENCHMARK_TO_KEY: Record<string, string> = {
  */
 export function analyzeLocationForBusiness(
   businessIdea: string,
-  selectedLoc: SelectedLocation
+  selectedLoc: SelectedLocation,
+  realCompetitors?: NearbyPlacesResult | null
 ): LocationData {
   const addr = (selectedLoc.address || '').toLowerCase();
   const city = selectedLoc.city || 'Hyderabad';
@@ -177,8 +181,34 @@ export function analyzeLocationForBusiness(
     compCountBase = isKirana ? 3 : 1;
     compDetail = 'Village/mandal-level markets typically support very few direct competitors — the real constraint is thin demand, not saturation.';
   }
-  const compScore = clamp(compBase + randRange(rng, -8, 8), 35, 92);
-  const compCount = Math.max(1, compCountBase + randRange(rng, -1, 2));
+
+  // Competitor resolution:
+  // If realCompetitors from OpenStreetMap Overpass is provided and has MEASURED provenance with count > 0:
+  // Use real measured competitor data and real OSM names.
+  // Otherwise fall back to PRNG model estimate, set provenance to 'ESTIMATED' with the note,
+  // and NEVER invent competitor names!
+  const hasMeasuredCompetitors =
+    Boolean(realCompetitors &&
+    realCompetitors.provenance === 'MEASURED' &&
+    typeof realCompetitors.count === 'number' &&
+    realCompetitors.count > 0);
+
+  const compCount = hasMeasuredCompetitors
+    ? realCompetitors!.count
+    : Math.max(1, compCountBase + randRange(rng, -1, 2));
+
+  const competitorProvenance: Provenance = hasMeasuredCompetitors ? 'MEASURED' : 'ESTIMATED';
+  const competitorNote = hasMeasuredCompetitors
+    ? undefined
+    : 'No OpenStreetMap data found for this area (common in villages); count is a model estimate';
+
+  if (hasMeasuredCompetitors) {
+    compDetail = `${compCount} direct competitor outlet(s) identified from OpenStreetMap within radial zone.`;
+  }
+
+  const compScore = hasMeasuredCompetitors
+    ? clamp(85 - compCount * 3, 35, 92)
+    : clamp(compBase + randRange(rng, -8, 8), 35, 92);
 
   // Factor 3: Customer Accessibility (0 - 100)
   let accessBase = 80;
@@ -262,28 +292,28 @@ export function analyzeLocationForBusiness(
       name: 'Demand Signal',
       score: demandScore,
       label: demandScore >= 80 ? 'Strong' : 'Moderate',
-      provenance: selectedLoc.source === 'GOOGLE_PLACES' || selectedLoc.source === 'OPENSTREETMAP' ? 'SOURCED' : 'ESTIMATED',
+      provenance: 'ESTIMATED',
       detail: demandDetail
     },
     {
       name: 'Competition Pressure',
       score: compScore,
       label: compScore >= 75 ? 'Low (Favorable)' : compScore >= 60 ? 'Moderate' : 'High Saturation',
-      provenance: 'ESTIMATED',
+      provenance: competitorProvenance,
       detail: compDetail
     },
     {
       name: 'Customer Accessibility',
       score: accessScore,
       label: accessScore >= 80 ? 'High' : 'Moderate',
-      provenance: 'OBSERVED',
+      provenance: 'ESTIMATED',
       detail: accessDetail
     },
     {
       name: 'Business-Location Fit',
       score: fitScore,
       label: fitScore >= 80 ? 'Excellent' : 'Average',
-      provenance: 'AI INTERPRETATION',
+      provenance: 'ESTIMATED',
       detail: fitDetail
     },
     {
@@ -297,7 +327,7 @@ export function analyzeLocationForBusiness(
       name: 'Market Opportunity',
       score: oppScore,
       label: oppScore >= 80 ? 'Attractive' : 'Standard',
-      provenance: 'AI INTERPRETATION',
+      provenance: 'ESTIMATED',
       detail: oppDetail
     }
   ];
@@ -306,21 +336,9 @@ export function analyzeLocationForBusiness(
     overallFitScore,
     fitCategory,
     factors,
-    disclaimer: 'Never present simulated/demo market data as live real-world evidence. Provenance labels show origin of each component.'
+    disclaimer: 'Data provenance indicators show whether metrics are Measured from real APIs, Estimated via models, or AI Generated.'
   };
 
-  // Generate dynamic competitor POIs around user's coordinates. Names and
-  // trade type follow the actual matched category (not just stationery vs
-  // bakery vs "everything else"), and per-entry jitter comes from the same
-  // seeded PRNG so every distinct (business, address) gets its own layout.
-  const COMPETITOR_NAME_POOL: Record<CategoryKey, string[]> = {
-    mobile_repair: ['QuickFix Mobile Care', 'City Electronics Repair', 'Smart Screen Solutions', 'TechFix Point'],
-    bakery: ['Sweet Chariot Bakes', 'Daily Fresh Patisserie', 'Iyengar Bakery', 'Cakes & Treats'],
-    kirana: ['Local Express Retail', 'Classic Traders General Store', 'Apex Kirana', 'Choice Point Provisions'],
-    cloud_kitchen: ['Tasty Bites Cloud Kitchen', "Amma's Kitchen Delivery", 'QuickServe Meals', 'Spice Route Tiffins'],
-    garments: ['Fashion Junction', 'Elegant Collections', 'Style Studio Boutique', 'Trendz Apparel'],
-    dairy: ['Shree Krishna Dairy Farm', 'Amrit Milk Suppliers', 'Gokul Dairy Chilling Unit', 'Fresh Farms Cooperative']
-  };
   const competitorTypeLabel: Record<CategoryKey, string> = {
     mobile_repair: 'Mobile & Electronics Service',
     bakery: 'Bakery & Cake',
@@ -329,53 +347,50 @@ export function analyzeLocationForBusiness(
     garments: 'Garments & Apparel Retail',
     dairy: 'Dairy & Milk Supply'
   };
-  const compPrefixes = isStationeryLike
-    ? ['Balaji Book House', 'Sri Krishna Stationers & Xerox', 'Reliance Digital Prints', "Students' Corner Book Shop"]
-    : COMPETITOR_NAME_POOL[categoryKey];
   const compTypeLabel = isStationeryLike ? 'Stationery & Printing' : competitorTypeLabel[categoryKey];
 
-  const competitors: CompetitorPOI[] = [];
-  for (let i = 0; i < Math.min(compCount, compPrefixes.length); i++) {
-    // Offset slightly (0.003 - 0.009 deg ~ 300m - 900m), with per-entry seeded jitter
-    const angle = (i * (360 / compPrefixes.length) + randRange(rng, -20, 20) * i) * (Math.PI / 180);
-    const distanceOffset = 0.003 + i * 0.002 + rng() * 0.0015;
-    competitors.push({
-      id: `comp-${i + 1}`,
-      name: compPrefixes[i],
-      type: compTypeLabel,
-      distanceKm: Math.round(distanceOffset * 111 * 10) / 10,
-      lat: lat + Math.sin(angle) * distanceOffset,
-      lng: lng + Math.cos(angle) * distanceOffset,
-      strength: i === 0 ? 'Strong' : i === 1 ? 'Moderate' : 'Weak',
-      provenance: 'DEMO / ESTIMATED DATA'
-    });
-  }
+  // Real competitor POIs only if measured from Overpass.
+  // Never invent competitor names! For estimated counts, show count without names.
+  const competitors: CompetitorPOI[] = hasMeasuredCompetitors
+    ? (realCompetitors!.places || [])
+        .filter((p) => p.name && p.name.trim().length > 0)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          type: p.type || compTypeLabel,
+          distanceKm: p.distanceKm,
+          lat: p.lat,
+          lng: p.lng,
+          strength: p.distanceKm <= 0.5 ? 'Strong' : p.distanceKm <= 1.0 ? 'Moderate' : 'Weak',
+          provenance: 'MEASURED' as Provenance
+        }))
+    : [];
 
   // Generate complementary businesses relevant to the actual category
   const COMPLEMENTARY_POOL: Record<CategoryKey, ComplementaryBusinessPOI[]> = {
     mobile_repair: [
-      { id: 'cb-1', name: 'Regus Tech Business Park', type: 'IT Office Complex', distanceKm: 0.4, lat: lat + 0.0035, lng: lng - 0.0025, synergy: 'Working professionals nearby generate steady device screen/battery repair demand.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'Narayana Junior College & Academy', type: 'Educational Institution', distanceKm: 0.7, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Student footfall for affordable accessory and quick-repair services.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'Regus Tech Business Park', type: 'IT Office Complex', distanceKm: 0.4, lat: lat + 0.0035, lng: lng - 0.0025, synergy: 'Working professionals nearby generate steady device screen/battery repair demand.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'Narayana Junior College & Academy', type: 'Educational Institution', distanceKm: 0.7, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Student footfall for affordable accessory and quick-repair services.', provenance: 'ESTIMATED' }
     ],
     bakery: [
-      { id: 'cb-1', name: 'Cafe Coffee Corner', type: 'Cafe', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Shared evening footfall between cafe and bakery browsing.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'City Convention Hall', type: 'Event Venue', distanceKm: 0.9, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Recurring bulk orders for celebration and event cakes.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'Cafe Coffee Corner', type: 'Cafe', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Shared evening footfall between cafe and bakery browsing.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'City Convention Hall', type: 'Event Venue', distanceKm: 0.9, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Recurring bulk orders for celebration and event cakes.', provenance: 'ESTIMATED' }
     ],
     kirana: [
-      { id: 'cb-1', name: 'Residents Welfare Association Block', type: 'Residential Society', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Daily repeat purchases from a captive nearby household base.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'Municipal Vegetable Market', type: 'Wet Market', distanceKm: 0.5, lat: lat - 0.0035, lng: lng + 0.0028, synergy: 'Cross-shopping traffic between fresh produce and packaged staples.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'Residents Welfare Association Block', type: 'Residential Society', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Daily repeat purchases from a captive nearby household base.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'Municipal Vegetable Market', type: 'Wet Market', distanceKm: 0.5, lat: lat - 0.0035, lng: lng + 0.0028, synergy: 'Cross-shopping traffic between fresh produce and packaged staples.', provenance: 'ESTIMATED' }
     ],
     cloud_kitchen: [
-      { id: 'cb-1', name: 'Corporate Tech Campus', type: 'IT Office Complex', distanceKm: 0.5, lat: lat + 0.0035, lng: lng - 0.0025, synergy: 'Steady lunch and evening delivery order volume from office staff.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'Residential Apartment Complex', type: 'Residential Cluster', distanceKm: 0.6, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Dinner-time delivery demand from nearby households.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'Corporate Tech Campus', type: 'IT Office Complex', distanceKm: 0.5, lat: lat + 0.0035, lng: lng - 0.0025, synergy: 'Steady lunch and evening delivery order volume from office staff.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'Residential Apartment Complex', type: 'Residential Cluster', distanceKm: 0.6, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Dinner-time delivery demand from nearby households.', provenance: 'ESTIMATED' }
     ],
     garments: [
-      { id: 'cb-1', name: 'High Street Shopping Row', type: 'Retail Strip', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Shared browsing footfall across adjoining apparel and lifestyle stores.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'Community Wedding Hall', type: 'Event Venue', distanceKm: 1.0, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Seasonal bulk demand for festive and wedding wear.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'High Street Shopping Row', type: 'Retail Strip', distanceKm: 0.3, lat: lat + 0.003, lng: lng - 0.002, synergy: 'Shared browsing footfall across adjoining apparel and lifestyle stores.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'Community Wedding Hall', type: 'Event Venue', distanceKm: 1.0, lat: lat - 0.004, lng: lng + 0.003, synergy: 'Seasonal bulk demand for festive and wedding wear.', provenance: 'ESTIMATED' }
     ],
     dairy: [
-      { id: 'cb-1', name: 'Cooperative Milk Collection Centre', type: 'Agri-Cooperative', distanceKm: 1.2, lat: lat + 0.006, lng: lng - 0.004, synergy: 'Established bulk offtake and price support for chilled milk.', provenance: 'DEMO / ESTIMATED DATA' },
-      { id: 'cb-2', name: 'Veterinary & Feed Supply Store', type: 'Agri Input Supplier', distanceKm: 0.8, lat: lat - 0.005, lng: lng + 0.004, synergy: 'Nearby access to feed, fodder and veterinary care for the herd.', provenance: 'DEMO / ESTIMATED DATA' }
+      { id: 'cb-1', name: 'Cooperative Milk Collection Centre', type: 'Agri-Cooperative', distanceKm: 1.2, lat: lat + 0.006, lng: lng - 0.004, synergy: 'Established bulk offtake and price support for chilled milk.', provenance: 'ESTIMATED' },
+      { id: 'cb-2', name: 'Veterinary & Feed Supply Store', type: 'Agri Input Supplier', distanceKm: 0.8, lat: lat - 0.005, lng: lng + 0.004, synergy: 'Nearby access to feed, fodder and veterinary care for the herd.', provenance: 'ESTIMATED' }
     ]
   };
   const complementaryBusinesses: ComplementaryBusinessPOI[] = COMPLEMENTARY_POOL[categoryKey];
@@ -389,7 +404,7 @@ export function analyzeLocationForBusiness(
       lat: lat + 0.005,
       lng: lng + 0.004,
       detail: `${300 + randRange(rng, 0, 25) * 100}+ resident households in daily walking/commuting range.`,
-      provenance: 'DEMO / ESTIMATED DATA'
+      provenance: 'ESTIMATED'
     },
     {
       id: 'dm-2',
@@ -398,7 +413,7 @@ export function analyzeLocationForBusiness(
       lat: lat - 0.003,
       lng: lng - 0.004,
       detail: `${(2000 + randRange(rng, 0, 120) * 100).toLocaleString('en-IN')}+ estimated daily commuter footfall during morning & evening peak.`,
-      provenance: 'DEMO / ESTIMATED DATA'
+      provenance: 'ESTIMATED'
     }
   ];
 
@@ -422,7 +437,8 @@ export function analyzeLocationForBusiness(
     advantageReason: `${Math.abs(rentDifferentialPct)}% lower commercial space rental with an estimated ${footfallGainPct}% higher accessible footfall and lower direct competitor density.`,
     footfallGainPct,
     rentDifferentialPct,
-    competitorDensity: 'Lower' as const
+    competitorDensity: 'Lower' as const,
+    provenance: 'ESTIMATED' as Provenance
   };
 
   return {
@@ -463,6 +479,46 @@ export function analyzeLocationForBusiness(
       'Main Arterial Commercial Street',
       'Local Market Plaza'
     ],
-    alternativeLocation
+    alternativeLocation,
+    provenance: competitorProvenance === 'MEASURED' ? 'MEASURED' : 'ESTIMATED',
+    competitorsCountProvenance: competitorProvenance,
+    competitorsNote: competitorNote,
+    footfallMonthlyProvenance: 'ESTIMATED',
+    residentialColoniesNearbyProvenance: 'ESTIMATED',
+    marketDistanceKmProvenance: 'ESTIMATED',
+    scoreProvenance: 'ESTIMATED',
+    metricsProvenance: {
+      score: 'ESTIMATED',
+      footfallMonthly: 'ESTIMATED',
+      residentialColoniesNearby: 'ESTIMATED',
+      competitorsNearbyCount: competitorProvenance,
+      marketDistanceKm: 'ESTIMATED',
+      alternativeLocation: 'ESTIMATED'
+    }
   };
+}
+
+/**
+ * Async location analysis that queries live OpenStreetMap competitor data
+ * via backend Overpass proxy, falling back to model estimates if unavailable.
+ */
+export async function analyzeLocationForBusinessAsync(
+  businessIdea: string,
+  selectedLoc: SelectedLocation,
+  radiusKm: number = 1.5
+): Promise<LocationData> {
+  const benchmark = matchBusinessCategory(businessIdea);
+  const categoryKey = BENCHMARK_TO_KEY[benchmark.category] || 'bakery';
+  let realCompetitors: NearbyPlacesResult | null = null;
+  try {
+    realCompetitors = await fetchNearbyPlaces(
+      selectedLoc.latitude,
+      selectedLoc.longitude,
+      radiusKm,
+      categoryKey
+    );
+  } catch {
+    // Fallback to model estimate handled inside analyzeLocationForBusiness
+  }
+  return analyzeLocationForBusiness(businessIdea, selectedLoc, realCompetitors);
 }

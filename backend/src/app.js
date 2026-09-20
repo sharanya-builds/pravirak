@@ -7,6 +7,7 @@ import reportRoutes from './routes/reportRoutes.js';
 import schemeRoutes from './routes/schemeRoutes.js';
 import geocodeRoutes from './routes/geocodeRoutes.js';
 import advisorRoutes from './routes/advisorRoutes.js';
+import placesRoutes from './routes/placesRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 export function createApp() {
@@ -71,6 +72,7 @@ export function createApp() {
   app.use('/api/schemes', schemeRoutes);
   app.use('/api/geocode', geocodeRoutes);
   app.use('/api/advisor', advisorRoutes);
+  app.use('/api/places', placesRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
