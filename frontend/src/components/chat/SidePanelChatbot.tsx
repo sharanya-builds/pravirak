@@ -246,33 +246,32 @@ export const SidePanelChatbot: React.FC<SidePanelChatbotProps> = ({
   return (
     <>
       {/* Side Panel Trigger Tab (Pinned to Right Edge, Never Obstructing Bottom Action Buttons) */}
-      <aside 
-        aria-label={t.askFloatingTooltip}
-        className="no-print fixed right-0 top-1/2 -translate-y-1/2 z-40 group"
-      >
-        <button
-          onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2.5 pl-3.5 pr-2.5 py-2.5 bg-[#0A192F] hover:bg-slate-900 text-white rounded-l-2xl shadow-2xl border-2 border-r-0 border-amber-400/90 hover:border-amber-400 transition-all duration-200 cursor-pointer transform hover:-translate-x-1 active:scale-95"
-          title={t.askFloatingTooltip}
-        >
-          <div className="relative">
-            <div className="w-8 h-8 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-400">
-              <Bot className="w-5 h-5 text-amber-400" />
-            </div>
-            {/* Pulsing online indicator */}
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0A192F] animate-pulse"></span>
-          </div>
-          <div className="text-left pr-0.5">
-            <div className="text-xs font-black tracking-wide text-white flex items-center gap-1">
-              <span>{t.askPravirakButton}</span>
-              <Sparkles className="w-3 h-3 text-amber-400" />
-            </div>
-            <div className="text-[10px] text-slate-300 font-medium">
-              AI Advisor
-            </div>
-          </div>
-        </button>
-      </aside>
+     <aside
+  aria-label={t.askFloatingTooltip}
+  className="no-print fixed right-0 top-1/2 -translate-y-1/2 z-40 group"
+>
+  <button
+    onClick={() => setIsOpen(true)}
+    className="flex items-center gap-0 md:group-hover:gap-2.5 pl-2.5 md:group-hover:pl-3.5 pr-2.5 py-2.5 bg-[#0A192F] hover:bg-slate-900 text-white rounded-l-2xl shadow-2xl border-2 border-r-0 border-amber-400/90 hover:border-amber-400 transition-all duration-200 cursor-pointer active:scale-95 overflow-hidden"
+    title={t.askFloatingTooltip}
+  >
+    <div className="relative shrink-0">
+      <div className="w-8 h-8 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-400">
+        <Bot className="w-5 h-5 text-amber-400" />
+      </div>
+      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#0A192F] animate-pulse"></span>
+    </div>
+    <div className="text-left pr-0.5 max-w-0 md:group-hover:max-w-[150px] opacity-0 md:group-hover:opacity-100 transition-all duration-200 overflow-hidden whitespace-nowrap">
+      <div className="text-xs font-black tracking-wide text-white flex items-center gap-1">
+        <span>{t.askPravirakButton}</span>
+        <Sparkles className="w-3 h-3 text-amber-400" />
+      </div>
+      <div className="text-[10px] text-slate-300 font-medium">
+        AI Advisor
+      </div>
+    </div>
+  </button>
+</aside>
 
       {/* Backdrop overlay */}
       {isOpen && (
