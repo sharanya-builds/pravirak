@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Printer, 
   RotateCcw, 
   CheckSquare, 
   Square, 
-  Share2
+  Share2,
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  Landmark,
+  ArrowRight
 } from 'lucide-react';
 import { 
   BusinessDecisionResult, 
@@ -14,6 +19,9 @@ import {
   LocationData 
 } from '../../types';
 import { formatINR } from '../../engine/financialEngine';
+import { formatLocationField } from '../../engine/locationParser';
+import { reconcileSchemeLoan } from '../../engine/schemeReconciliation';
+import { SchemeLoanBreakdown } from '../common/SchemeLoanBreakdown';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -49,6 +57,13 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
   const toggleStep = (stepNumber: number) => {
     setCompletedSteps(prev => ({ ...prev, [stepNumber]: !prev[stepNumber] }));
   };
+
+  const reconciliation = useMemo(() => {
+    if (!input.ownCapital || input.ownCapital <= 0 || !financials.projectCost) {
+      return null;
+    }
+    return reconcileSchemeLoan(input.ownCapital, financials.projectCost);
+  }, [input.ownCapital, financials.projectCost]);
 
   const handlePrint = () => {
     window.print();
@@ -171,6 +186,34 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Administrative Hierarchy Details */}
+            <div className="mt-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <span className="text-slate-500 font-medium block">{t.villageLabel}:</span>
+                <strong className="text-slate-900 font-semibold block mt-0.5" data-testid="plan-village">
+                  {formatLocationField(location.village || input.location?.village)}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium block">{t.blockLabel}:</span>
+                <strong className="text-slate-900 font-semibold block mt-0.5" data-testid="plan-block">
+                  {formatLocationField(location.block || input.location?.block)}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium block">{t.districtLabel}:</span>
+                <strong className="text-slate-900 font-semibold block mt-0.5" data-testid="plan-district">
+                  {formatLocationField(location.district || input.location?.district)}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium block">{t.stateLabel}:</span>
+                <strong className="text-slate-900 font-semibold block mt-0.5" data-testid="plan-state">
+                  {formatLocationField(location.state || input.location?.state)}
+                </strong>
+              </div>
+            </div>
           </div>
 
           {/* Section 2: Market Outlook & Competition */}
@@ -254,7 +297,173 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
             </div>
           </div>
 
-          {/* Section 4: Recommended Government Scheme */}
+          {/* Section 4: Government Scheme Loan Structure (PS Mode Engine Reconciliation) */}
+          {reconciliation && (
+            <div className="space-y-4" data-testid="plan-scheme-loan-section">
+              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-950 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
+                <span className="w-1.5 h-4 bg-indigo-950 rounded-xs"></span>
+                {t.govtSchemeLoanStructureTitle}
+              </h3>
+              <p className="text-xs text-slate-600 mb-4 font-medium">
+                {t.govtSchemeLoanStructureDesc}
+              </p>
+
+              {/* Capital Reconciliation Banner */}
+              {reconciliation.isFullyFunded ? (
+                <div
+                  className="mb-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 space-y-2"
+                  data-testid="plan-fully-funded-banner"
+                >
+                  <div className="flex items-center gap-2 text-emerald-900 font-extrabold text-sm sm:text-base">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <span>{t.fullyFundedTitle}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-emerald-950 leading-relaxed font-medium">
+                    Your available capital of{' '}
+                    <strong>₹{reconciliation.ownCapital.toLocaleString('en-IN')}</strong> meets the required 10% promoter contribution (
+                    <strong>₹{reconciliation.requiredMargin.toLocaleString('en-IN')}</strong>) for the planned project cost of{' '}
+                    <strong>₹{reconciliation.projectCost.toLocaleString('en-IN')}</strong>.
+                  </p>
+                  <div className="text-xs font-bold text-emerald-900 pt-1 flex flex-wrap gap-4">
+                    <span>
+                      {t.maxSupportableProjectCostTitle}:{' '}
+                      <strong className="font-mono text-emerald-950" data-testid="max-supportable-project">
+                        ₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}
+                      </strong>
+                    </span>
+                    {reconciliation.surplus > 0 && (
+                      <span>
+                        Surplus Capital Buffer:{' '}
+                        <strong className="font-mono text-emerald-950">
+                          ₹{reconciliation.surplus.toLocaleString('en-IN')}
+                        </strong>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="mb-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-4"
+                  data-testid="plan-shortfall-banner"
+                >
+                  <div className="flex items-start gap-2.5 text-amber-950">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-extrabold text-sm sm:text-base">
+                        {t.shortfallAlertTitle}:{' '}
+                        <span className="text-rose-600 font-mono" data-testid="plan-shortfall-amount">
+                          ₹{reconciliation.shortfall.toLocaleString('en-IN')}
+                        </span>
+                      </h4>
+                      <p className="text-xs sm:text-sm text-amber-900 mt-1 leading-relaxed font-medium">
+                        The estimated project cost of{' '}
+                        <strong>₹{reconciliation.projectCost.toLocaleString('en-IN')}</strong> requires a 10% promoter contribution of{' '}
+                        <strong>₹{reconciliation.requiredMargin.toLocaleString('en-IN')}</strong>, but your current available capital is{' '}
+                        <strong>₹{reconciliation.ownCapital.toLocaleString('en-IN')}</strong>.
+                      </p>
+                      <p className="text-xs text-amber-800 mt-1 font-semibold">
+                        The institutional scheme structure below is calculated for the largest project your current capital can support (
+                        <strong data-testid="max-supportable-shortfall-project">₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}</strong>).
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 3 Actionable Options to Bridge Shortfall */}
+                  {reconciliation.optionsIfShortfall && (
+                    <div className="bg-white/80 rounded-xl p-4 border border-amber-200/80 space-y-2.5 text-xs" data-testid="shortfall-options-card">
+                      <span className="font-extrabold text-slate-900 block text-xs uppercase tracking-wider">
+                        {t.threeOptionsToProceed}:
+                      </span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                        <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100 space-y-1">
+                          <strong className="text-slate-900 block font-bold">{t.optionAddCapitalTitle}</strong>
+                          <p className="text-slate-700 leading-relaxed font-medium">
+                            {reconciliation.optionsIfShortfall.addCapitalText}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100 space-y-1">
+                          <strong className="text-slate-900 block font-bold">{t.optionScaleDownTitle}</strong>
+                          <p className="text-slate-700 leading-relaxed font-medium">
+                            {reconciliation.optionsIfShortfall.scaleDownText}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100 space-y-1">
+                          <strong className="text-slate-900 block font-bold">{t.optionPhasedTitle}</strong>
+                          <p className="text-slate-700 leading-relaxed font-medium">
+                            {reconciliation.optionsIfShortfall.phasedExecutionText}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* How this was calculated card */}
+              <div
+                className="mb-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3"
+                data-testid="how-calculated-card"
+              >
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-200 text-slate-900">
+                  <HelpCircle className="w-4 h-4 text-indigo-950" />
+                  <h4 className="font-extrabold text-xs sm:text-sm uppercase tracking-wider">
+                    {t.howCalculatedTitle}
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block font-medium">Promoter Capital (M):</span>
+                    <strong className="text-slate-900 font-mono text-sm block mt-0.5" data-testid="how-calc-m">
+                      ₹{reconciliation.ownCapital.toLocaleString('en-IN')}
+                    </strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block font-medium">Plan Project Cost (B):</span>
+                    <strong className="text-slate-900 font-mono text-sm block mt-0.5" data-testid="how-calc-b">
+                      ₹{reconciliation.projectCost.toLocaleString('en-IN')}
+                    </strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block font-medium">10% Required Margin (0.10×B):</span>
+                    <strong className="text-slate-900 font-mono text-sm block mt-0.5" data-testid="how-calc-required-margin">
+                      ₹{reconciliation.requiredMargin.toLocaleString('en-IN')}
+                    </strong>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block font-medium">Max Supportable (M / 0.10):</span>
+                    <strong className="text-indigo-950 font-mono text-sm block mt-0.5" data-testid="how-calc-max-supportable">
+                      ₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-bold text-slate-900">Applied Case:</span>
+                    <span className="px-2 py-0.5 rounded-md font-bold text-[11px] bg-slate-100 text-slate-800" data-testid="how-calc-applied-case">
+                      {reconciliation.isFullyFunded
+                        ? 'Fully Funded (M ≥ 0.10 × B) — sized for project cost B'
+                        : 'Capital Shortfall (M < 0.10 × B) — sized for maximum supportable project M / 0.10'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    <strong>Statutory scheme rules & thresholds applied:</strong> Minimum promoter margin 10.0%, debt financing up to 90.0%. Micro Finance Scheme covers projects ≤ ₹1,40,000 (up to ₹1,25,000 at 6.5% p.a., 3 years with 3-month moratorium). Term Loan Scheme covers projects &gt; ₹1,40,000 up to ₹50,00,000 (up to ₹45,00,000 at 8.0% p.a., 7 years with 6-month moratorium). Projects &gt; ₹50,00,000 exceed scheme limits.
+                  </p>
+                </div>
+              </div>
+
+              {/* Render SchemeLoanBreakdown */}
+              <SchemeLoanBreakdown
+                result={reconciliation.calculationResult}
+                availableMargin={reconciliation.appliedMargin}
+                businessCategory={input.businessIdea}
+                locationSummary={location.areaName}
+              />
+            </div>
+          )}
+
+          {/* Section 5: Recommended Government Scheme */}
           <div>
             <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-950 border-b border-slate-200 pb-1.5 mb-3 flex items-center gap-2">
               <span className="w-1.5 h-4 bg-indigo-950 rounded-xs"></span>

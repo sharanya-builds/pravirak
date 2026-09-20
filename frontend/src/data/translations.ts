@@ -454,35 +454,10 @@ export interface TranslationStrings {
   retainedNetProfitSub: string;
   itemsCount: string;
 
-  // Loan Planner (PS Mode)
-  navLoanPlanner: string;
-  loanPlannerTitle: string;
-  loanPlannerSubtitle: string;
-  loanPlannerBadge: string;
-  loanPlannerHomeCardTitle: string;
-  loanPlannerHomeCardDesc: string;
-  loanPlannerLaunchBtn: string;
+  // Administrative Hierarchy & Government Scheme Loan Structure
   districtLabel: string;
   blockLabel: string;
   villageLabel: string;
-  selectState: string;
-  selectDistrict: string;
-  selectBlock: string;
-  selectVillage: string;
-  otherTypeManually: string;
-  enterStateManually: string;
-  enterDistrictManually: string;
-  enterBlockManually: string;
-  enterVillageManually: string;
-  marginCapitalLabel: string;
-  marginCapitalHint: string;
-  marginPositiveError: string;
-  businessCategoryLabel: string;
-  selectCategory: string;
-  otherCategoryPlaceholder: string;
-  calculateButton: string;
-  recalculateButton: string;
-  editInputsButton: string;
   projectCostCardTitle: string;
   projectCostCardDesc: string;
   maxLoanCardTitle: string;
@@ -514,10 +489,18 @@ export interface TranslationStrings {
   moratoriumServiced: string;
   moratoriumCapitalised: string;
   downloadCsvButton: string;
-  continueToFeasibilityButton: string;
-  feasibilityPlaceholderTitle: string;
-  feasibilityPlaceholderDesc: string;
-  backToPlannerButton: string;
+  ownCapitalMarginLabel: string;
+  notAvailableForAddress: string;
+  govtSchemeLoanStructureTitle: string;
+  govtSchemeLoanStructureDesc: string;
+  howCalculatedTitle: string;
+  shortfallAlertTitle: string;
+  fullyFundedTitle: string;
+  maxSupportableProjectCostTitle: string;
+  threeOptionsToProceed: string;
+  optionAddCapitalTitle: string;
+  optionScaleDownTitle: string;
+  optionPhasedTitle: string;
 }
 
 export const TRANSLATIONS: Record<Language, TranslationStrings> = {
@@ -975,35 +958,10 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     retainedNetProfitSub: 'Retained net profit for entrepreneur',
     itemsCount: 'items',
 
-    // Loan Planner (PS Mode)
-    navLoanPlanner: 'Loan Planner',
-    loanPlannerTitle: 'Loan Planner (PS Mode)',
-    loanPlannerSubtitle: 'Calculate MSME scheme routing, loan eligibility, moratoriums & quarterly repayment schedules directly from your available margin.',
-    loanPlannerBadge: 'Deterministic PS Engine',
-    loanPlannerHomeCardTitle: 'Loan Planner (PS Mode)',
-    loanPlannerHomeCardDesc: 'Scheme routing (Micro / Term Loan), moratorium-aware quarterly repayment schedules, and shortfall analysis based on your available margin.',
-    loanPlannerLaunchBtn: 'Launch Loan Planner',
+    // Administrative Hierarchy & Government Scheme Loan Structure
     districtLabel: 'District',
     blockLabel: 'Block / Mandal',
     villageLabel: 'Village / Gram Panchayat',
-    selectState: 'Select State',
-    selectDistrict: 'Select District',
-    selectBlock: 'Select Block / Mandal',
-    selectVillage: 'Select Village / Gram Panchayat',
-    otherTypeManually: 'Other / type manually',
-    enterStateManually: 'Enter State Name',
-    enterDistrictManually: 'Enter District Name',
-    enterBlockManually: 'Enter Block / Mandal Name',
-    enterVillageManually: 'Enter Village / Gram Panchayat Name',
-    marginCapitalLabel: 'Available Margin Capital (INR)',
-    marginCapitalHint: 'Enter the promoter contribution you have available. Minimum > ₹0.',
-    marginPositiveError: 'Please enter a valid positive margin capital amount (> 0).',
-    businessCategoryLabel: 'Business Category',
-    selectCategory: 'Select Business Category',
-    otherCategoryPlaceholder: 'Specify your business type...',
-    calculateButton: 'Calculate Loan & Schedule',
-    recalculateButton: 'Recalculate',
-    editInputsButton: 'Edit Inputs',
     projectCostCardTitle: 'Project Cost',
     projectCostCardDesc: 'Calculated as Available Margin / 0.10 (10% promoter contribution)',
     maxLoanCardTitle: 'Maximum Loan',
@@ -1035,10 +993,18 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     moratoriumServiced: 'Serviced (Interest-only payments)',
     moratoriumCapitalised: 'Capitalised (Added to Principal)',
     downloadCsvButton: 'Download Schedule (CSV)',
-    continueToFeasibilityButton: 'Continue to Feasibility Report',
-    feasibilityPlaceholderTitle: 'Feasibility Report (Coming Soon)',
-    feasibilityPlaceholderDesc: 'The detailed bank-ready feasibility report for this loan plan is under preparation for the next release.',
-    backToPlannerButton: 'Back to Loan Planner',
+    ownCapitalMarginLabel: 'Your own capital (margin money)',
+    notAvailableForAddress: 'Not available for this address',
+    govtSchemeLoanStructureTitle: 'Government Scheme Loan Structure',
+    govtSchemeLoanStructureDesc: 'Institutional credit packaging based on statutory 10% promoter contribution and priority lending norms.',
+    howCalculatedTitle: 'How this was calculated',
+    shortfallAlertTitle: 'Promoter Capital Shortfall Detected',
+    fullyFundedTitle: 'Promoter Contribution Fully Met',
+    maxSupportableProjectCostTitle: 'Maximum Supportable Project Size',
+    threeOptionsToProceed: 'Recommended Options to Bridge Capital Shortfall',
+    optionAddCapitalTitle: '1. Infuse Additional Capital',
+    optionScaleDownTitle: '2. Scale Down Initial Capex',
+    optionPhasedTitle: '3. Execute in Phased Rollout',
   },
 
   hi: {
@@ -1495,35 +1461,10 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     retainedNetProfitSub: 'उद्यमी के लिए शुद्ध लाभ',
     itemsCount: 'मदें',
 
-    // Loan Planner (PS Mode)
-    navLoanPlanner: 'ऋण योजनाकार (Loan Planner)',
-    loanPlannerTitle: 'ऋण योजनाकार (PS Mode)',
-    loanPlannerSubtitle: 'अपनी उपलब्ध मार्जिन राशि से सीधे MSME योजना चयन, ऋण पात्रता, अधिस्थगन और त्रैमासिक पुनर्भुगतान अनुसूची की गणना करें।',
-    loanPlannerBadge: 'निश्चित PS इंजन',
-    loanPlannerHomeCardTitle: 'ऋण योजनाकार (Loan Planner)',
-    loanPlannerHomeCardDesc: 'उपलब्ध मार्जिन के आधार पर MSME योजना (माइक्रो / मियादी ऋण), अधिस्थगन और त्रैमासिक किस्त अनुसूची।',
-    loanPlannerLaunchBtn: 'ऋण योजनाकार खोलें',
+    // Administrative Hierarchy & Government Scheme Loan Structure
     districtLabel: 'ज़िला',
     blockLabel: 'ब्लॉक / मंडल',
     villageLabel: 'गाँव / ग्राम पंचायत',
-    selectState: 'राज्य चुनें',
-    selectDistrict: 'ज़िला चुनें',
-    selectBlock: 'ब्लॉक / मंडल चुनें',
-    selectVillage: 'गाँव / ग्राम पंचायत चुनें',
-    otherTypeManually: 'अन्य / स्वयं लिखें',
-    enterStateManually: 'राज्य का नाम लिखें',
-    enterDistrictManually: 'ज़िले का नाम लिखें',
-    enterBlockManually: 'ब्लॉक / मंडल का नाम लिखें',
-    enterVillageManually: 'गाँव / ग्राम पंचायत का नाम लिखें',
-    marginCapitalLabel: 'उपलब्ध मार्जिन पूंजी (INR)',
-    marginCapitalHint: 'अपनी उपलब्ध उद्यमी योगदान राशि दर्ज करें। न्यूनतम > ₹0.',
-    marginPositiveError: 'कृपया एक मान्य सकारात्मक मार्जिन राशि (> 0) दर्ज करें।',
-    businessCategoryLabel: 'व्यवसाय की श्रेणी',
-    selectCategory: 'व्यवसाय श्रेणी चुनें',
-    otherCategoryPlaceholder: 'अपने व्यवसाय का प्रकार लिखें...',
-    calculateButton: 'ऋण और अनुसूची की गणना करें',
-    recalculateButton: 'पुनः गणना करें',
-    editInputsButton: 'इनपुट बदलें',
     projectCostCardTitle: 'परियोजना लागत',
     projectCostCardDesc: 'उपलब्ध मार्जिन / 0.10 के रूप में आकलित (10% उद्यमी अंशदान)',
     maxLoanCardTitle: 'अधिकतम ऋण',
@@ -1555,10 +1496,18 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     moratoriumServiced: 'भुगतान किया गया (केवल ब्याज)',
     moratoriumCapitalised: 'पूंजीकृत (मूलधन में जोड़ा गया)',
     downloadCsvButton: 'अनुसूची डाउनलोड करें (CSV)',
-    continueToFeasibilityButton: 'व्यवहार्यता रिपोर्ट पर आगे बढ़ें',
-    feasibilityPlaceholderTitle: 'व्यवहार्यता रिपोर्ट (शीघ्र उपलब्ध)',
-    feasibilityPlaceholderDesc: 'इस ऋण योजना के लिए विस्तृत बैंक-तैयार व्यवहार्यता रिपोर्ट अगले संस्करण में उपलब्ध होगी।',
-    backToPlannerButton: 'ऋण योजनाकार पर वापस जाएं',
+    ownCapitalMarginLabel: 'आपकी अपनी पूंजी (मार्जिन मनी)',
+    notAvailableForAddress: 'इस पते के लिए उपलब्ध नहीं है',
+    govtSchemeLoanStructureTitle: 'सरकारी योजना ऋण संरचना',
+    govtSchemeLoanStructureDesc: 'वैधानिक 10% प्रवर्तक अंशदान और प्राथमिकता प्राप्त क्षेत्र ऋण मानदंडों पर आधारित संस्थागत ऋण संरचना।',
+    howCalculatedTitle: 'इसकी गणना कैसे की गई',
+    shortfallAlertTitle: 'पूंजी की कमी (Shortfall) पाई गई',
+    fullyFundedTitle: 'प्रवर्तक अंशदान पूर्ण रूप से संतुष्ट',
+    maxSupportableProjectCostTitle: 'अधिकतम समर्थित परियोजना आकार',
+    threeOptionsToProceed: 'पूंजी की कमी को पूरा करने के 3 अनुशंसित विकल्प',
+    optionAddCapitalTitle: '1. अतिरिक्त पूंजी जोड़ें',
+    optionScaleDownTitle: '2. प्रारंभिक पूंजीगत व्यय कम करें',
+    optionPhasedTitle: '3. चरणबद्ध तरीके से लागू करें',
   },
 
   te: {
@@ -1970,35 +1919,10 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     retainedNetProfitSub: 'వ్యవస్థాపకుడి నికర లాభం',
     itemsCount: 'వస్తువులు',
 
-    // Loan Planner (PS Mode)
-    navLoanPlanner: 'రుణ ప్లానర్ (Loan Planner)',
-    loanPlannerTitle: 'రుణ ప్లానర్ (PS Mode)',
-    loanPlannerSubtitle: 'మీ అందుబాటులో ఉన్న మార్జిన్ మొత్తం నుండి నేరుగా MSME పథకం ఎంపిక, రుణ అర్హత, తాత్కాలిక నిలుపుదల (Moratorium) మరియు త్రైమాసిక రీపేమెంట్ షెడ్యూల్‌ను లెక్కించండి.',
-    loanPlannerBadge: 'ఖచ్చితమైన PS ఇంజిన్',
-    loanPlannerHomeCardTitle: 'రుణ ప్లానర్ (Loan Planner)',
-    loanPlannerHomeCardDesc: 'అందుబాటులో ఉన్న మార్జిన్ ఆధారంగా పథకం ఎంపిక (మైక్రో / టర్మ్ లోన్), మొరటోరియంతో కూడిన త్రైమాసిక వాయిదాల షెడ్యూల్.',
-    loanPlannerLaunchBtn: 'రుణ ప్లానర్ ప్రారంభించండి',
+    // Administrative Hierarchy & Government Scheme Loan Structure
     districtLabel: 'జిల్లా',
     blockLabel: 'మండలం / బ్లాక్',
     villageLabel: 'గ్రామం / గ్రామ పంచాయితీ',
-    selectState: 'రాష్ట్రాన్ని ఎంచుకోండి',
-    selectDistrict: 'జిల్లాను ఎంచుకోండి',
-    selectBlock: 'మండలాన్ని ఎంచుకోండి',
-    selectVillage: 'గ్రామాన్ని ఎంచుకోండి',
-    otherTypeManually: 'ఇతర / మాన్యువల్‌గా నమోదు చేయండి',
-    enterStateManually: 'రాష్ట్రం పేరు రాయండి',
-    enterDistrictManually: 'జిల్లా పేరు రాయండి',
-    enterBlockManually: 'మండలం పేరు రాయండి',
-    enterVillageManually: 'గ్రామం పేరు రాయండి',
-    marginCapitalLabel: 'అందుబాటులో ఉన్న మార్జిన్ మూలధనం (INR)',
-    marginCapitalHint: 'మీ వద్ద ఉన్న వ్యవస్థాపక వాటా మొత్తాన్ని నమోదు చేయండి. కనీసం > ₹0.',
-    marginPositiveError: 'దయచేసి సరైన సానుకూల మార్జిన్ మొత్తాన్ని నమోదు చేయండి (> 0).',
-    businessCategoryLabel: 'వ్యాపార విభాగం',
-    selectCategory: 'వ్యాపార విభాగాన్ని ఎంచుకోండి',
-    otherCategoryPlaceholder: 'మీ వ్యాపార రకాన్ని పేర్కొనండి...',
-    calculateButton: 'రుణం & షెడ్యూల్‌ను లెక్కించండి',
-    recalculateButton: 'మళ్లీ లెక్కించండి',
-    editInputsButton: 'ఇన్‌పుట్‌లను సవరించండి',
     projectCostCardTitle: 'ప్రాజెక్ట్ వ్యయం',
     projectCostCardDesc: 'అందుబాటులో ఉన్న మార్జిన్ / 0.10 గా లెక్కించబడింది (10% వ్యవస్థాపక వాటా)',
     maxLoanCardTitle: 'గరిష్ట రుణం',
@@ -2030,9 +1954,17 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     moratoriumServiced: 'సర్వీస్ చేయబడింది (వడ్డీ మాత్రమే చెల్లింపు)',
     moratoriumCapitalised: 'మూలధనం చేయబడింది (అసలుకు జోడించబడింది)',
     downloadCsvButton: 'షెడ్యూల్ డౌన్‌లోడ్ చేయండి (CSV)',
-    continueToFeasibilityButton: 'సాధ్యత నివేదికకు కొనసాగించండి',
-    feasibilityPlaceholderTitle: 'సాధ్యత నివేదిక (త్వరలో అందుబాటులో ఉంటుంది)',
-    feasibilityPlaceholderDesc: 'ఈ రుణ ప్రణాళిక కోసం వివరణాత్మక బ్యాంక్-సిద్ధ సాధ్యత నివేదిక తదుపరి విడుదలలో అందుబాటులో ఉంటుంది.',
-    backToPlannerButton: 'రుణ ప్లానర్‌కు తిరిగి వెళ్లండి',
+    ownCapitalMarginLabel: 'మీ స్వంత మూలధనం (మార్జిన్ మనీ)',
+    notAvailableForAddress: 'ఈ చిరునామాకు అందుబాటులో లేదు',
+    govtSchemeLoanStructureTitle: 'ప్రభుత్వ పథకం రుణ నిర్మాణం',
+    govtSchemeLoanStructureDesc: 'చట్టబద్ధమైన 10% వ్యవస్థాపక సహకారం మరియు ప్రాధాన్యత రంగ రుణ నిబంధనల ఆధారంగా రూపొందించిన రుణ నిర్మాణం.',
+    howCalculatedTitle: 'ఇది ఎలా లెక్కించబడింది',
+    shortfallAlertTitle: 'మూలధన కొరత (Shortfall) గుర్తించబడింది',
+    fullyFundedTitle: 'వ్యవస్థాపక వాటా పూర్తిగా సమకూరింది',
+    maxSupportableProjectCostTitle: 'గరిష్టంగా మద్దతు ఇవ్వగల ప్రాజెక్ట్ పరిమాణం',
+    threeOptionsToProceed: 'మూలధన కొరతను అధిగమించడానికి 3 సిఫార్సు చేసిన మార్గాలు',
+    optionAddCapitalTitle: '1. అదనపు మూలధనాన్ని చేర్చండి',
+    optionScaleDownTitle: '2. ప్రారంభ ప్రాజెక్ట్ పరిమాణాన్ని తగ్గించండి',
+    optionPhasedTitle: '3. దశలవారీగా ప్రారంభించండి',
   }
 };

@@ -26,6 +26,7 @@ import { ComplianceCard } from '../common/ComplianceCard';
 import { AskPravirak } from './AskPravirak';
 import { getSectorCompliances } from '../../data/compliances';
 import { TRANSLATIONS } from '../../data/translations';
+import { formatLocationField } from '../../engine/locationParser';
 
 type SectionKey = 'DECISION' | 'MAP' | 'FINANCIALS' | 'STRESS' | 'SCHEMES' | 'ADVISOR';
 
@@ -142,6 +143,34 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             <FileText className="w-3.5 h-3.5 text-amber-300" />
             <span>{t.viewFullDossier}</span>
           </button>
+        </div>
+
+        {/* Administrative Hierarchy Details */}
+        <div className="w-full pt-2.5 mt-1 border-t border-slate-100 dark:border-neutral-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.villageLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-village">
+              {formatLocationField(activeLocation.village || businessInput.location?.village)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.blockLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-block">
+              {formatLocationField(activeLocation.block || businessInput.location?.block)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.districtLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-district">
+              {formatLocationField(activeLocation.district || businessInput.location?.district)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.stateLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-state">
+              {formatLocationField(activeLocation.state || businessInput.location?.state)}
+            </span>
+          </div>
         </div>
       </div>
 

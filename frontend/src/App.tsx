@@ -29,9 +29,6 @@ import { ExistingBusinessFlow } from './components/modules/ExistingBusinessFlow'
 import { HomeDashboard } from './components/modules/HomeDashboard';
 import { MyBusinesses } from './components/modules/MyBusinesses';
 import { ReportsPage } from './components/modules/ReportsPage';
-import { LoanPlanner } from './components/modules/LoanPlanner';
-import { LoanFeasibilityPlaceholder } from './components/modules/LoanFeasibilityPlaceholder';
-import { PSCalculatorEligibleResult } from './engine/psCalculator';
 
 import { MarketExplorer } from './components/modules/explorers/MarketExplorer';
 import { FinanceExplorer } from './components/modules/explorers/FinanceExplorer';
@@ -60,8 +57,6 @@ type AppView =
   | 'DECISION_DASHBOARD'
   | 'FINAL_PLAN'
   | 'EXISTING_BUSINESS'
-  | 'LOAN_PLANNER'
-  | 'LOAN_FEASIBILITY_PLACEHOLDER'
   | `EXPLORE_${ExplorerKey}`;
 
 const DEFAULT_LOCATION: SelectedLocation = {
@@ -99,11 +94,6 @@ function AppShellRouter() {
   const [activeBusinessDbId, setActiveBusinessDbId] = useState<number | null>(null);
   const [isAlternativeAdopted, setIsAlternativeAdopted] = useState(false);
   const [hasActiveAnalysis, setHasActiveAnalysis] = useState(false);
-  const [loanPlanContext, setLoanPlanContext] = useState<{
-    result: PSCalculatorEligibleResult;
-    category: string;
-    locationSummary: string;
-  } | null>(null);
 
   // Derive base location analysis from the current business input
   const baseLocation: LocationData = useMemo(() => {
@@ -252,7 +242,6 @@ function AppShellRouter() {
 
   const navForView: PrimaryNavKey | null = (() => {
     if (currentView === 'HOME') return 'HOME';
-    if (currentView === 'LOAN_PLANNER' || currentView === 'LOAN_FEASIBILITY_PLACEHOLDER') return 'LOAN_PLANNER';
     if (currentView === 'MY_BUSINESSES') return 'MY_BUSINESSES';
     if (currentView === 'REPORTS') return 'REPORTS';
     if (['NEW_INPUT', 'ANALYZING', 'DECISION_DASHBOARD', 'FINAL_PLAN'].includes(currentView)) return 'NEW_ANALYSIS';
@@ -328,7 +317,6 @@ function AppShellRouter() {
       businessContext={businessContext}
       onNavigate={(key) => {
         if (key === 'HOME') setCurrentView('HOME');
-        if (key === 'LOAN_PLANNER') setCurrentView('LOAN_PLANNER');
         if (key === 'MY_BUSINESSES') setCurrentView('MY_BUSINESSES');
         if (key === 'NEW_ANALYSIS') handleStartNew();
         if (key === 'REPORTS') setCurrentView('REPORTS');
@@ -342,7 +330,6 @@ function AppShellRouter() {
           businesses={businesses}
           isLoading={businessesLoading}
           onStartNew={handleStartNew}
-          onOpenLoanPlanner={() => setCurrentView('LOAN_PLANNER')}
           onGrowExisting={() => setCurrentView('EXISTING_BUSINESS')}
           onOpenBusiness={openSavedBusiness}
           onViewAllBusinesses={() => setCurrentView('MY_BUSINESSES')}
@@ -409,25 +396,6 @@ function AppShellRouter() {
 
       {currentView === 'EXISTING_BUSINESS' && (
         <ExistingBusinessFlow onBackToHome={() => setCurrentView(user || isGuest ? 'HOME' : 'LANDING')} />
-      )}
-
-      {currentView === 'LOAN_PLANNER' && (
-        <LoanPlanner
-          onContinueToFeasibility={(planResult, category, locationSummary) => {
-            setLoanPlanContext({ result: planResult, category, locationSummary });
-            setCurrentView('LOAN_FEASIBILITY_PLACEHOLDER');
-          }}
-          onBackToHome={() => setCurrentView('HOME')}
-        />
-      )}
-
-      {currentView === 'LOAN_FEASIBILITY_PLACEHOLDER' && (
-        <LoanFeasibilityPlaceholder
-          planResult={loanPlanContext?.result || null}
-          businessCategory={loanPlanContext?.category || ''}
-          locationSummary={loanPlanContext?.locationSummary || ''}
-          onBackToPlanner={() => setCurrentView('LOAN_PLANNER')}
-        />
       )}
 
       {currentView === 'EXPLORE_MARKET' && (

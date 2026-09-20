@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusCircle, TrendingUp, ArrowRight, Compass, FileText, Briefcase, Calculator } from 'lucide-react';
+import { PlusCircle, TrendingUp, ArrowRight, Compass, FileText, Briefcase } from 'lucide-react';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { BusinessCard } from '../common/BusinessCard';
 import { SavedBusiness } from '../../api/client';
@@ -11,7 +11,6 @@ interface HomeDashboardProps {
   businesses: SavedBusiness[];
   isLoading: boolean;
   onStartNew: () => void;
-  onOpenLoanPlanner: () => void;
   onGrowExisting: () => void;
   onOpenBusiness: (business: SavedBusiness) => void;
   onViewAllBusinesses: () => void;
@@ -23,7 +22,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   businesses,
   isLoading,
   onStartNew,
-  onOpenLoanPlanner,
   onGrowExisting,
   onOpenBusiness,
   onViewAllBusinesses,
@@ -55,32 +53,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           >
             {t.newAnalysis}
           </PrimaryButton>
-        </div>
-      </section>
-
-      {/* PS Mode: Loan Planner featured card */}
-      <section className="bg-gradient-to-r from-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-amber-300 border border-white/15">
-              <Calculator className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t.loanPlannerBadge}</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              {t.loanPlannerHomeCardTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-              {t.loanPlannerHomeCardDesc}
-            </p>
-          </div>
-          <button
-            onClick={onOpenLoanPlanner}
-            className="shrink-0 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-indigo-950 hover:bg-amber-300 transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-            data-testid="home-launch-loan-planner"
-          >
-            <span>{t.loanPlannerLaunchBtn}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       </section>
 

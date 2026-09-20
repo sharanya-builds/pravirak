@@ -84,6 +84,9 @@ export interface SelectedLocation {
   placeId?: string;
   city: string;
   state: string;
+  village?: string | null;
+  block?: string | null;
+  district?: string | null;
   postalCode?: string;
   source: 'GOOGLE_PLACES' | 'USER_INPUT' | 'DEMO_SAMPLE' | 'OPENSTREETMAP' | 'USER_INPUT_APPROX';
 }
@@ -92,6 +95,9 @@ export interface LocationData {
   id: string;
   city: string;
   state: string;
+  village?: string | null;
+  block?: string | null;
+  district?: string | null;
   areaName: string;
   pincode: string;
   lat: number;
