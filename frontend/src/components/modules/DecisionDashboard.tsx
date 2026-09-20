@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ChevronDown,
   FileText,
@@ -12,13 +12,16 @@ import {
   FinancialAnalysis,
   GovernmentScheme,
   Language,
-  LocationData
+  LocationData,
+  LocalFeasibilityReport
 } from '../../types';
 import { DecisionCard } from '../common/DecisionCard';
 import { EvidenceCard } from '../common/EvidenceCard';
 import { RiskCard } from '../common/RiskCard';
 import { MarketMap } from './MarketMap';
 import { LocationComparison } from './LocationComparison';
+import { LocalFeasibilityReportView } from './LocalFeasibilityReportView';
+import { fetchLocalFeasibilityReport } from '../../services/localFeasibilityService';
 import { FinancialFeasibility } from './FinancialFeasibility';
 import { StressTest } from './StressTest';
 import { SchemeRecommendations } from '../common/SchemeRecommendations';
@@ -26,8 +29,9 @@ import { ComplianceCard } from '../common/ComplianceCard';
 import { AskPravirak } from './AskPravirak';
 import { getSectorCompliances } from '../../data/compliances';
 import { TRANSLATIONS } from '../../data/translations';
+import { formatLocationField } from '../../engine/locationParser';
 
-type SectionKey = 'DECISION' | 'MAP' | 'FINANCIALS' | 'STRESS' | 'SCHEMES' | 'ADVISOR';
+type SectionKey = 'DECISION' | 'MAP' | 'LOCAL_FEASIBILITY' | 'FINANCIALS' | 'STRESS' | 'SCHEMES' | 'ADVISOR';
 
 interface DecisionDashboardProps {
   businessInput: BusinessInput;
@@ -41,18 +45,20 @@ interface DecisionDashboardProps {
   onToggleAlternativeLocation: () => void;
   onEditInputs: () => void;
   onViewFullDossier: () => void;
+  feasibilityReport?: LocalFeasibilityReport | null;
 }
 
 const SECTION_TITLES: Record<SectionKey, string> = {
   DECISION: '1. Decision & Evidence',
   MAP: '2. Market Map & Sites',
-  FINANCIALS: '3. Financial Feasibility',
-  STRESS: '4. Stress Testing',
-  SCHEMES: '5. Schemes & Compliance',
-  ADVISOR: '6. Ask PRAVIRAK'
+  LOCAL_FEASIBILITY: '3. Local Feasibility Report',
+  FINANCIALS: '4. Financial Feasibility',
+  STRESS: '5. Stress Testing',
+  SCHEMES: '6. Schemes & Compliance',
+  ADVISOR: '7. Ask PRAVIRAK'
 };
 
-const SECTION_ORDER: SectionKey[] = ['DECISION', 'MAP', 'FINANCIALS', 'STRESS', 'SCHEMES', 'ADVISOR'];
+const SECTION_ORDER: SectionKey[] = ['DECISION', 'MAP', 'LOCAL_FEASIBILITY', 'FINANCIALS', 'STRESS', 'SCHEMES', 'ADVISOR'];
 
 export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   businessInput,
@@ -65,15 +71,50 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   isAlternativeAdopted,
   onToggleAlternativeLocation,
   onEditInputs,
-  onViewFullDossier
+  onViewFullDossier,
+  feasibilityReport
 }) => {
   const [openSections, setOpenSections] = useState<Set<SectionKey>>(new Set(['DECISION']));
   const t = TRANSLATIONS[currentLanguage];
   const sectorCompliances = getSectorCompliances(businessInput.businessIdea);
 
+  const [internalFeasibility, setInternalFeasibility] = useState<LocalFeasibilityReport | null>(null);
+  const [feasibilityLoading, setFeasibilityLoading] = useState(false);
+  const [feasibilityError, setFeasibilityError] = useState<string | null>(null);
+
+  const activeFeasibilityReport = feasibilityReport !== undefined ? feasibilityReport : internalFeasibility;
+
+  const loadFeasibilityReport = useCallback(async () => {
+    setFeasibilityLoading(true);
+    setFeasibilityError(null);
+    try {
+      const res = await fetchLocalFeasibilityReport({
+        category: businessInput.category || businessInput.businessIdea,
+        location: activeLocation,
+        ownCapital: businessInput.ownCapital,
+        projectCost: financials.projectCost,
+        competitorCount: activeLocation.competitorsNearbyCount,
+        catchmentPopulationEstimate: null,
+        language: currentLanguage
+      });
+      setInternalFeasibility(res);
+    } catch (err: any) {
+      setFeasibilityError(err?.message || 'Failed to load report');
+    } finally {
+      setFeasibilityLoading(false);
+    }
+  }, [businessInput, financials.projectCost, activeLocation, currentLanguage]);
+
+  useEffect(() => {
+    if (feasibilityReport === undefined) {
+      loadFeasibilityReport();
+    }
+  }, [feasibilityReport, loadFeasibilityReport]);
+
   const sectionTitles: Record<SectionKey, string> = {
     DECISION: t.sectionDecision,
     MAP: t.sectionMap,
+    LOCAL_FEASIBILITY: `3. ${t.localFeasibilityReportTitle}`,
     FINANCIALS: t.sectionFinancials,
     STRESS: t.sectionStress,
     SCHEMES: t.sectionSchemes,
@@ -143,6 +184,34 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             <span>{t.viewFullDossier}</span>
           </button>
         </div>
+
+        {/* Administrative Hierarchy Details */}
+        <div className="w-full pt-2.5 mt-1 border-t border-slate-100 dark:border-neutral-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.villageLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-village">
+              {formatLocationField(activeLocation.village || businessInput.location?.village)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.blockLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-block">
+              {formatLocationField(activeLocation.block || businessInput.location?.block)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.districtLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-district">
+              {formatLocationField(activeLocation.district || businessInput.location?.district)}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-500 dark:text-neutral-400 block font-medium">{t.stateLabel}:</span>
+            <span className="text-slate-800 dark:text-neutral-200 font-semibold" data-testid="dashboard-state">
+              {formatLocationField(activeLocation.state || businessInput.location?.state)}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Section index (jump-to) */}
@@ -158,6 +227,30 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             {sectionTitles[key]}
           </button>
         ))}
+      </div>
+
+      {/* One-line Data Provenance Legend */}
+      <div className="bg-white dark:bg-[#0D0D0D] rounded-xl px-4 py-2.5 border border-slate-200 dark:border-neutral-800 shadow-2xs flex flex-wrap items-center gap-2 sm:gap-4 text-xs">
+        <span className="font-bold text-slate-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
+          {t.provenanceLegendTitle}:
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <strong className="text-emerald-800 dark:text-emerald-300 font-semibold">{t.badgeMeasured}</strong>
+          <span className="text-slate-500 text-[11px]">({t.provenanceMeasuredDesc})</span>
+        </div>
+        <span className="text-slate-300 dark:text-neutral-700 hidden sm:inline">•</span>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+          <strong className="text-amber-800 dark:text-amber-300 font-semibold">{t.badgeEstimated}</strong>
+          <span className="text-slate-500 text-[11px]">({t.provenanceEstimatedDesc})</span>
+        </div>
+        <span className="text-slate-300 dark:text-neutral-700 hidden sm:inline">•</span>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+          <strong className="text-purple-800 dark:text-purple-300 font-semibold">{t.badgeAi}</strong>
+          <span className="text-slate-500 text-[11px]">({t.provenanceAiDesc})</span>
+        </div>
       </div>
 
       {/* SECTION 1: DECISION & EVIDENCE */}
@@ -221,7 +314,27 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             isAlternativeApplied={isAlternativeAdopted}
           />
           <NextStepBanner
-            step={currentLanguage === 'te' ? 'దశ 2/5 పూర్తయింది' : currentLanguage === 'hi' ? 'चरण 2/5 पूर्ण' : 'Step 2 of 5 Complete'}
+            step={currentLanguage === 'te' ? 'దశ 2/6 పూర్తయింది' : currentLanguage === 'hi' ? 'चरण 2/6 पूर्ण' : 'Step 2 of 6 Complete'}
+            message="Review empirical micro-catchment reach, SWOT matrix, and qualitative pricing strategy."
+            ctaLabel={t.localFeasibilityReportTitle}
+            onClick={() => advanceTo('LOCAL_FEASIBILITY')}
+          />
+        </div>
+      </Section>
+
+      {/* SECTION 3: LOCAL FEASIBILITY REPORT */}
+      <Section id="LOCAL_FEASIBILITY" title={sectionTitles.LOCAL_FEASIBILITY} isOpen={openSections.has('LOCAL_FEASIBILITY')} onToggle={() => toggleSection('LOCAL_FEASIBILITY')}>
+        <div className="space-y-6">
+          <LocalFeasibilityReportView
+            report={activeFeasibilityReport}
+            location={activeLocation}
+            category={businessInput.category || businessInput.businessIdea}
+            isLoading={feasibilityLoading}
+            error={feasibilityError}
+            onRetry={loadFeasibilityReport}
+          />
+          <NextStepBanner
+            step={currentLanguage === 'te' ? 'దశ 3/6 పూర్తయింది' : currentLanguage === 'hi' ? 'चरण 3/6 पूर्ण' : 'Step 3 of 6 Complete'}
             message={t.nextStepFinMsg}
             ctaLabel={t.nextStepFinCta}
             onClick={() => advanceTo('FINANCIALS')}

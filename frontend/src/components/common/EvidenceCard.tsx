@@ -1,71 +1,43 @@
 import React from 'react';
 import { Shield, Database, Eye, Cpu, Calendar } from 'lucide-react';
-import { ConfidenceLevel, EvidenceItem, EvidenceType } from '../../types';
+import { ConfidenceLevel, EvidenceItem, EvidenceType, Provenance } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface EvidenceBadgeProps {
-  type: EvidenceType;
+  type?: EvidenceType;
+  provenance?: Provenance;
 }
 
-export const EvidenceBadge: React.FC<EvidenceBadgeProps> = ({ type }) => {
+export const EvidenceBadge: React.FC<EvidenceBadgeProps> = ({ type, provenance }) => {
   const { language } = useLanguage();
 
-  const getLabel = () => {
-    if (language === 'te') {
-      switch (type) {
-        case 'Observed': return 'పరిశీలించినది (OBSERVED)';
-        case 'Sourced': return 'ప్రభుత్వ వనరు (SOURCED)';
-        case 'Estimated': return 'అంచనా వేసినది (ESTIMATED)';
-        case 'AI interpretation': return 'AI వివరణ';
-      }
-    }
-    if (language === 'hi') {
-      switch (type) {
-        case 'Observed': return 'अवलोकित (OBSERVED)';
-        case 'Sourced': return 'सार्वजनिक स्रोत (SOURCED)';
-        case 'Estimated': return 'अनुमानित (ESTIMATED)';
-        case 'AI interpretation': return 'AI व्याख्या';
-      }
-    }
-    switch (type) {
-      case 'Observed': return 'OBSERVED';
-      case 'Sourced': return 'SOURCED';
-      case 'Estimated': return 'ESTIMATED';
-      case 'AI interpretation': return 'AI INTERPRETATION';
-    }
-  };
+  const isMeasured = provenance === 'MEASURED' || type === 'Observed' || type === 'Sourced';
+  const isAi = provenance === 'AI_GENERATED' || type === 'AI interpretation';
 
-  switch (type) {
-    case 'Observed':
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300">
-          <Eye className="w-3.5 h-3.5 text-emerald-600" />
-          {getLabel()}
-        </span>
-      );
-    case 'Sourced':
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 border border-blue-300">
-          <Database className="w-3.5 h-3.5 text-blue-600" />
-          {getLabel()}
-        </span>
-      );
-    case 'Estimated':
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-amber-50 text-amber-900 border border-amber-300">
-          <Shield className="w-3.5 h-3.5 text-amber-600" />
-          {getLabel()}
-        </span>
-      );
-    case 'AI interpretation':
-    default:
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-purple-50 text-purple-900 border border-purple-300">
-          <Cpu className="w-3.5 h-3.5 text-purple-600" />
-          {getLabel()}
-        </span>
-      );
+  if (isMeasured) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+        <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+        {language === 'hi' ? 'मापा गया (Measured)' : language === 'te' ? 'కొలిచినది (Measured)' : 'Measured'}
+      </span>
+    );
   }
+
+  if (isAi) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
+        <Cpu className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+        {language === 'hi' ? 'एआई (AI)' : language === 'te' ? 'AI' : 'AI'}
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+      <Shield className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+      {language === 'hi' ? 'अनुमानित (Estimated)' : language === 'te' ? 'అంచనా (Estimated)' : 'Estimated'}
+    </span>
+  );
 };
 
 interface EvidenceCardProps {
@@ -108,7 +80,7 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({ item }) => {
     <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs hover:border-slate-300 transition-colors flex flex-col justify-between">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <EvidenceBadge type={item.type} />
+          <EvidenceBadge type={item.type} provenance={item.provenance} />
 
           <div className="flex items-center gap-2">
             {item.vintage && (

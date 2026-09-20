@@ -157,7 +157,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                   required
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  placeholder="e.g. Kirana Store, Garment Retail, Bakery"
+                  placeholder={t.placeholderBusinessIdea}
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden"
                 />
               </div>
@@ -172,7 +172,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                   required
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Sigra, Varanasi or Indiranagar, Bengaluru"
+                  placeholder={t.placeholderLocation}
                   className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden"
                 />
               </div>
@@ -196,7 +196,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                     className="w-full text-xs sm:text-sm pl-7 pr-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-900 font-mono font-bold text-slate-900"
                   />
                 </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">Formatted: {formatINR(monthlyRevenue)}</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">Formatted: {formatINR(monthlyRevenue, language)}</span>
               </div>
 
               <div>
@@ -215,7 +215,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                     className="w-full text-xs sm:text-sm pl-7 pr-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-900 font-mono font-bold text-slate-900"
                   />
                 </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">Includes stock purchase, rent & wages</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">{t.includesStockRentWages}</span>
               </div>
 
               <div>
@@ -233,7 +233,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                     className="w-full text-xs sm:text-sm pl-7 pr-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-900 font-mono font-bold text-slate-900"
                   />
                 </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">Enter 0 if currently debt-free</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">{t.enterZeroIfDebtFree}</span>
               </div>
             </div>
 
@@ -305,20 +305,20 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
             {/* Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <MetricCard
-                label="Current Monthly Net Profit"
+                label={t.currentMonthlyNetProfitLabel}
                 value={formatINR(diagnosis.currentMonthlyProfit)}
                 subtext={`Operating margin of ${diagnosis.profitMarginPct}%`}
                 accent="emerald"
               />
 
               <MetricCard
-                label="Monthly Turnover"
+                label={t.monthlyTurnoverLabel}
                 value={formatINR(monthlyRevenue)}
                 subtext={`Annualized Run Rate: ${formatINR(monthlyRevenue * 12)}`}
               />
 
               <MetricCard
-                label="Expansion Capital Needed"
+                label={t.expansionCapitalNeededLabel}
                 value={formatINR(diagnosis.expansionRecommendation.requiredCapital)}
                 subtext={`Recommended Route: ${diagnosis.expansionRecommendation.recommendedFinancing}`}
                 highlight={true}
@@ -375,7 +375,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
               </div>
 
               <p className="text-xs text-indigo-900 leading-relaxed mb-4">
-                Executing this initiative requires capital outlay of <strong>{formatINR(diagnosis.expansionRecommendation.requiredCapital)}</strong>. After debt servicing, projected new monthly net cash surplus reaches <strong>{formatINR(diagnosis.expansionRecommendation.newMonthlySurplus)}/month</strong>.
+                {t.expansionRequiresOutlay} <strong>{formatINR(diagnosis.expansionRecommendation.requiredCapital)}</strong>. {t.afterDebtServicingSurplus} <strong>{formatINR(diagnosis.expansionRecommendation.newMonthlySurplus)}/month</strong>.
               </p>
 
               <div className="border-t border-indigo-200/80 pt-3">
@@ -400,7 +400,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                 className="text-xs font-bold text-indigo-900 hover:text-indigo-950 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl border border-indigo-200 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Adjust Financial Inputs</span>
+                <span>{t.adjustFinancialInputs}</span>
               </button>
 
               <PrimaryButton
@@ -408,7 +408,7 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
                 variant="primary"
                 size="md"
               >
-                DOWNLOAD EXPANSION REPORT
+                {t.downloadBusinessPlan}
               </PrimaryButton>
             </div>
           </div>

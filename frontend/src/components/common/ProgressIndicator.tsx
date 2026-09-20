@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Loader2, ShieldCheck, FileSearch, Sparkles } from 'lucide-react';
+import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ProgressIndicatorProps {
   onComplete: () => void;
@@ -28,6 +29,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   businessName,
   locationName
 }) => {
+  const { t } = useLanguage();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   useEffect(() => {
@@ -79,8 +81,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           {/* Progress Bar */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1.5">
-              <span>Public Verification Checklist</span>
-              <span className="font-mono text-emerald-400 font-bold">{progressPct}% Completed</span>
+              <span>{t.publicVerificationChecklist}</span>
+              <span className="font-mono text-emerald-400 font-bold">{progressPct}% {t.statusComplete}</span>
             </div>
             <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
               <div
@@ -117,8 +119,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                     isDone ? 'text-slate-800' : isCurrent ? 'text-indigo-950' : 'text-slate-400'
                   }`}>
                     <span>{step.label}</span>
-                    {isDone && <span className="text-[10px] text-emerald-700 font-semibold uppercase">Verified</span>}
-                    {isCurrent && <span className="text-[10px] text-indigo-700 font-semibold uppercase animate-pulse">Processing...</span>}
+                    {isDone && <span className="text-[10px] text-emerald-700 font-semibold uppercase">{t.statusComplete}</span>}
+                    {isCurrent && <span className="text-[10px] text-indigo-700 font-semibold uppercase animate-pulse">{t.statusProcessing}</span>}
                   </div>
                   <p className={`text-[11px] mt-0.5 ${
                     isCurrent ? 'text-slate-600 font-medium' : isDone ? 'text-slate-500' : 'text-slate-400'

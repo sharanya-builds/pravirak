@@ -1,3 +1,4 @@
+import type { AnalysisContext } from '../utils/buildAnalysisContext';
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:4000/api';
 
 export class ApiError extends Error {
@@ -148,17 +149,22 @@ export const reportApi = {
 
 export interface AdvisorAskPayload {
   question: string;
-  businessIdea: string;
+  language?: string;
+  /** Compact deterministic context produced by buildAnalysisContext(). Preferred over the legacy flat fields. */
+  analysisContext?: AnalysisContext;
+
+  // Legacy flat fields — still accepted by the backend fallback
+  businessIdea?: string;
   category?: string;
   location?: any;
   financials?: any;
   decision?: any;
-  language?: string;
 }
 
 export interface AdvisorAskResponse {
   answer: string;
   grounded?: boolean;
+  fallback?: boolean;
   model?: string;
 }
 

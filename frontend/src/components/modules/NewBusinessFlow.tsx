@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   ArrowRight,
   ArrowLeft,
@@ -7,13 +7,16 @@ import {
   Layers,
   MapPin,
   CheckCircle2,
-  Check
+  Check,
+  Landmark
 } from 'lucide-react';
 import { BusinessInput, SelectedLocation } from '../../types';
 import { formatINR } from '../../engine/financialEngine';
+import { calculatePS } from '../../engine/psCalculator';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { GooglePlacesSearch, GooglePlacesSearchHandle } from '../common/GooglePlacesSearch';
 import { GoogleMapPreview } from '../common/GoogleMapPreview';
+import { VoiceInputButton } from '../common/VoiceInputButton';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface NewBusinessFlowProps {
@@ -242,6 +245,27 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
   const canContinueStep1 = businessIdea.trim().length >= 3;
   const canContinueStep2 = isLocationConfirmed;
 
+  // Live loan scheme preview from psCalculator
+  const liveSchemePreview = useMemo(() => {
+    if (!ownCapital || isNaN(ownCapital) || ownCapital <= 0) return null;
+    try {
+      const res = calculatePS(ownCapital);
+      if (res.isEligible) {
+        return {
+          eligible: true,
+          text: `₹${ownCapital.toLocaleString('en-IN')} supports a project up to ₹${res.projectCost.toLocaleString('en-IN')} (${res.schemeName}, ${res.interestRatePct}%)`,
+        };
+      } else {
+        return {
+          eligible: false,
+          text: res.message || `₹${ownCapital.toLocaleString('en-IN')} exceeds scheme limits (Maximum project cost ₹50,00,000)`,
+        };
+      }
+    } catch {
+      return null;
+    }
+  }, [ownCapital]);
+
   const goToStep = (step: Step) => {
     if (step === 2 && !canContinueStep1) return;
     if (step === 3 && !(canContinueStep1 && canContinueStep2)) return;
@@ -330,14 +354,24 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
                 <p className="text-sm text-slate-600 mb-3">
                   {t.describeInOwnWords}
                 </p>
-                <textarea
-                  required
-                  rows={3}
-                  value={businessIdea}
-                  onChange={(e) => setBusinessIdea(e.target.value)}
-                  placeholder={t.describeHint}
-                  className="w-full text-base px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden text-slate-900 font-medium"
-                />
+                <div className="relative">
+                  <textarea
+                    required
+                    rows={3}
+                    value={businessIdea}
+                    onChange={(e) => setBusinessIdea(e.target.value)}
+                    placeholder={t.describeHint}
+                    className="w-full text-base px-4 py-3.5 pr-12 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-900 focus:bg-white focus:outline-hidden text-slate-900 font-medium"
+                  />
+                  <div className="absolute right-3 bottom-3">
+                    <VoiceInputButton
+                      size="sm"
+                      onTranscript={(spokenText) => {
+                        setBusinessIdea((prev) => (prev.trim() ? `${prev.trim()} ${spokenText}` : spokenText));
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -409,7 +443,7 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
             <div className="space-y-6">
               <div>
                 <label className="block text-base font-bold text-slate-900 mb-1.5">
-                  {t.howMuchInvest} <span className="text-rose-600">*</span>
+                  {t.ownCapitalMarginLabel} <span className="text-rose-600">*</span>
                 </label>
                 <p className="text-sm text-slate-600 mb-3">
                   {t.ownSavingsDesc}
@@ -449,6 +483,21 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
                     </button>
                   ))}
                 </div>
+
+                {/* Live scheme loan preview from psCalculator */}
+                {liveSchemePreview && (
+                  <div
+                    className={`mt-4 p-3.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2.5 transition-all ${
+                      liveSchemePreview.eligible
+                        ? 'bg-indigo-50/70 border-indigo-200/80 text-indigo-950'
+                        : 'bg-amber-50 border-amber-200 text-amber-900'
+                    }`}
+                    data-testid="capital-live-preview"
+                  >
+                    <Landmark className="w-4 h-4 text-indigo-900 shrink-0" />
+                    <span>{liveSchemePreview.text}</span>
+                  </div>
+                )}
               </div>
 
               {/* Optional Profile Accordion */}

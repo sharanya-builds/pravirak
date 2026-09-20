@@ -69,7 +69,14 @@ const STATIC_CANDIDATES = [
   'anthropic/claude-3.5-haiku',
 ];
 
-function buildPrompt({ businessIdea, category, ownCapital, city, state }) {
+function buildPrompt({ businessIdea, category, ownCapital, city, state, language = 'en' }) {
+  let langInstruction = 'Write the summary, eligibilityHighlights, and benefitHighlights in clear, natural English.';
+  if (language === 'hi') {
+    langInstruction = 'Write the summary, eligibilityHighlights, and benefitHighlights strictly in Hindi (Devanagari script - हिंदी).';
+  } else if (language === 'te') {
+    langInstruction = 'Write the summary, eligibilityHighlights, and benefitHighlights strictly in Telugu (Telugu script - తెలుగు).';
+  }
+
   return `You are a research assistant for PRAVIRAK, a business-decision platform for Indian entrepreneurs.
 
 A user wants to start or grow this business:
@@ -77,6 +84,7 @@ A user wants to start or grow this business:
 - Category: ${category || 'unspecified'}
 - Available own capital (promoter equity): ₹${ownCapital}
 - Location: ${city || 'unspecified city'}, ${state || 'unspecified state'}, India
+- Requested Language: ${language}
 
 Use web search to find CURRENT central government and ${state || 'relevant state'} government
 schemes, subsidy programs, or collateral-free loan guarantee programs (e.g. PMEGP, PM MUDRA, CGTMSE,
@@ -105,6 +113,8 @@ STRICT RULES:
 6. Do NOT calculate EMI, subsidy amounts in rupees, or eligibility decisions yourself — just report what
    the scheme offers as stated in the source. PRAVIRAK's own deterministic engine will do the financial math.
 7. Return between 2 and 5 schemes, best matches first.
+8. ${langInstruction}
+   CRITICAL: Keep official scheme names (e.g., PMEGP, PM MUDRA, CGTMSE, Stand-Up India, PM SVANidhi, Udyam) and official authority names in their English/original form. Do NOT translate or transliterate statutory scheme acronyms.
 
 Respond with ONLY valid JSON (no markdown fences, no commentary) in exactly this shape:
 {

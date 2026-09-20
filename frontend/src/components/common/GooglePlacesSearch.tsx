@@ -84,6 +84,8 @@ interface PlaceCandidate {
   resolved?: SelectedLocation;
 }
 
+import { parseLocationHierarchy } from '../../engine/locationParser';
+
 async function geocodeWithNominatim(query: string, signal?: AbortSignal): Promise<SelectedLocation[]> {
   const apiBase = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:4000/api';
 
@@ -103,6 +105,7 @@ async function geocodeWithNominatim(query: string, signal?: AbortSignal): Promis
   const data: any[] = await res.json();
   return data.map((item) => {
     const addr = item.address || {};
+    const hierarchy = parseLocationHierarchy(addr);
     const city = addr.city || addr.town || addr.village || addr.hamlet || addr.municipality || addr.locality || addr.suburb || addr.county || addr.state_district || 'Unknown';
     return {
       address: item.display_name as string,
@@ -110,7 +113,10 @@ async function geocodeWithNominatim(query: string, signal?: AbortSignal): Promis
       longitude: parseFloat(item.lon),
       placeId: `osm-${item.place_id}`,
       city,
-      state: addr.state || '',
+      state: hierarchy.state || addr.state || '',
+      village: hierarchy.village,
+      block: hierarchy.block,
+      district: hierarchy.district,
       postalCode: addr.postcode || '',
       source: 'OPENSTREETMAP' as const,
     };

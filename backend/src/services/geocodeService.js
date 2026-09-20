@@ -38,6 +38,18 @@ function normaliseItem(item) {
     addr.state_district ||
     'Unknown';
 
+  const village = (addr.village || addr.hamlet || addr.isolated_dwelling || '').trim() || null;
+  const block = (
+    addr.tehsil ||
+    addr.taluk ||
+    addr.mandal ||
+    addr.subdistrict ||
+    addr.county ||
+    ''
+  ).trim() || null;
+  const district = (addr.state_district || addr.district || '').trim() || null;
+  const state = (addr.state || '').trim() || null;
+
   return {
     address: item.display_name,
     displayAddress: item.display_name,
@@ -45,7 +57,10 @@ function normaliseItem(item) {
     longitude: parseFloat(item.lon),
     placeId: `osm-${item.place_id}`,
     city,
-    state: addr.state || '',
+    state: state || '',
+    village,
+    block,
+    district,
     postalCode: addr.postcode || '',
     // Distinguishes village/rural vs urban on the frontend
     addressType: item.addresstype || item.type || '',

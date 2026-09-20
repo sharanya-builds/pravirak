@@ -3,6 +3,7 @@ import { ShieldAlert } from 'lucide-react';
 import { ExplorerShell, NoActiveAnalysis } from './ExplorerShell';
 import { StressTest } from '../StressTest';
 import { ActiveAnalysis } from './types';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface RiskExplorerProps {
   analysis: ActiveAnalysis | null;
@@ -11,8 +12,10 @@ interface RiskExplorerProps {
 }
 
 export const RiskExplorer: React.FC<RiskExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t } = useLanguage();
+
   return (
-    <ExplorerShell icon={ShieldAlert} title="Risk Explorer" description="Risks, seasonality and stress scenarios" onBack={onBack}>
+    <ExplorerShell icon={ShieldAlert} title={t.exploreRisk} description={t.exploreRiskDesc} onBack={onBack}>
       {!analysis ? (
         <NoActiveAnalysis onStartNew={onStartNew} />
       ) : (
@@ -20,7 +23,7 @@ export const RiskExplorer: React.FC<RiskExplorerProps> = ({ analysis, onBack, on
           <StressTest financials={analysis.financials} categoryKey={analysis.input.businessIdea} />
 
           <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Identified Risk Factors</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t.identifiedRiskFactorsTitle}</h3>
             <div className="space-y-3">
               {analysis.decisionResult.riskFactors.map((rf, idx) => (
                 <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200">

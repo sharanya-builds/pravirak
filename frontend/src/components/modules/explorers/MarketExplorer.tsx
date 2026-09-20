@@ -5,6 +5,8 @@ import { MarketMap } from '../MarketMap';
 import { LocationComparison } from '../LocationComparison';
 import { ActiveAnalysis } from './types';
 
+import { useLanguage } from '../../../context/LanguageContext';
+
 interface MarketExplorerProps {
   analysis: ActiveAnalysis | null;
   baseLocation: import('../../../types').LocationData | null;
@@ -22,8 +24,9 @@ export const MarketExplorer: React.FC<MarketExplorerProps> = ({
   onBack,
   onStartNew
 }) => {
+  const { t } = useLanguage();
   return (
-    <ExplorerShell icon={MapPin} title="Market Explorer" description="Local demand and markets" onBack={onBack}>
+    <ExplorerShell icon={MapPin} title={t.exploreMarket} description={t.exploreMarketDesc} onBack={onBack}>
       {!analysis || !baseLocation ? (
         <NoActiveAnalysis onStartNew={onStartNew} />
       ) : (

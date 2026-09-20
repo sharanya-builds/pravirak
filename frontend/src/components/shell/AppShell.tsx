@@ -64,7 +64,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const guestLabel = language === 'te' ? 'అతిథి' : language === 'hi' ? 'अतिथि' : 'Guest';
+  const guestLabel = t.guestUser;
   const displayName = user?.name || guestLabel;
   const initials = displayName
     .split(' ')
@@ -136,6 +136,18 @@ export const AppShell: React.FC<AppShellProps> = ({
                       ASK: t.exploreAsk,
                     }[item.key] || item.label;
 
+                    const localizedDescription = {
+                      MARKET: t.exploreMarketDesc,
+                      FINANCE: t.exploreFinanceDesc,
+                      BUSINESS: t.exploreBusinessDesc,
+                      OPERATIONS: t.exploreOperationsDesc,
+                      RISK: t.exploreRiskDesc,
+                      COMPLIANCE: t.exploreComplianceDesc,
+                      GROWTH: t.exploreGrowthDesc,
+                      EVIDENCE: t.exploreEvidenceDesc,
+                      ASK: t.exploreAskDesc,
+                    }[item.key] || item.description;
+
                     return (
                       <button
                         key={item.key}
@@ -150,7 +162,7 @@ export const AppShell: React.FC<AppShellProps> = ({
                         </div>
                         <div>
                           <div className="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">{localizedLabel}</div>
-                          <div className="text-xs text-slate-700 dark:text-neutral-300 mt-0.5 font-medium">{item.description}</div>
+                          <div className="text-xs text-slate-700 dark:text-neutral-300 mt-0.5 font-medium">{localizedDescription}</div>
                         </div>
                       </button>
                     );
@@ -166,7 +178,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             <LanguageSelector variant="header" />
             <button
               className="p-2 rounded-lg text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1A1A1A] transition-colors cursor-pointer"
-              aria-label="Notifications"
+              aria-label={t.ariaNotifications}
             >
               <Bell className="w-4.5 h-4.5" />
             </button>
@@ -221,7 +233,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           <button
             onClick={() => setDrawerOpen(true)}
             className="md:hidden p-2 rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]"
-            aria-label="Open navigation menu"
+            aria-label={t.ariaOpenNav}
           >
             <Menu className="w-5.5 h-5.5" />
           </button>
@@ -385,12 +397,12 @@ export const AppShell: React.FC<AppShellProps> = ({
             </div>
             <div>
               <span className="font-extrabold text-white text-sm">PRAVIRAK</span>
-              <p className="text-[11px] text-slate-500">AI-assisted business decision platform for Indian entrepreneurs</p>
+              <p className="text-[11px] text-slate-500">{t.platformFooterSub}</p>
             </div>
           </div>
           <div className="text-center sm:text-right text-[11px] text-slate-500">
-            <p>Built for India's entrepreneurs • Unbiased public feasibility modeling</p>
-            <p className="mt-0.5">Never promise profit. Deterministic financial math without hallucination.</p>
+            <p>{t.platformTaglineBuiltFor}</p>
+            <p className="mt-0.5">{t.platformEthos}</p>
           </div>
         </div>
       </footer>

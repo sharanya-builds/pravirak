@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   BusinessDecisionResult,
   BusinessInput,
   FinancialAnalysis,
-  Language,
   LocationData,
+  NearbyPlacesResult,
+  LocalFeasibilityReport,
   SelectedLocation
 } from './types';
 
@@ -45,6 +46,8 @@ import { GOVERNMENT_SCHEMES } from './data/schemes';
 import { computeFinancialAnalysis } from './engine/financialEngine';
 import { synthesizeDecision } from './engine/decisionEngine';
 import { analyzeLocationForBusiness } from './engine/locationAnalysisEngine';
+import { fetchNearbyPlaces } from './services/placesService';
+import { fetchLocalFeasibilityReport } from './services/localFeasibilityService';
 
 import { HelpCircle, X, ShieldCheck } from 'lucide-react';
 
@@ -95,11 +98,36 @@ function AppShellRouter() {
   const [activeBusinessDbId, setActiveBusinessDbId] = useState<number | null>(null);
   const [isAlternativeAdopted, setIsAlternativeAdopted] = useState(false);
   const [hasActiveAnalysis, setHasActiveAnalysis] = useState(false);
+  const [realCompetitors, setRealCompetitors] = useState<NearbyPlacesResult | null>(null);
+
+  // Fetch real competitor places from Overpass API proxy when location/category changes
+  useEffect(() => {
+    let isCancelled = false;
+    const loc = businessInput.location;
+    if (loc && typeof loc.latitude === 'number' && typeof loc.longitude === 'number') {
+      fetchNearbyPlaces(loc.latitude, loc.longitude, 1.5, businessInput.category || businessInput.businessIdea)
+        .then((res) => {
+          if (!isCancelled) {
+            setRealCompetitors(res);
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setRealCompetitors(null);
+          }
+        });
+    } else {
+      setRealCompetitors(null);
+    }
+    return () => {
+      isCancelled = true;
+    };
+  }, [businessInput.location?.latitude, businessInput.location?.longitude, businessInput.category, businessInput.businessIdea]);
 
   // Derive base location analysis from the current business input
   const baseLocation: LocationData = useMemo(() => {
-    return analyzeLocationForBusiness(businessInput.businessIdea, businessInput.location);
-  }, [businessInput.businessIdea, businessInput.location]);
+    return analyzeLocationForBusiness(businessInput.businessIdea, businessInput.location, realCompetitors);
+  }, [businessInput.businessIdea, businessInput.location, realCompetitors]);
 
   const activeLocation: LocationData = useMemo(() => {
     if (isAlternativeAdopted && baseLocation.alternativeLocation) {
@@ -137,6 +165,39 @@ function AppShellRouter() {
   }, [businessInput, activeLocation, financials, currentLanguage]);
 
   const schemes = GOVERNMENT_SCHEMES;
+
+  const [feasibilityReport, setFeasibilityReport] = useState<LocalFeasibilityReport | null>(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+    fetchLocalFeasibilityReport({
+      category: businessInput.category || businessInput.businessIdea,
+      location: activeLocation,
+      ownCapital: businessInput.ownCapital,
+      projectCost: financials.projectCost,
+      competitorCount: activeLocation.competitorsNearbyCount,
+      catchmentPopulationEstimate: null,
+      language: currentLanguage
+    })
+      .then((res) => {
+        if (!isCancelled) {
+          setFeasibilityReport(res);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    businessInput.category,
+    businessInput.businessIdea,
+    activeLocation.lat,
+    activeLocation.lng,
+    activeLocation.competitorsNearbyCount,
+    businessInput.ownCapital,
+    financials.projectCost,
+    currentLanguage
+  ]);
 
   // Not authenticated and not guest -> show login
   if (isLoading) {
@@ -303,9 +364,9 @@ function AppShellRouter() {
         </div>
         <footer className="text-center text-[11px] text-slate-400 py-6">
           {user ? (
-            <span>Signed in as {user.name}</span>
+            <span>{t.signedInAs} {user.name}</span>
           ) : (
-            <span>Browsing as guest · Analyses save to this device only</span>
+            <span>{t.browsingAsGuestNotice}</span>
           )}
         </footer>
       </div>
@@ -381,6 +442,7 @@ function AppShellRouter() {
           onToggleAlternativeLocation={toggleAlternativeLocation}
           onEditInputs={() => setCurrentView('NEW_INPUT')}
           onViewFullDossier={handleViewFullDossier}
+          feasibilityReport={feasibilityReport}
         />
       )}
 
@@ -392,6 +454,7 @@ function AppShellRouter() {
           decisionResult={decisionResult}
           recommendedScheme={schemes[0]}
           onReset={() => setCurrentView('NEW_INPUT')}
+          feasibilityReport={feasibilityReport}
         />
       )}
 
@@ -453,36 +516,29 @@ function AppShellRouter() {
             <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-900 mb-3 border border-indigo-100">
               <HelpCircle className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">How PRAVIRAK Works</h3>
+            <h3 className="text-lg font-bold text-slate-900">{t.helpModalTitle}</h3>
             <div className="text-xs text-slate-600 mt-2 space-y-3 leading-relaxed">
               <p>
-                <strong>1. Business Decision Platform:</strong> PRAVIRAK is not a generic chatbot. It performs
-                rigorous deterministic underwriting across local market competition, location suitability, debt
-                service safety, and sensitivity stress scenarios.
+                <strong>{t.helpPoint1Title}</strong> {t.helpPoint1Desc}
               </p>
               <p>
-                <strong>2. Deterministic Arithmetic:</strong> All debt, EMI, capex, and DSCR metrics are calculated
-                using authoritative banking math. AI is only used to explain findings in accessible language.
+                <strong>{t.helpPoint2Title}</strong> {t.helpPoint2Desc}
               </p>
               <p>
-                <strong>3. Government Financing:</strong> We automatically check eligibility against official
-                schemes like PMEGP, PM MUDRA, and CGTMSE to minimize debt interest drag.
+                <strong>{t.helpPoint3Title}</strong> {t.helpPoint3Desc}
               </p>
               <p>
-                <strong>4. Sensitive to Risk:</strong> We never guarantee profit. Every recommendation highlights
-                the confidence level and underlying data vintage.
+                <strong>{t.helpPoint4Title}</strong> {t.helpPoint4Desc}
               </p>
               <p>
-                <strong>5. Explore Hub:</strong> Once you have an active analysis, use Explore Hub to dig deeper
-                into market, finance, business, operations, risk, compliance, growth and evidence — or ask
-                PRAVIRAK directly.
+                <strong>{t.helpPoint5Title}</strong> {t.helpPoint5Desc}
               </p>
             </div>
             <button
               onClick={() => setHelpModalOpen(false)}
               className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
             >
-              Close Guide
+              {t.closeGuide}
             </button>
           </div>
         </div>

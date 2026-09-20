@@ -4,6 +4,8 @@ import { ExplorerShell, NoActiveAnalysis } from './ExplorerShell';
 import { AskPravirak } from '../AskPravirak';
 import { ActiveAnalysis } from './types';
 
+import { useLanguage } from '../../../context/LanguageContext';
+
 interface AskExplorerProps {
   analysis: ActiveAnalysis | null;
   onBack: () => void;
@@ -11,8 +13,9 @@ interface AskExplorerProps {
 }
 
 export const AskExplorer: React.FC<AskExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t } = useLanguage();
   return (
-    <ExplorerShell icon={Bot} title="Ask PRAVIRAK" description="Questions about the current analysis" onBack={onBack}>
+    <ExplorerShell icon={Bot} title={t.exploreAsk} description={t.exploreAskDesc} onBack={onBack}>
       {!analysis ? (
         <NoActiveAnalysis onStartNew={onStartNew} />
       ) : (

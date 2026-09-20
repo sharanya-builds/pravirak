@@ -6,6 +6,7 @@ import { SchemeRecommendations } from '../../common/SchemeRecommendations';
 import { formatINR } from '../../../engine/financialEngine';
 import { GOVERNMENT_SCHEMES } from '../../../data/schemes';
 import { ActiveAnalysis } from './types';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface FinanceExplorerProps {
   analysis: ActiveAnalysis | null;
@@ -14,8 +15,10 @@ interface FinanceExplorerProps {
 }
 
 export const FinanceExplorer: React.FC<FinanceExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t, language } = useLanguage();
+
   return (
-    <ExplorerShell icon={Landmark} title="Finance Explorer" description="Schemes, loans and eligibility" onBack={onBack}>
+    <ExplorerShell icon={Landmark} title={t.exploreFinance} description={t.exploreFinanceDesc} onBack={onBack}>
       {!analysis ? (
         <NoActiveAnalysis onStartNew={onStartNew} />
       ) : (
@@ -24,10 +27,10 @@ export const FinanceExplorer: React.FC<FinanceExplorerProps> = ({ analysis, onBa
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
               <div className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-3">
-                Government Eligibility
+                {t.financingOptions}
               </div>
               <p className="text-xs text-slate-600 mb-4">
-                Based on your project cost and promoter profile, you are eligible to apply under these schemes.
+                {t.matchedSchemesDesc}
               </p>
               <div className="space-y-2">
                 {GOVERNMENT_SCHEMES.slice(0, 3).map((s) => (
@@ -44,30 +47,30 @@ export const FinanceExplorer: React.FC<FinanceExplorerProps> = ({ analysis, onBa
                 PRAVIRAK Recommended Financing
               </div>
               <p className="text-2xl font-black text-slate-900 font-mono">
-                {formatINR(analysis.financials.loanRequired)}
+                {formatINR(analysis.financials.loanRequired, language)}
               </p>
-              <p className="text-xs text-slate-500 mt-1 mb-4">Recommended loan amount</p>
+              <p className="text-xs text-slate-500 mt-1 mb-4">{t.recommendedLoanAmountLabel}</p>
               <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 rounded-lg p-3">
                 If you start this business and take the recommended loan, your estimated monthly repayment is{' '}
-                <strong className="font-mono">{formatINR(analysis.financials.monthlyEMI)}</strong>.
+                <strong className="font-mono">{formatINR(analysis.financials.monthlyEMI, language)}</strong>.
               </p>
             </div>
           </div>
 
           {/* Repayment-focused metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <MetricCard label="Break-even Sales" value={formatINR(analysis.financials.projectedMonthlyRevenue)} accent="indigo" />
+            <MetricCard label="Break-even Sales" value={formatINR(analysis.financials.projectedMonthlyRevenue, language)} accent="indigo" />
             <MetricCard
               label="Minimum Monthly Sales Target"
-              value={formatINR(analysis.financials.monthlyEMI + analysis.financials.projectedMonthlyOpex)}
+              value={formatINR(analysis.financials.monthlyEMI + analysis.financials.projectedMonthlyOpex, language)}
               accent="amber"
               subtext="Required to safely support repayment"
             />
-            <MetricCard label="Repayment Safety" value={analysis.financials.safetyStatus} safetyStatus={analysis.financials.safetyStatus} />
+            <MetricCard label={t.financialSafety} value={analysis.financials.safetyStatus} safetyStatus={analysis.financials.safetyStatus} />
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-slate-900 mb-3">All Matched Schemes</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t.allMatchedSchemesTitle}</h3>
             <SchemeRecommendations
               businessIdea={analysis.input.businessIdea}
               category={analysis.input.category}

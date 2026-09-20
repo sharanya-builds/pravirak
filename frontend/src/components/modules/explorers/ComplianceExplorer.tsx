@@ -4,6 +4,7 @@ import { ExplorerShell, NoActiveAnalysis } from './ExplorerShell';
 import { ComplianceCard } from '../../common/ComplianceCard';
 import { getSectorCompliances } from '../../../data/compliances';
 import { ActiveAnalysis } from './types';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface ComplianceExplorerProps {
   analysis: ActiveAnalysis | null;
@@ -12,13 +13,14 @@ interface ComplianceExplorerProps {
 }
 
 export const ComplianceExplorer: React.FC<ComplianceExplorerProps> = ({ analysis, onBack, onStartNew }) => {
+  const { t } = useLanguage();
   const compliances = analysis ? getSectorCompliances(analysis.input.businessIdea) : [];
 
   return (
     <ExplorerShell
       icon={ClipboardCheck}
-      title="Compliance Explorer"
-      description="Licences, registrations and approvals"
+      title={t.exploreCompliance}
+      description={t.exploreComplianceDesc}
       onBack={onBack}
     >
       {!analysis ? (
@@ -26,7 +28,7 @@ export const ComplianceExplorer: React.FC<ComplianceExplorerProps> = ({ analysis
       ) : (
         <div className="space-y-8">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Required & Likely-Required Licenses</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t.requiredLikelyLicensesTitle}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {compliances.map((item) => (
                 <ComplianceCard key={item.id} item={item} />
@@ -35,7 +37,7 @@ export const ComplianceExplorer: React.FC<ComplianceExplorerProps> = ({ analysis
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-slate-900 mb-3">30 / 60 / 90-Day Implementation Plan</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t.implementationPlan306090}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { label: 'Day 0–30', desc: 'Validation, location confirmation & supplier outreach' },

@@ -1,30 +1,18 @@
-import { FinancialAnalysis, SafetyStatus, StressResult } from '../types';
+import { FinancialAnalysis, SafetyStatus, StressResult, Language } from '../types';
+import { formatCurrency, formatLakhsCrores } from '../utils/formatters';
 
 /**
  * Formats a number according to Indian Currency standard (e.g. ₹10,00,000)
  */
-export function formatINR(val: number): string {
-  if (isNaN(val) || val === null || val === undefined) return '₹0';
-  const rounded = Math.round(val);
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(rounded);
+export function formatINR(val: number, lang: Language = 'en'): string {
+  return formatCurrency(val, lang);
 }
 
 /**
  * Formats numbers into Indian denominations (e.g., ₹1.5 Lakh, ₹2.4 Crore)
  */
-export function formatINRLakhs(val: number): string {
-  if (isNaN(val) || val === null || val === undefined) return '₹0';
-  if (Math.abs(val) >= 10000000) {
-    return `₹${(val / 10000000).toFixed(2)} Cr`;
-  }
-  if (Math.abs(val) >= 100000) {
-    return `₹${(val / 100000).toFixed(2)} Lakh`;
-  }
-  return formatINR(val);
+export function formatINRLakhs(val: number, lang: Language = 'en'): string {
+  return formatLakhsCrores(val, lang);
 }
 
 /**

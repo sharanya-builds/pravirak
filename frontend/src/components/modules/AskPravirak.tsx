@@ -1,22 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Send, 
-  Volume2, 
-  VolumeX, 
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Sparkles,
+  Send,
+  Volume2,
+  VolumeX,
   Bot,
-  Loader2
+  Loader2,
+  RotateCcw,
+  Info
 } from 'lucide-react';
 import { BusinessDecisionResult, BusinessInput, FinancialAnalysis, LocationData } from '../../types';
-import { answerCustomQuestion, generateContextualQnA } from '../../engine/aiAdvisorEngine';
+import { generateContextualQnA, answerCustomQuestion } from '../../engine/aiAdvisorEngine';
 import { advisorApi } from '../../api/client';
+import { buildAnalysisContext } from '../../utils/buildAnalysisContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { VoiceInputButton } from '../common/VoiceInputButton';
 
 interface AskPravirakProps {
   input: BusinessInput;
   location: LocationData;
   financials: FinancialAnalysis;
   decisionResult: BusinessDecisionResult;
+}
+
+interface ChatMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  /** True when answer came from LLM (vs local deterministic template) */
+  aiGenerated?: boolean;
+  /** Model string returned by the backend */
+  model?: string;
+  /** True when local fallback was used */
+  fallback?: boolean;
+  timestamp: string;
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export const AskPravirak: React.FC<AskPravirakProps> = ({
@@ -26,265 +47,309 @@ export const AskPravirak: React.FC<AskPravirakProps> = ({
   decisionResult
 }) => {
   const { t, language } = useLanguage();
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string>('why_location');
-  const [customQuery, setCustomQuery] = useState<string>('');
-  const [activeAnswer, setActiveAnswer] = useState<string>('');
-  const [activeQuestionTitle, setActiveQuestionTitle] = useState<string>('');
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activeModel, setActiveModel] = useState<string>('');
 
-  // Pre-generate the 6 grounded Q&A items based on active user context and language
+  // Pre-generate the 6 grounded FAQ items (deterministic, no API call)
   const faqs = generateContextualQnA(input, location, financials, decisionResult, language);
 
-  // Reset or update active answer when language changes
+  // Compact context sent to the backend for every LLM call
+  const analysisContext = buildAnalysisContext(input, location, financials, decisionResult);
+
+  // Chat history (session-scoped, reset on clear)
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [customQuery, setCustomQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Welcome message on mount / language change (only if history is empty)
   useEffect(() => {
-    const item = faqs.find((f) => f.id === selectedQuestionId) || faqs[0];
-    if (item && selectedQuestionId !== 'custom') {
-      setActiveQuestionTitle(item.question);
-      setActiveAnswer(item.answer);
-      setActiveModel('');
+    if (messages.length === 0) {
+      const welcome =
+        language === 'te'
+          ? `నమస్తే! నేను మీ PRAVIRAK AI సలహాదారుని. క్రింది FAQ లు ఎంచుకోండి లేదా మీ స్వంత ప్రశ్న అడగండి.`
+          : language === 'hi'
+          ? `नमस्ते! मैं आपका PRAVIRAK AI सलाहकार हूँ। नीचे दिए गए सुझाए प्रश्नों में से चुनें या अपना खुद का प्रश्न पूछें।`
+          : `Hello! I'm your PRAVIRAK AI Advisor. Select a suggested question below or ask your own.`;
+      setMessages([
+        { id: 'welcome-1', sender: 'assistant', text: welcome, aiGenerated: false, timestamp: nowTime() }
+      ]);
     }
-  }, [language, selectedQuestionId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
-  // Set default answer on mount / question selection
+  // Scroll to bottom on every new message or loading state change
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  // -------------------------------------------------------------------------
+  // FAQ chip click — uses local deterministic template instantly (no API call)
+  // -------------------------------------------------------------------------
   const handleSelectFaq = (faqId: string) => {
+    stopSpeaking();
     const item = faqs.find((f) => f.id === faqId) || faqs[0];
-    setSelectedQuestionId(item.id);
-    setActiveQuestionTitle(item.question);
-    setActiveAnswer(item.answer);
-    setActiveModel('');
-    stopSpeaking();
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text: item.question,
+      timestamp: nowTime()
+    };
+    const assistantMsg: ChatMessage = {
+      id: `faq-${Date.now()}`,
+      sender: 'assistant',
+      text: item.answer,
+      aiGenerated: false, // deterministic template — no attribution line
+      timestamp: nowTime()
+    };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
   };
 
-  // Handle custom query submission with real conversational NLP LLM
-  const handleCustomSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customQuery.trim() || isLoading) return;
+  // -------------------------------------------------------------------------
+  // Custom query — calls /api/advisor/ask (LLM grounded on analysisContext)
+  // -------------------------------------------------------------------------
+  const handleCustomSubmit = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      const question = customQuery.trim();
+      if (!question || isLoading) return;
 
-    const userQuery = customQuery.trim();
-    setSelectedQuestionId('custom');
-    setActiveQuestionTitle(userQuery);
-    setCustomQuery('');
-    stopSpeaking();
-    setIsLoading(true);
-
-    advisorApi
-      .ask({
-        question: userQuery,
-        businessIdea: input.businessIdea,
-        category: input.category || input.businessIdea,
-        location,
-        financials,
-        decision: decisionResult.decision,
-        language
-      })
-      .then((res) => {
-        if (res && res.answer) {
-          setActiveAnswer(res.answer);
-          if (res.model) {
-            setActiveModel(res.model);
-          }
-        } else {
-          throw new Error('Empty response');
-        }
-      })
-      .catch(() => {
-        // Deterministic local NLP fallback if network/API is unavailable
-        const fallback = answerCustomQuestion(
-          userQuery,
-          input,
-          location,
-          financials,
-          decisionResult,
-          language
-        );
-        setActiveAnswer(fallback);
-        setActiveModel('Pravirak Context Engine');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  // Text to Speech support for accessibility
-  const handleToggleSpeech = () => {
-    if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported on this browser.');
-      return;
-    }
-
-    if (isSpeaking) {
-      stopSpeaking();
-    } else {
-      const utterance = new SpeechSynthesisUtterance(activeAnswer);
-      if (language === 'hi') {
-        utterance.lang = 'hi-IN';
-      } else if (language === 'te') {
-        utterance.lang = 'te-IN';
-      } else {
-        utterance.lang = 'en-IN';
+      // 500-char soft cap on the frontend too
+      if (question.length > 500) {
+        const warn =
+          language === 'te'
+            ? 'ప్రశ్న 500 అక్షరాల కంటే తక్కువగా ఉండాలి.'
+            : language === 'hi'
+            ? 'प्रश्न 500 अक्षरों से कम होना चाहिए।'
+            : 'Please keep your question under 500 characters.';
+        setMessages((prev) => [
+          ...prev,
+          { id: `warn-${Date.now()}`, sender: 'assistant', text: warn, aiGenerated: false, timestamp: nowTime() }
+        ]);
+        return;
       }
-      utterance.rate = 0.95;
-      utterance.pitch = 1.0;
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-      setIsSpeaking(true);
-    }
+
+      stopSpeaking();
+      setCustomQuery('');
+
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        text: question,
+        timestamp: nowTime()
+      };
+      setMessages((prev) => [...prev, userMsg]);
+      setIsLoading(true);
+
+      try {
+        const res = await advisorApi.ask({ question, language, analysisContext });
+        const assistantMsg: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          sender: 'assistant',
+          text: res.answer,
+          aiGenerated: true,
+          fallback: res.fallback,
+          model: res.model,
+          timestamp: nowTime()
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
+      } catch {
+        // Full offline fallback — use local deterministic engine
+        const fallbackText = answerCustomQuestion(question, input, location, financials, decisionResult, language);
+        const fallbackMsg: ChatMessage = {
+          id: `fallback-${Date.now()}`,
+          sender: 'assistant',
+          text: fallbackText,
+          aiGenerated: true,
+          fallback: true,
+          model: 'Pravirak Context Engine',
+          timestamp: nowTime()
+        };
+        setMessages((prev) => [...prev, fallbackMsg]);
+      } finally {
+        setIsLoading(false);
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
+    },
+    [customQuery, isLoading, language, analysisContext, input, location, financials, decisionResult]
+  );
+
+  // -------------------------------------------------------------------------
+  // Chat reset
+  // -------------------------------------------------------------------------
+  const handleReset = () => {
+    stopSpeaking();
+    setMessages([]);
+    setCustomQuery('');
   };
 
+  // -------------------------------------------------------------------------
+  // TTS
+  // -------------------------------------------------------------------------
   const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setSpeakingMsgId(null);
+  };
+
+  const handleSpeak = (msgId: string, text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingMsgId === msgId) { stopSpeaking(); return; }
+    stopSpeaking();
+    const utt = new SpeechSynthesisUtterance(text.replace(/[*#_`>]/g, ' ').replace(/\s+/g, ' ').trim());
+    utt.lang = language === 'te' ? 'te-IN' : language === 'hi' ? 'hi-IN' : 'en-IN';
+    utt.rate = 0.95;
+    utt.onend = () => setSpeakingMsgId(null);
+    utt.onerror = () => setSpeakingMsgId(null);
+    setSpeakingMsgId(msgId);
+    window.speechSynthesis.speak(utt);
   };
 
   return (
-    <div className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-sm overflow-hidden">
-      {/* Official Header */}
-      <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-neutral-800 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-sm overflow-hidden flex flex-col" style={{ minHeight: 520 }}>
+      {/* Header */}
+      <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-neutral-800 bg-slate-900 text-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-amber-400 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-amber-400 shrink-0">
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs uppercase font-bold text-amber-400 tracking-wider">
-              {t.contextGroundedAdvisory}
-            </div>
-            <h3 className="text-base sm:text-lg font-bold text-white">
-              {t.askAiAdvisor.toUpperCase()}
-            </h3>
+            <div className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">{t.contextGroundedAdvisory}</div>
+            <h3 className="text-sm sm:text-base font-bold text-white">{t.askAiAdvisor.toUpperCase()}</h3>
           </div>
         </div>
-
-        <p className="text-xs sm:text-sm text-slate-200 font-medium">
-          {t.askAboutAnalysis}
-        </p>
+        <button
+          onClick={handleReset}
+          title={t.clearConversation}
+          className="p-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
       </div>
 
-      <div className="p-5 sm:p-6">
-        {/* Suggested Quick Question Chips */}
-        <div className="mb-6">
-          <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-[#D1D5DB] uppercase tracking-wide mb-3">
-            {t.suggestedQuestionsLabel}
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {faqs.map((faq, idx) => {
-              const chipThemes = [
-                'bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:text-amber-300 border-amber-200/90 dark:border-amber-900/50 hover:bg-amber-100',
-                'bg-sky-50/80 text-sky-950 dark:bg-sky-950/30 dark:text-sky-300 border-sky-200/90 dark:border-sky-900/50 hover:bg-sky-100',
-                'bg-emerald-50/80 text-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-300 border-emerald-200/90 dark:border-emerald-900/50 hover:bg-emerald-100',
-                'bg-violet-50/80 text-violet-950 dark:bg-violet-950/30 dark:text-violet-300 border-violet-200/90 dark:border-violet-900/50 hover:bg-violet-100',
-              ];
-              const inactiveClass = chipThemes[idx % chipThemes.length];
-
-              return (
-                <button
-                  key={faq.id}
-                  onClick={() => handleSelectFaq(faq.id)}
-                  className={`text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border transition-all text-left font-semibold cursor-pointer ${
-                    selectedQuestionId === faq.id
-                      ? 'bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-sm font-bold scale-[1.01]'
-                      : inactiveClass
-                  }`}
-                >
-                  {faq.question}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Active Question & Grounded AI Answer Display */}
-        <div className="bg-slate-50 dark:bg-[#161616] rounded-xl p-5 sm:p-6 border border-slate-200 dark:border-neutral-800 shadow-2xs mb-6">
-          <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-200 dark:border-neutral-800">
-            <div className="flex items-center gap-2 min-w-0">
-              <Sparkles className="w-5 h-5 text-indigo-900 dark:text-indigo-400 shrink-0" />
-              <h4 className="text-sm sm:text-base font-extrabold text-slate-950 dark:text-[#D1D5DB] truncate">
-                {activeQuestionTitle || t.askAiAdvisor}
-              </h4>
-            </div>
-
-            {/* Read Aloud Audio Button */}
-            {!isLoading && activeAnswer && (
+      {/* FAQ chips — deterministic, instant */}
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-neutral-800 bg-slate-50 dark:bg-[#111] shrink-0">
+        <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-neutral-500 mb-2 tracking-wider">{t.suggestedQuestionsLabel}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {faqs.map((faq, idx) => {
+            const chipThemes = [
+              'bg-amber-50/80 text-amber-950 dark:bg-amber-950/30 dark:text-amber-300 border-amber-200 dark:border-amber-900/50 hover:bg-amber-100',
+              'bg-sky-50/80 text-sky-950 dark:bg-sky-950/30 dark:text-sky-300 border-sky-200 dark:border-sky-900/50 hover:bg-sky-100',
+              'bg-emerald-50/80 text-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-100',
+              'bg-violet-50/80 text-violet-950 dark:bg-violet-950/30 dark:text-violet-300 border-violet-200 dark:border-violet-900/50 hover:bg-violet-100',
+            ];
+            return (
               <button
-                onClick={handleToggleSpeech}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors shrink-0 cursor-pointer ${
-                  isSpeaking
-                    ? 'bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 dark:border-amber-800'
-                    : 'bg-indigo-50 text-indigo-900 dark:bg-neutral-800 dark:text-[#D1D5DB] border-indigo-200 dark:border-neutral-700 hover:bg-indigo-100'
-                }`}
-                title="Read answer aloud"
+                key={faq.id}
+                onClick={() => handleSelectFaq(faq.id)}
+                disabled={isLoading}
+                className={`text-[11px] sm:text-xs px-3 py-1.5 rounded-xl border transition-all text-left font-semibold cursor-pointer disabled:opacity-50 ${chipThemes[idx % chipThemes.length]}`}
               >
-                {isSpeaking ? (
-                  <>
-                    <VolumeX className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-                    <span>{t.stop}</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
-                    <span>{t.listen}</span>
-                  </>
-                )}
+                {faq.question}
               </button>
-            )}
-          </div>
-
-          {/* Answer or Loading Body */}
-          {isLoading ? (
-            <div className="py-8 flex flex-col items-center justify-center gap-3 text-center">
-              <Loader2 className="w-8 h-8 text-[#1E3A8A] animate-spin" />
-              <div className="text-sm font-bold text-slate-800 dark:text-[#D1D5DB]">
-                {t.aiAdvisorThinking}
-              </div>
-              <p className="text-xs text-slate-500 dark:text-neutral-400 max-w-sm">
-                Evaluating location footfall, competition, capital buffer, and loan servicing metrics...
-              </p>
-            </div>
-          ) : (
-            <div className="pt-4 text-sm sm:text-base text-slate-950 dark:text-[#D1D5DB] leading-relaxed font-medium whitespace-pre-wrap">
-              {activeAnswer}
-            </div>
-          )}
-
-          <div className="mt-4 pt-3 border-t border-slate-200 dark:border-neutral-800 flex items-center justify-between text-xs text-slate-700 dark:text-neutral-400 font-medium">
-            <span>{t.askEngineFooter}</span>
-            <span className="font-bold text-slate-900 dark:text-[#D1D5DB]">
-              {activeModel ? activeModel : t.aiAdvisorPoweredBy}
-            </span>
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Ask Your Own Question Box */}
-        <form onSubmit={handleCustomSubmit} className="relative">
-          <div className="flex items-center gap-2">
+      {/* Chat message history */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/70 dark:bg-[#080D1A] min-h-0">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+            <div
+              className={`max-w-[90%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                msg.sender === 'user'
+                  ? 'bg-[#1E3A8A] text-white rounded-br-xs font-medium'
+                  : 'bg-white dark:bg-[#11192C] text-slate-900 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-bl-xs'
+              }`}
+            >
+              {msg.sender === 'assistant' && (
+                <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/80">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-amber-400 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    PRAVIRAK ADVISOR
+                  </span>
+                  <button
+                    onClick={() => handleSpeak(msg.id, msg.text)}
+                    className="text-slate-400 hover:text-indigo-900 dark:hover:text-amber-300 p-0.5 rounded transition-colors cursor-pointer"
+                    title={speakingMsgId === msg.id ? t.stop : t.listen}
+                  >
+                    {speakingMsgId === msg.id ? (
+                      <VolumeX className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              )}
+
+              <div className="whitespace-pre-wrap font-normal select-text">{msg.text}</div>
+
+              {/* Attribution line — only for AI-generated answers (not FAQ chips or welcome) */}
+              {msg.sender === 'assistant' && msg.aiGenerated && (
+                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/70 flex items-start gap-1 text-[10px] text-slate-500 dark:text-slate-500 leading-snug">
+                  <Info className="w-3 h-3 shrink-0 mt-0.5 text-indigo-400 dark:text-indigo-500" />
+                  <span>{t.aiAnswerAttribution}</span>
+                  {msg.model && !msg.fallback && (
+                    <span className="ml-auto font-mono italic text-[9px] text-slate-400 dark:text-slate-600 shrink-0 pl-1">
+                      {msg.model.split('/').pop()}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.timestamp}</span>
+          </div>
+        ))}
+
+        {/* Typing indicator */}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-xs text-indigo-900 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 rounded-xl px-3.5 py-2.5 w-fit animate-pulse">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-700 dark:text-indigo-400" />
+            <span className="font-semibold">{t.aiAdvisorThinking}</span>
+          </div>
+        )}
+
+        <div ref={chatBottomRef} />
+      </div>
+
+      {/* Input bar */}
+      <div className="p-3.5 bg-white dark:bg-[#0A0F1D] border-t border-slate-200 dark:border-slate-800 shrink-0">
+        <form onSubmit={handleCustomSubmit} className="flex items-center gap-2">
+          <div className="relative flex-1 flex items-center">
             <input
+              ref={inputRef}
               type="text"
               value={customQuery}
-              disabled={isLoading}
               onChange={(e) => setCustomQuery(e.target.value)}
               placeholder={t.askInputPlaceholder}
-              className="flex-1 bg-white dark:bg-[#161616] border border-slate-300 dark:border-neutral-700 text-sm px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-600 focus:outline-hidden text-slate-950 dark:text-[#D1D5DB] placeholder:text-slate-400 dark:placeholder:text-neutral-500 font-medium disabled:opacity-60"
+              disabled={isLoading}
+              maxLength={500}
+              className="w-full text-xs sm:text-sm pl-3.5 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:bg-white dark:focus:bg-slate-900 font-medium disabled:opacity-60"
             />
-            <button
-              type="submit"
-              disabled={!customQuery.trim() || isLoading}
-              className="bg-[#1E3A8A] text-white hover:bg-[#1E40AF] active:bg-[#172554] px-5 py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-bold shrink-0 shadow-sm cursor-pointer"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 text-white animate-spin" />
-              ) : (
-                <>
-                  <span>{t.askButton}</span>
-                  <Send className="w-4 h-4 text-white" />
-                </>
-              )}
-            </button>
+            <div className="absolute right-2">
+              <VoiceInputButton
+                size="sm"
+                disabled={isLoading}
+                onTranscript={(spoken) =>
+                  setCustomQuery((prev) => (prev.trim() ? `${prev.trim()} ${spoken}` : spoken))
+                }
+              />
+            </div>
           </div>
+          <button
+            type="submit"
+            disabled={isLoading || !customQuery.trim()}
+            className="p-2.5 bg-[#1E3A8A] hover:bg-blue-900 disabled:opacity-50 text-white rounded-xl transition-colors shrink-0 cursor-pointer"
+            title={t.askButton}
+          >
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          </button>
         </form>
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 text-center">
+          {t.askAboutAnalysis}
+        </p>
       </div>
     </div>
   );
