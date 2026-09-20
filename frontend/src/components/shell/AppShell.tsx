@@ -12,7 +12,8 @@ import {
   Home,
   Briefcase,
   PlusCircle,
-  FileText
+  FileText,
+  Calculator
 } from 'lucide-react';
 import { EXPLORE_HUB_ITEMS, ExplorerKey, PrimaryNavKey } from './navigation';
 import { useAuth } from '../../context/AuthContext';
@@ -95,6 +96,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           <nav className="hidden md:flex items-center gap-1 bg-slate-50 dark:bg-[#141414] border border-slate-200 dark:border-neutral-800 rounded-xl p-1">
             {[
               { key: 'HOME' as PrimaryNavKey, label: t.navHome, icon: Home },
+              { key: 'LOAN_PLANNER' as PrimaryNavKey, label: t.navLoanPlanner, icon: Calculator },
               { key: 'MY_BUSINESSES' as PrimaryNavKey, label: t.navMyBusinesses, icon: Briefcase },
               { key: 'NEW_ANALYSIS' as PrimaryNavKey, label: t.navNewAnalysis, icon: PlusCircle },
               { key: 'REPORTS' as PrimaryNavKey, label: t.navReports, icon: FileText }
@@ -282,6 +284,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             <nav className="flex-1 p-3 space-y-1">
               {[
                 { key: 'HOME' as PrimaryNavKey, label: t.navHome, icon: Home },
+                { key: 'LOAN_PLANNER' as PrimaryNavKey, label: t.navLoanPlanner, icon: Calculator },
                 { key: 'MY_BUSINESSES' as PrimaryNavKey, label: t.navMyBusinesses, icon: Briefcase },
                 { key: 'NEW_ANALYSIS' as PrimaryNavKey, label: t.navNewAnalysis, icon: PlusCircle },
                 { key: 'REPORTS' as PrimaryNavKey, label: t.navReports, icon: FileText }

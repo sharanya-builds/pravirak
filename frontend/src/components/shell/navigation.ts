@@ -11,7 +11,7 @@ import {
   LucideIcon
 } from 'lucide-react';
 
-export type PrimaryNavKey = 'HOME' | 'MY_BUSINESSES' | 'NEW_ANALYSIS' | 'REPORTS';
+export type PrimaryNavKey = 'HOME' | 'MY_BUSINESSES' | 'NEW_ANALYSIS' | 'REPORTS' | 'LOAN_PLANNER';
 
 export type ExplorerKey =
   | 'MARKET'
