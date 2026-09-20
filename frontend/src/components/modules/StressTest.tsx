@@ -28,18 +28,18 @@ export const StressTest: React.FC<StressTestProps> = ({ financials, categoryKey 
     switch (status) {
       case 'SAFE':
         return {
-          style: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+          style: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
           label: t.safeRepayment
         };
       case 'WATCH':
         return {
-          style: 'bg-amber-100 text-amber-900 border-amber-300',
+          style: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
           label: t.watchZone
         };
       case 'RISKY':
       default:
         return {
-          style: 'bg-rose-100 text-rose-900 border-rose-300',
+          style: 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800',
           label: t.riskyBorrowing
         };
     }
@@ -92,7 +92,7 @@ export const StressTest: React.FC<StressTestProps> = ({ financials, categoryKey 
                 {t.salesDecrease}
               </label>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                salesDropPct > 0 ? 'bg-rose-100 text-rose-900 font-mono' : 'bg-slate-200 text-slate-800'
+                salesDropPct > 0 ? 'bg-rose-100 text-rose-900 font-mono dark:bg-rose-950/50 dark:text-rose-300' : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
               }`}>
                 -{salesDropPct}%
               </span>
@@ -125,7 +125,7 @@ export const StressTest: React.FC<StressTestProps> = ({ financials, categoryKey 
                 {t.operatingCostsIncrease}
               </label>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                opexIncreasePct > 0 ? 'bg-amber-100 text-amber-900 font-mono' : 'bg-slate-200 text-slate-800'
+                opexIncreasePct > 0 ? 'bg-amber-100 text-amber-900 font-mono dark:bg-amber-950/50 dark:text-amber-300' : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
               }`}>
                 +{opexIncreasePct}%
               </span>
@@ -158,7 +158,7 @@ export const StressTest: React.FC<StressTestProps> = ({ financials, categoryKey 
                 {t.rawMaterialCost}
               </label>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                rawMaterialIncreasePct > 0 ? 'bg-amber-100 text-amber-900 font-mono' : 'bg-slate-200 text-slate-800'
+                rawMaterialIncreasePct > 0 ? 'bg-amber-100 text-amber-900 font-mono dark:bg-amber-950/50 dark:text-amber-300' : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200'
               }`}>
                 +{rawMaterialIncreasePct}%
               </span>

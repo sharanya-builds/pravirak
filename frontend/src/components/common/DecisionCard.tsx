@@ -160,16 +160,16 @@ export const DecisionCard: React.FC<DecisionCardProps> = ({
       case 'Good':
       case 'Suitable':
       case 'Low':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800';
       case 'Moderate':
       case 'Stretched':
-        return 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
+        return 'bg-amber-100 text-amber-800 border-amber-300 font-bold dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800';
       case 'High':
       case 'Unviable':
       case 'Poor':
-        return 'bg-rose-100 text-rose-800 border-rose-300 font-bold';
+        return 'bg-rose-100 text-rose-800 border-rose-300 font-bold dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-300 font-bold';
+        return 'bg-slate-100 text-slate-700 border-slate-300 font-bold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
     }
   };
 

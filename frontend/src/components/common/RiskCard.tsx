@@ -15,22 +15,22 @@ export const RiskCard: React.FC<RiskCardProps> = ({ title, severity, mitigation 
     switch (severity) {
       case 'High':
         return {
-          badge: 'bg-rose-100 text-rose-800 border-rose-300 font-bold',
-          border: 'border-rose-200 bg-rose-50/50',
-          icon: <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          badge: 'bg-rose-100 text-rose-800 border-rose-300 font-bold dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800',
+          border: 'border-rose-200 bg-rose-50/50 dark:bg-rose-950/20 dark:border-rose-800/60',
+          icon: <ShieldAlert className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
         };
       case 'Medium':
         return {
-          badge: 'bg-amber-100 text-amber-800 border-amber-300 font-bold',
-          border: 'border-amber-200 bg-amber-50/50',
-          icon: <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          badge: 'bg-amber-100 text-amber-800 border-amber-300 font-bold dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
+          border: 'border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800/60',
+          icon: <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
         };
       case 'Low':
       default:
         return {
-          badge: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold',
-          border: 'border-emerald-200 bg-emerald-50/50',
-          icon: <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          badge: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+          border: 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-800/60',
+          icon: <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
         };
     }
   };

@@ -122,12 +122,12 @@ export const ComplianceCard: React.FC<ComplianceCardProps> = ({ item }) => {
   const getStatusBadge = (status: ComplianceItem['status']) => {
     switch (status) {
       case 'Required':
-        return 'bg-rose-100 text-rose-900 border-rose-300 font-bold';
+        return 'bg-rose-100 text-rose-900 border-rose-300 font-bold dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800';
       case 'May be required':
-        return 'bg-amber-100 text-amber-900 border-amber-300 font-semibold';
+        return 'bg-amber-100 text-amber-900 border-amber-300 font-semibold dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800';
       case 'Check locally':
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-300 font-medium';
+        return 'bg-slate-100 text-slate-800 border-slate-300 font-medium dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
     }
   };
 

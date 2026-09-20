@@ -292,10 +292,10 @@ export const ExistingBusinessFlow: React.FC<ExistingBusinessFlowProps> = ({ onBa
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-extrabold px-3 py-1 rounded-xl border uppercase ${
                   diagnosis.financialHealth === 'Healthy'
-                    ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                    ? 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800'
                     : diagnosis.financialHealth === 'Vulnerable'
-                    ? 'bg-amber-100 text-amber-900 border-amber-300'
-                    : 'bg-rose-100 text-rose-900 border-rose-300'
+                    ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800'
+                    : 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
                 }`}>
                   {diagnosis.financialHealth} UNIT ECONOMICS
                 </span>

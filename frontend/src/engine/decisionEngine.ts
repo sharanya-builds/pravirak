@@ -6,7 +6,10 @@ import {
   FinancialAnalysis, 
   LocationData, 
   PillarGrade,
-  Language
+  Language,
+  ConfidenceLevel,
+  EvidenceType,
+  Provenance
 } from '../types';
 import { formatINR } from './financialEngine';
 
@@ -139,51 +142,62 @@ export function synthesizeDecision(
     }
   }
 
+  // Provenance & Source Audit
+  const isOverpassMeasured = location.competitorsCountProvenance === 'MEASURED';
+  const overpassSource = isOverpassMeasured
+    ? `OpenStreetMap via Overpass, queried ${new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    : 'Category benchmark (PRAVIRAK model)';
+  const compConfidence: ConfidenceLevel = isOverpassMeasured ? 'HIGH' : 'MEDIUM';
+  const compType: EvidenceType = isOverpassMeasured ? 'Observed' : 'Estimated';
+  const compProvenance: Provenance = isOverpassMeasured ? 'MEASURED' : 'ESTIMATED';
+
   // Localized Evidence Items
   let evidenceList: EvidenceItem[];
   if (language === 'te') {
     evidenceList = [
       {
         id: 'ev-comp',
-        title: `1.5 కి.మీ పరిధిలో ${location.competitorsNearbyCount} పోటీ దుకాణాలు గుర్తించబడ్డాయి`,
-        detail: `1.5 కి.మీ క్యాచ్‌మెంట్‌లో ${location.competitorsNearbyCount} పోటీ దుకాణాలు గుర్తించబడ్డాయి. సమీప పోటీదారుని సగటు దూరం ${location.competitors[0]?.distanceKm || 0.4} కి.మీ.`,
-        source: 'ఓపెన్‌స్ట్రీట్‌మ్యాప్ POI & పరిశ్రమ బెంచ్‌మార్క్‌లు',
-        type: 'Observed',
-        vintage: 'Q3 2024',
-        confidence: 'HIGH'
+        title: `5 కి.మీ & 10 కి.మీ పరిధిలో ${location.competitorsNearbyCount} పోటీ దుకాణాలు గుర్తించబడ్డాయి`,
+        detail: `5 కి.మీ మైక్రో-క్యాచ్‌మెంట్ మరియు 10 కి.మీ మాక్రో-క్యాచ్‌మెంట్‌లో ${location.competitorsNearbyCount} పోటీ దుకాణాలు గుర్తించబడ్డాయి. సమీప పోటీదారుని సగటు దూరం ${location.competitors[0]?.distanceKm || 0.4} కి.మీ.`,
+        source: overpassSource,
+        type: compType,
+        provenance: compProvenance,
+        confidence: compConfidence
       },
       {
         id: 'ev-demand',
-        title: `1.5 కి.మీ పరిధిలో ${location.residentialColoniesNearby} దట్టమైన నివాస / వాణిజ్య కాలనీలు`,
-        detail: `${location.city} లోని ప్రధాన రవాణా మరియు వాణిజ్య మార్గాల్లో నెలవారీ పాదచారుల రద్దీ సుమారు ${location.footfallMonthly.toLocaleString('en-IN')} గా అంచనా వేయబడింది.`,
-        source: 'వార్డు జనాభా & పట్టణ పాదచారుల సూచికలు',
-        type: 'Sourced',
-        vintage: '2023-2024 అంచనాలు',
-        confidence: 'HIGH'
+        title: `5 కి.మీ & 10 కి.మీ పరిధిలో ${location.residentialColoniesNearby} దట్టమైన నివాస / వాణిజ్య కాలనీలు`,
+        detail: `${location.city} లో 5 కి.మీ మరియు 10 కి.మీ పరిధిలోని ప్రధాన రవాణా మరియు వాణిజ్య మార్గాల్లో నెలవారీ పాదచారుల రద్దీ సుమారు ${location.footfallMonthly.toLocaleString('en-IN')} గా అంచనా వేయబడింది.`,
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-financial',
         title: `అంచనా వేసిన రుణ కవరేజ్ నిష్పత్తి (DSCR) ${financials.dscr}x`,
-        detail: `నెలవారీ స్థూల మిగులు ${formatINR(financials.monthlyGrossSurplus)} మరియు నెలవారీ రుణ వాయిదా ${formatINR(financials.monthlyEMI)} తో 9.5% వడ్డీ వద్ద ${financials.safetyStatus} రేటింగ్ నమోదైంది.`,
-        source: 'MSME నగదు ప్రవాహ మోడల్ & RBI ప్రాధాన్యతా రుణ నిబంధనలు',
+        detail: `నెలవారీ స్థూల మిగులు ${formatINR(financials.monthlyGrossSurplus)} మరియు నెలవారీ రుణ వాయిదా ${formatINR(financials.monthlyEMI)} తో 8% వడ్డీ వద్ద ${financials.safetyStatus} రేటింగ్ నమోదైంది.`,
+        source: 'Category benchmark (PRAVIRAK model)',
         type: 'Estimated',
-        confidence: 'HIGH'
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-capex',
         title: `యంత్రాలు & ప్రాజెక్ట్ వ్యయం: ${formatINR(financials.projectCost)}`,
         detail: 'వాణిజ్య పరికరాలు, దుకాణ అమరిక మరియు 3 నెలల తప్పనిసరి వర్కింగ్ క్యాపిటల్ నగదు రిజర్వ్ ఆధారంగా లెక్కించబడింది.',
-        source: 'కేంద్ర MSME మంత్రిత్వ శాఖ ప్రాజెక్ట్ ప్రొఫైల్స్',
-        type: 'Sourced',
-        vintage: '2024',
-        confidence: 'HIGH'
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-loc-fit',
         title: `స్థల అనుకూలత స్కోరు: ${locFitScore}/100`,
         detail: `డిమాండ్, పోటీ, రవాణా సౌకర్యం, వ్యాపార అనుకూలత సహా 6 అంశాల ఆధారంగా విశ్లేషించబడింది.`,
-        source: 'ప్రవీరక్ స్పేషియల్ ఇంటెలిజెన్స్ ఇంజిన్',
+        source: 'Pravirak Spatial Intelligence Engine',
         type: 'AI interpretation',
+        provenance: 'AI_GENERATED',
         confidence: 'MEDIUM'
       }
     ];
@@ -191,45 +205,47 @@ export function synthesizeDecision(
     evidenceList = [
       {
         id: 'ev-comp',
-        title: `1.5 किमी दायरे में ${location.competitorsNearbyCount} प्रतिस्पर्धी दुकानें मैप की गईं`,
-        detail: `1.5 किमी के दायरे में ${location.competitorsNearbyCount} प्रतिस्पर्धी दुकानों की मैपिंग। निकटतम प्रत्यक्ष प्रतिस्पर्धी की औसत दूरी ${location.competitors[0]?.distanceKm || 0.4} किमी है।`,
-        source: 'ओपनस्ट्रीटमैप POI एवं उद्योग मानक',
-        type: 'Observed',
-        vintage: 'Q3 2024',
-        confidence: 'HIGH'
+        title: `5 किमी व 10 किमी दायरे में ${location.competitorsNearbyCount} प्रतिस्पर्धी दुकानें मैप की गईं`,
+        detail: `प्राथमिक 5 किमी माइक्रो-कैचमेंट और विस्तारित 10 किमी मैक्रो-कैचमेंट के तहत ${location.competitorsNearbyCount} प्रतिस्पर्धी दुकानों की मैपिंग। निकटतम प्रत्यक्ष प्रतिस्पर्धी की औसत दूरी ${location.competitors[0]?.distanceKm || 0.4} किमी है।`,
+        source: overpassSource,
+        type: compType,
+        provenance: compProvenance,
+        confidence: compConfidence
       },
       {
         id: 'ev-demand',
-        title: `1.5 किमी में ${location.residentialColoniesNearby} घनी आवासीय/व्यावसायिक कॉलोनियां`,
-        detail: `${location.city} के प्रमुख पारगमन और वाणिज्यिक गलियारों में अनुमानित मासिक ग्राहक फुटफॉल ${location.footfallMonthly.toLocaleString('en-IN')} है।`,
-        source: 'वार्ड जनसांख्यिकी और शहरी फुटफॉल सूचकांक',
-        type: 'Sourced',
-        vintage: '2023-2024 अनुमान',
-        confidence: 'HIGH'
+        title: `5 किमी व 10 किमी में ${location.residentialColoniesNearby} घनी आवासीय/व्यावसायिक कॉलोनियां`,
+        detail: `${location.city} में 5 किमी और 10 किमी कैचमेंट के प्रमुख वाणिज्यिक गलियारों में अनुमानित मासिक फुटफॉल ${location.footfallMonthly.toLocaleString('en-IN')} है।`,
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-financial',
         title: `अनुमानित ऋण कवरेज अनुपात (DSCR) ${financials.dscr}x`,
-        detail: `मासिक सकल परिचालन अधिशेष ${formatINR(financials.monthlyGrossSurplus)} के मुकाबले ${formatINR(financials.monthlyEMI)} की EMI पर 9.5% ब्याज दर के तहत ${financials.safetyStatus} रेटिंग प्राप्त होती है।`,
-        source: 'एमएसएमई कैशफ्लो मॉडल और आरबीआई प्राथमिकता क्षेत्र दिशानिर्देश',
+        detail: `मासिक सकल परिचालन अधिशेष ${formatINR(financials.monthlyGrossSurplus)} के मुकाबले ${formatINR(financials.monthlyEMI)} की EMI पर 8% ब्याज दर के तहत ${financials.safetyStatus} रेटिंग प्राप्त होती है।`,
+        source: 'Category benchmark (PRAVIRAK model)',
         type: 'Estimated',
-        confidence: 'HIGH'
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-capex',
         title: `मशीनरी एवं परियोजना लागत मानक: ${formatINR(financials.projectCost)}`,
         detail: 'वाणिज्यिक उपकरण, मॉड्यूलर डिस्प्ले फिटआउट और 3 महीने के कार्यशील पूंजी नकद रिजर्व के आधार पर।',
-        source: 'एमएसएमई मंत्रालय परियोजना प्रोफाइल',
-        type: 'Sourced',
-        vintage: '2024',
-        confidence: 'HIGH'
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-loc-fit',
         title: `स्थान उपयुक्तता स्कोर: ${locFitScore}/100`,
         detail: `मांग, प्रतिस्पर्धा, पहुंच और व्यापार उपयुक्तता सहित 6 कारकों से संश्लेषित।`,
-        source: 'प्रवीरक स्थानिक विश्लेषण इंजन',
+        source: 'Pravirak Spatial Intelligence Engine',
         type: 'AI interpretation',
+        provenance: 'AI_GENERATED',
         confidence: 'MEDIUM'
       }
     ];
@@ -237,38 +253,39 @@ export function synthesizeDecision(
     evidenceList = [
       {
         id: 'ev-comp',
-        title: `${location.competitorsNearbyCount} Competitor Outlets Mapped in Radius`,
-        detail: `Mapped ${location.competitorsNearbyCount} competing trade outlets within a 1.5 km radial catchment. Average distance to closest direct competitor is ${location.competitors[0]?.distanceKm || 0.4} km.`,
-        source: 'OpenStreetMap POI Catchment & Sector Benchmarks',
-        type: 'Observed',
-        vintage: 'Q3 2024',
-        confidence: 'HIGH'
+        title: `${location.competitorsNearbyCount} Competitor Outlets in 5 km & 10 km Catchment`,
+        detail: `Mapped ${location.competitorsNearbyCount} competing trade outlets across primary 5 km micro-catchment and expanded 10 km macro-catchment. Average distance to closest direct competitor is ${location.competitors[0]?.distanceKm || 0.4} km.`,
+        source: overpassSource,
+        type: compType,
+        provenance: compProvenance,
+        confidence: compConfidence
       },
       {
         id: 'ev-demand',
-        title: `${location.residentialColoniesNearby} Dense Residential / Commercial Clusters Within 1.5 km`,
-        detail: `Estimated monthly footfall of ${location.footfallMonthly.toLocaleString('en-IN')} individuals across major transit and commercial corridors in ${location.city}.`,
-        source: 'Ward Demographic Assessment & Urban Footfall Indices',
-        type: 'Sourced',
-        vintage: '2023-2024 Projections',
-        confidence: 'HIGH'
+        title: `${location.residentialColoniesNearby} Dense Residential / Commercial Clusters in 5 km & 10 km Catchment`,
+        detail: `Estimated monthly footfall of ${location.footfallMonthly.toLocaleString('en-IN')} individuals across major transit and commercial corridors in ${location.city} serving 5 km and 10 km catchment areas.`,
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-financial',
         title: `Projected Debt Coverage Ratio of ${financials.dscr}x`,
-        detail: `Monthly gross operating surplus of ${formatINR(financials.monthlyGrossSurplus)} against monthly debt installment of ${formatINR(financials.monthlyEMI)} yields a ${financials.safetyStatus} rating under 9.5% p.a. term loan underwriting.`,
-        source: 'Deterministic MSME Cashflow Model & RBI Priority Lending Guidelines',
+        detail: `Monthly gross operating surplus of ${formatINR(financials.monthlyGrossSurplus)} against monthly debt installment of ${formatINR(financials.monthlyEMI)} yields a ${financials.safetyStatus} rating under 8.0% p.a. term loan underwriting.`,
+        source: 'Category benchmark (PRAVIRAK model)',
         type: 'Estimated',
-        confidence: 'HIGH'
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-capex',
         title: `Machinery & Fitout Benchmark at ${formatINR(financials.projectCost)}`,
         detail: 'Based on prevailing procurement quotations for commercial equipment, modular display fitouts, and statutory 3-month working capital cash reserve.',
-        source: 'Ministry of MSME Project Profiles & Equipment Supplier Indices',
-        type: 'Sourced',
-        vintage: 'June 2024',
-        confidence: 'HIGH'
+        source: 'Category benchmark (PRAVIRAK model)',
+        type: 'Estimated',
+        provenance: 'ESTIMATED',
+        confidence: 'MEDIUM'
       },
       {
         id: 'ev-loc-fit',
@@ -276,6 +293,7 @@ export function synthesizeDecision(
         detail: `Synthesized from 6 audited factors (Demand, Competition, Accessibility, Trade Fit, Synergy, Opportunity). All metrics indicate explicit data provenance.`,
         source: 'Pravirak Spatial Intelligence Engine',
         type: 'AI interpretation',
+        provenance: 'AI_GENERATED',
         confidence: 'MEDIUM'
       }
     ];
@@ -471,7 +489,7 @@ export function synthesizeDecision(
       },
       competition: {
         grade: compGrade,
-        commentary: `${location.competitorsNearbyCount} direct outlets operational within 1.5 km catchment radius.`
+        commentary: `${location.competitorsNearbyCount} direct outlets operational within 5 km and 10 km catchment radiuses.`
       },
       locationFit: {
         grade: locFitGrade,

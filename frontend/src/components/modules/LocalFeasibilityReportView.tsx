@@ -93,8 +93,8 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span>
         {t.badgeEstimated}
       </span>
     );
@@ -103,13 +103,13 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
   const getThreatBadge = (type: string) => {
     switch (type) {
       case 'supply_chain':
-        return { label: t.threatSupplyChain, color: 'bg-amber-100 text-amber-800 border-amber-300' };
+        return { label: t.threatSupplyChain, color: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' };
       case 'seasonal':
-        return { label: t.threatSeasonal, color: 'bg-blue-100 text-blue-800 border-blue-300' };
+        return { label: t.threatSeasonal, color: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800' };
       case 'single_buyer':
-        return { label: t.threatSingleBuyer, color: 'bg-rose-100 text-rose-800 border-rose-300' };
+        return { label: t.threatSingleBuyer, color: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800' };
       default:
-        return { label: t.threatOther, color: 'bg-slate-100 text-slate-800 border-slate-300' };
+        return { label: t.threatOther, color: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' };
     }
   };
 
@@ -202,7 +202,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
           <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold text-slate-600">{t.densityPer10kLabel}</span>
-              {renderBadge('MEASURED')}
+              {renderBadge(report.marketReach.competitors5kmProvenance || 'ESTIMATED')}
             </div>
             {report.marketReach.densityPer10kAt5km !== null && report.marketReach.densityPer10kAt5km !== undefined ? (
               <>
@@ -299,17 +299,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Strengths */}
-          <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+          <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/60">
             <div className="flex items-center gap-2 mb-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-              <h4 className="text-xs sm:text-sm font-extrabold text-emerald-950 uppercase tracking-wider">
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+              <h4 className="text-xs sm:text-sm font-extrabold text-emerald-950 dark:text-emerald-200 uppercase tracking-wider">
                 {t.swotStrengths} (Internal Advantages)
               </h4>
             </div>
-            <ul className="space-y-1.5 text-xs text-emerald-900 font-medium">
+            <ul className="space-y-1.5 text-xs text-emerald-900 dark:text-emerald-300 font-medium">
               {(showAllSwot ? report.swot.strengths : report.swot.strengths.slice(0, 3)).map((s, i) => (
                 <li key={i} className="flex items-start gap-1.5">
-                  <span className="text-emerald-600 font-bold">•</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
                   <span>{s}</span>
                 </li>
               ))}
@@ -317,17 +317,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
           </div>
 
           {/* Weaknesses */}
-          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200">
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/60">
             <div className="flex items-center gap-2 mb-2.5">
-              <AlertTriangle className="w-4 h-4 text-amber-700" />
-              <h4 className="text-xs sm:text-sm font-extrabold text-amber-950 uppercase tracking-wider">
+              <AlertTriangle className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+              <h4 className="text-xs sm:text-sm font-extrabold text-amber-950 dark:text-amber-200 uppercase tracking-wider">
                 {t.swotWeaknesses} (Internal Limitations)
               </h4>
             </div>
-            <ul className="space-y-1.5 text-xs text-amber-900 font-medium">
+            <ul className="space-y-1.5 text-xs text-amber-900 dark:text-amber-300 font-medium">
               {(showAllSwot ? report.swot.weaknesses : report.swot.weaknesses.slice(0, 3)).map((w, i) => (
                 <li key={i} className="flex items-start gap-1.5">
-                  <span className="text-amber-600 font-bold">•</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">•</span>
                   <span>{w}</span>
                 </li>
               ))}
@@ -335,17 +335,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
           </div>
 
           {/* Opportunities */}
-          <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200">
+          <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-800/60">
             <div className="flex items-center gap-2 mb-2.5">
-              <TrendingUp className="w-4 h-4 text-indigo-700" />
-              <h4 className="text-xs sm:text-sm font-extrabold text-indigo-950 uppercase tracking-wider">
+              <TrendingUp className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
+              <h4 className="text-xs sm:text-sm font-extrabold text-indigo-950 dark:text-indigo-200 uppercase tracking-wider">
                 {t.swotOpportunities} (External Potentials)
               </h4>
             </div>
-            <ul className="space-y-1.5 text-xs text-indigo-900 font-medium">
+            <ul className="space-y-1.5 text-xs text-indigo-900 dark:text-indigo-300 font-medium">
               {(showAllSwot ? report.swot.opportunities : report.swot.opportunities.slice(0, 3)).map((o, i) => (
                 <li key={i} className="flex items-start gap-1.5">
-                  <span className="text-indigo-600 font-bold">•</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">•</span>
                   <span>{o}</span>
                 </li>
               ))}
@@ -353,17 +353,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
           </div>
 
           {/* Threats */}
-          <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200">
+          <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-800/60">
             <div className="flex items-center gap-2 mb-2.5">
-              <ShieldAlert className="w-4 h-4 text-rose-700" />
-              <h4 className="text-xs sm:text-sm font-extrabold text-rose-950 uppercase tracking-wider">
+              <ShieldAlert className="w-4 h-4 text-rose-700 dark:text-rose-400" />
+              <h4 className="text-xs sm:text-sm font-extrabold text-rose-950 dark:text-rose-200 uppercase tracking-wider">
                 {t.swotThreats} (External Hazards)
               </h4>
             </div>
-            <ul className="space-y-1.5 text-xs text-rose-900 font-medium">
+            <ul className="space-y-1.5 text-xs text-rose-900 dark:text-rose-300 font-medium">
               {(showAllSwot ? report.swot.threats : report.swot.threats.slice(0, 3)).map((th, i) => (
                 <li key={i} className="flex items-start gap-1.5">
-                  <span className="text-rose-600 font-bold">•</span>
+                  <span className="text-rose-600 dark:text-rose-400 font-bold">•</span>
                   <span>{th}</span>
                 </li>
               ))}
@@ -480,20 +480,20 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
             </table>
           </div>
         ) : (
-          <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 font-medium mb-3">
+          <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/70 dark:text-amber-200 font-medium mb-3">
             {location.competitorsNote || 'No OpenStreetMap data found for this area (common in villages); count is a model estimate.'}
           </div>
         )}
       </section>
 
       {/* Subsection 6: Pricing Guidance */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section className="bg-white dark:bg-[#11192C] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300">
               <Tag className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
+            <h3 className="text-base font-extrabold text-slate-950 dark:text-slate-100">
               {t.pricingGuidanceTitle}
             </h3>
           </div>
@@ -501,21 +501,21 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
         </div>
 
         <div className="space-y-3">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
               Recommended Pricing Strategy:
             </span>
-            <p className="text-xs sm:text-sm font-bold text-slate-900">
+            <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
               {report.pricing.strategy}
             </p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 font-medium leading-relaxed">
-            <div className="flex items-center gap-1.5 font-bold text-amber-900 mb-1">
-              <AlertCircle className="w-4 h-4 text-amber-700" />
+          <div className="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 dark:bg-amber-950/40 dark:border-amber-800/70 text-xs text-amber-950 dark:text-amber-200 font-medium leading-relaxed">
+            <div className="flex items-center gap-1.5 font-bold text-amber-900 dark:text-amber-300 mb-1">
+              <AlertCircle className="w-4 h-4 text-amber-700 dark:text-amber-400" />
               <span>{t.pricingGuidanceNoteLabel}:</span>
             </div>
-            <p>{report.pricing.priceBandNote}</p>
+            <p className="dark:text-amber-200">{report.pricing.priceBandNote}</p>
           </div>
         </div>
       </section>

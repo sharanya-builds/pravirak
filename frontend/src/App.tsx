@@ -25,7 +25,7 @@ import { SidePanelChatbot } from './components/chat/SidePanelChatbot';
 import { LandingPage } from './components/modules/LandingPage';
 import { NewBusinessFlow } from './components/modules/NewBusinessFlow';
 import { ProgressIndicator } from './components/common/ProgressIndicator';
-import { DecisionDashboard } from './components/modules/DecisionDashboard';
+import { DecisionDashboard, SectionKey } from './components/modules/DecisionDashboard';
 import { FinalBusinessPlan } from './components/modules/FinalBusinessPlan';
 import { ExistingBusinessFlow } from './components/modules/ExistingBusinessFlow';
 import { HomeDashboard } from './components/modules/HomeDashboard';
@@ -99,6 +99,7 @@ function AppShellRouter() {
   const [isAlternativeAdopted, setIsAlternativeAdopted] = useState(false);
   const [hasActiveAnalysis, setHasActiveAnalysis] = useState(false);
   const [realCompetitors, setRealCompetitors] = useState<NearbyPlacesResult | null>(null);
+  const [activeDashboardSection, setActiveDashboardSection] = useState<SectionKey>('DECISION');
 
   // Fetch real competitor places from Overpass API proxy when location/category changes
   useEffect(() => {
@@ -443,6 +444,7 @@ function AppShellRouter() {
           onEditInputs={() => setCurrentView('NEW_INPUT')}
           onViewFullDossier={handleViewFullDossier}
           feasibilityReport={feasibilityReport}
+          initialSection={activeDashboardSection}
         />
       )}
 
@@ -455,6 +457,10 @@ function AppShellRouter() {
           recommendedScheme={schemes[0]}
           onReset={() => setCurrentView('NEW_INPUT')}
           feasibilityReport={feasibilityReport}
+          onNavigateToSection={(sectionKey) => {
+            setActiveDashboardSection(sectionKey as SectionKey);
+            setCurrentView('DECISION_DASHBOARD');
+          }}
         />
       )}
 

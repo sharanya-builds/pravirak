@@ -1,110 +1,208 @@
-# PRAVIRAK Backend
+# PRAVIRAK Backend Service
 
-Node.js + Express + PostgreSQL API that backs authentication and persistence
-(My Businesses, Reports) for the PRAVIRAK frontend. All deterministic
-business/finance/decision computation stays in the frontend engine
-(`frontend/src/engine`); this service is responsible for accounts and
-saved-analysis storage so a user's businesses follow them across devices.
+Backend API service for the PRAVIRAK business decision and institutional loan appraisal platform.
 
-## Stack
+*For the complete project overview, PS compliance matrix, and architecture diagram, see the [Root README](../README.md).*
 
-- Express (routing/middleware)
-- PostgreSQL via `pg` (connection pool, plain parameterized SQL — no ORM)
-- bcryptjs (password hashing)
-- jsonwebtoken (stateless session tokens)
+---
 
-## Structure
+## Purpose
+
+The PRAVIRAK backend provides:
+1. **User Authentication & Cross-Device Persistence**: Secure JWT-based registration and login with bcrypt password hashing; persistent CRUD storage for registered users' saved businesses and generated appraisal reports in PostgreSQL.
+2. **Server-Side Geospatial Proxies**: Caching proxies for OpenStreetMap Nominatim (address search, reverse geocoding, and administrative boundary hierarchy parsing) and Overpass API (real competitor POI querying within 5-10 km radii) complying with upstream usage policies and eliminating CORS restrictions.
+3. **Evidence-Grounded AI Advisory & Feasibility**: Safe OpenRouter gateway proxying LLM queries (`POST /api/advisor/ask`, `POST /api/reports/local-feasibility`, `POST /api/schemes/recommend`) with strict system prompts, per-IP rate limiting, character caps, and deterministic fallback templates that prevent financial hallucination.
+
+---
+
+## Folder Structure
 
 ```text
 backend/
 ├── src/
-│   ├── controllers/   # request/response glue
-│   ├── services/      # business logic + SQL
-│   ├── middleware/     # auth guard, error handling
-│   ├── routes/         # Express routers
-│   ├── db/              # schema.sql + Postgres pool
-│   ├── app.js           # Express app factory
-│   └── server.js        # process entry point (runs schema.sql on boot)
-└── docker-compose.yml    # one-command local Postgres for development
+│   ├── controllers/            # Route request handlers
+│   │   ├── authController.js       # Register, login, me
+│   │   ├── businessController.js   # Saved business CRUD
+│   │   ├── geocodeController.js    # Address search and reverse geocode
+│   │   ├── reportController.js     # Saved reports & local feasibility
+│   │   └── schemeController.js     # Scheme lookup handlers
+│   ├── db/                     # PostgreSQL pool and schema migrations
+│   │   ├── index.js                # pg Pool connection management
+│   │   └── schema.sql              # Table definitions and index creation
+│   ├── middleware/             # Express middlewares
+│   │   ├── auth.js                 # JWT bearer token verification
+│   │   └── errorHandler.js         # 404 and central error handling
+│   ├── routes/                 # Express REST route definitions
+│   │   ├── advisorRoutes.js        # /api/advisor
+│   │   ├── authRoutes.js           # /api/auth
+│   │   ├── businessRoutes.js       # /api/businesses
+│   │   ├── geocodeRoutes.js        # /api/geocode
+│   │   ├── placesRoutes.js         # /api/places
+│   │   ├── reportRoutes.js         # /api/reports
+│   │   └── schemeRoutes.js         # /api/schemes
+│   ├── services/               # Core business logic & upstream clients
+│   │   ├── advisorService.test.js  # Advisor prompt injection & safety tests
+│   │   ├── authService.js          # Password hashing and token generation
+│   │   ├── businessService.js      # Business persistence queries
+│   │   ├── geocodeService.js       # Nominatim OSM client & cache
+│   │   ├── localFeasibilityService.js # Zod-validated SWOT/opportunity engine
+│   │   ├── localFeasibilityService.test.js # Schema validation tests
+│   │   ├── openRouterAdvisorService.js # Context-grounded advisor client
+│   │   ├── openRouterSchemeService.js  # Grounded scheme lookup client
+│   │   ├── placesService.js        # Overpass API competitor client & cache
+│   │   ├── placesService.test.js   # Haversine distance and OSM tag tests
+│   │   └── reportService.js        # Report persistence queries
+│   ├── app.js                  # Express app configuration & middleware
+│   └── server.js               # HTTP server listener and DB schema init
+├── docker-compose.yml          # Local PostgreSQL 16 container setup
+├── package.json
+└── README.md
 ```
 
-## Setup
+---
 
-You need a PostgreSQL database. Easiest path for local development:
+## Scripts
+
+- `npm run dev`: Starts the server with Node.js watch mode (`node --watch src/server.js`) on port 4000.
+- `npm start`: Starts the production server (`node src/server.js`).
+- `npm test`: Runs the automated test suite via the Node.js native test runner (`node --test src/**/*.test.js`).
+
+---
+
+## Environment Variables
+
+The backend relies on the following environment variables (defined in `.env`):
+
+- `PORT`: HTTP server port (defaults to `4000`).
+- `NODE_ENV`: Application environment (`development` or `production`).
+- `FRONTEND_URL`: Allowed CORS origin for production web frontend.
+- `CORS_ORIGIN`: Additional comma-separated allowed CORS origins.
+- `JWT_SECRET`: Secret key used for signing and verifying JWT tokens.
+- `JWT_EXPIRES_IN`: Expiry duration for authentication tokens (e.g. `7d`).
+- `DATABASE_URL`: Full PostgreSQL connection URI.
+- `PGHOST`: PostgreSQL host (if `DATABASE_URL` is omitted).
+- `PGPORT`: PostgreSQL port (if `DATABASE_URL` is omitted).
+- `PGUSER`: PostgreSQL user (if `DATABASE_URL` is omitted).
+- `PGPASSWORD`: PostgreSQL password (if `DATABASE_URL` is omitted).
+- `PGDATABASE`: PostgreSQL database name (if `DATABASE_URL` is omitted).
+- `PGSSL`: Set to `require` for managed cloud databases enforcing SSL.
+- `OPENROUTER_API_KEY`: API key for OpenRouter LLM and web-search gateway (optional; falls back to deterministic engine templates if omitted).
+- `OPENROUTER_MODEL`: Specific OpenRouter model slug override (optional).
+- `OPENROUTER_SITE_URL`: Site attribution header sent to OpenRouter (optional).
+
+---
+
+## Setup and Run Steps
+
+### 1. Start PostgreSQL
+You can launch PostgreSQL 16 using Docker Compose:
+```bash
+docker compose up -d
+```
+Or connect to any existing PostgreSQL instance by providing `DATABASE_URL` in `.env`.
+
+### 2. Configure Environment
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Ensure `DATABASE_URL` and `JWT_SECRET` are configured.
+
+### 3. Install Dependencies
+```bash
+npm install
+```
+
+### 4. Initialize Database & Launch Server
+Starting the server automatically runs `initSchema()` from `src/db/index.js`, executing `schema.sql` idempotently:
+```bash
+npm run dev
+```
+The API will be available at `http://localhost:4000`. Verify server health at `GET http://localhost:4000/api/health`.
+
+---
+
+## API Endpoint Table
+
+| Method | Path | Purpose | Authentication |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | Service health status check | None (Public) |
+| `POST` | `/api/auth/register` | Register a new user account with phone/email and password | None (Public) |
+| `POST` | `/api/auth/login` | Authenticate existing user and receive JWT token | None (Public) |
+| `GET` | `/api/auth/me` | Retrieve authenticated user profile | Bearer JWT |
+| `GET` | `/api/businesses` | List all saved business feasibility analyses for current user | Bearer JWT |
+| `POST` | `/api/businesses` | Create or update a saved business feasibility snapshot | Bearer JWT |
+| `GET` | `/api/businesses/:id`| Retrieve single saved business feasibility analysis by ID | Bearer JWT |
+| `DELETE`| `/api/businesses/:id`| Delete saved business analysis | Bearer JWT |
+| `GET` | `/api/reports` | List generated business appraisal reports for current user | Bearer JWT |
+| `POST` | `/api/reports` | Save a generated business appraisal report | Bearer JWT |
+| `POST` | `/api/reports/local-feasibility` | Generate Zod-validated local feasibility report (SWOT, niches, threats, pricing) | None (Session) |
+| `GET` | `/api/geocode/search` | Forward geocode address query to Nominatim OSM with administrative hierarchy parsing | None (Public) |
+| `GET` | `/api/geocode/reverse`| Reverse geocode coordinates to Nominatim administrative location hierarchy | None (Public) |
+| `GET` | `/api/places/nearby` | Query real competitor POIs within 5-10 km radius from Overpass OSM API | None (Public) |
+| `POST` | `/api/schemes/recommend` | Retrieve web-grounded central and state MSME schemes with verifiable citations | None (Public) |
+| `POST` | `/api/advisor/ask` | Ask conversational question grounded strictly in computed `analysisContext` JSON | Rate-Limited (20 req / 10m) |
+
+---
+
+## Database Schema Summary
+
+The database uses PostgreSQL (configured in [`src/db/schema.sql`](src/db/schema.sql)):
+
+- **`users` Table**:
+  - `id`: `SERIAL PRIMARY KEY`
+  - `name`: `TEXT NOT NULL`
+  - `phone`: `TEXT UNIQUE`
+  - `email`: `TEXT UNIQUE`
+  - `password_hash`: `TEXT NOT NULL` (bcrypt hash)
+  - `created_at`, `updated_at`: `TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- **`businesses` Table**:
+  - `id`: `SERIAL PRIMARY KEY`
+  - `user_id`: `INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+  - `business_idea`: `TEXT NOT NULL`
+  - `category`: `TEXT`
+  - `location_id`, `location_name`: `TEXT`
+  - `own_capital`: `NUMERIC`
+  - `status`: `TEXT NOT NULL DEFAULT 'Draft'`
+  - `decision`: `TEXT` (START / MOVE / RECONSIDER / etc.)
+  - `snapshot_json`: `JSONB NOT NULL DEFAULT '{}'::jsonb` (complete analysis snapshot)
+  - `created_at`, `updated_at`: `TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+  - Index: `idx_businesses_user` on `user_id`
+- **`reports` Table**:
+  - `id`: `SERIAL PRIMARY KEY`
+  - `business_id`: `INTEGER NOT NULL REFERENCES businesses(id) ON DELETE CASCADE`
+  - `user_id`: `INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE`
+  - `title`: `TEXT NOT NULL`
+  - `generated_at`: `TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+  - Index: `idx_reports_user` on `user_id`
+
+---
+
+## External Services Called
+
+1. **OpenRouter API** (`https://openrouter.ai/api/v1/chat/completions`):
+   - Invoked for AI business advisory (`openRouterAdvisorService.js`), grounded scheme retrieval (`openRouterSchemeService.js`), and qualitative SWOT/opportunity evaluation (`localFeasibilityService.js`).
+   - Grounded in context JSON and validated by Zod; falls back to deterministic local templates when offline or unconfigured.
+2. **OpenStreetMap Overpass API** (`https://overpass-api.de/api/interpreter`):
+   - Invoked in `placesService.js` to scan for real competitors within a 5-10 km radius.
+   - Cached in memory for 10 minutes with Haversine distance calculations.
+3. **OpenStreetMap Nominatim** (`https://nominatim.openstreetmap.org/`):
+   - Invoked in `geocodeService.js` for geocoding and reverse geocoding.
+   - Enforces an 8s timeout, 10-minute in-memory cache, and identifying User-Agent (`PRAVIRAK-BusinessAdvisor/1.0`).
+4. **PostgreSQL**:
+   - Connection pooling via `pg.Pool` for user accounts, saved business analyses, and audit logs.
+
+---
+
+## How to Run Tests
+
+The backend test suite is executed using Node.js's native test runner:
 
 ```bash
-cd backend
-docker compose up -d        # starts Postgres 16 on localhost:5432
-npm install
-cp .env.example .env         # defaults already match docker-compose.yml
-npm run dev                    # http://localhost:4000
+npm test
 ```
 
-No Docker? Point `DATABASE_URL` in `.env` at any Postgres instance — a local
-install, or a free-tier managed database (Neon, Supabase, Render, Railway,
-RDS, etc. all work). The schema (`src/db/schema.sql`) runs automatically on
-first boot — no separate migration step needed for a fresh database.
-
-If the backend can't reach Postgres, `npm run dev` fails fast with a clear
-error message rather than starting in a broken state.
-
-## API
-
-All responses are JSON. Authenticated routes require `Authorization: Bearer <token>`.
-
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| GET | `/api/health` | No | Health check |
-| POST | `/api/auth/register` | No | `{ name, phone?, email?, password }` → `{ user, token }` |
-| POST | `/api/auth/login` | No | `{ identifier, password }` → `{ user, token }` |
-| GET | `/api/auth/me` | Yes | Current user |
-| GET | `/api/businesses` | Yes | List the logged-in user's saved businesses |
-| GET | `/api/businesses/:id` | Yes | Get one saved business |
-| POST | `/api/businesses` | Yes | Create or update (pass `id` to update) a saved business snapshot |
-| DELETE | `/api/businesses/:id` | Yes | Remove a saved business |
-| GET | `/api/reports` | Yes | List generated reports |
-| POST | `/api/reports` | Yes | Record a generated report for a business |
-| POST | `/api/schemes/recommend` | No | AI-grounded government scheme lookup (see below) |
-
-`identifier` in login accepts either the phone number or email used at registration.
-
-## AI-grounded government schemes (Gemini + Google Search grounding)
-
-`POST /api/schemes/recommend` takes `{ businessIdea, category, ownCapital, city, state }` and asks
-Gemini — using live Google Search grounding — to find *current* central/state government schemes
-a business like this could realistically apply for, sourced only from official government pages.
-
-This is deliberately **retrieval + explanation only**: the LLM never computes eligibility, subsidy
-rupee amounts, EMI, or DSCR — that stays in the deterministic `engine/` code on the frontend. The
-service enforces:
-
-- **No invented data.** Every returned scheme must include a `sourceUrl` matching `https://...`; the
-  prompt instructs the model to omit any detail it can't verify from a retrieved source, and the
-  service discards any scheme object that doesn't have a valid name, summary, source URL, and
-  confidence rating.
-- **Source, freshness, confidence always shown.** Each scheme carries `sourceName`/`sourceUrl`,
-  a `freshness` string (or `"undated"`), and a `confidence` of `HIGH`/`MEDIUM`/`LOW`.
-- **Safe fallback, never a fabricated answer.** If `GEMINI_API_KEY` isn't set, the request fails, or
-  the model's response can't be parsed into valid scheme objects, the endpoint returns
-  `{ grounded: false, reason, schemes: [] }` and the frontend falls back to PRAVIRAK's static,
-  human-curated `data/schemes.ts` dataset instead of ever showing unverified information.
-
-Set `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`, default `gemini-2.5-flash`) in `backend/.env` to
-enable this. Without it, scheme lookups still work end-to-end using the static dataset.
-
-**On model names:** a Gemini API key is not tied to a specific model version — the same key works for
-any model your project has access to, you just reference it by ID in the request. Google renames and
-retires model IDs fairly often (for example the entire `gemini-2.0-*` line was shut down on June 1,
-2026), so hardcoding one model name is fragile. `geminiSchemeService.js` tries your configured
-`GEMINI_MODEL` first, then falls back through Google's rolling `gemini-flash-latest` alias and a couple
-of known-good model IDs before giving up — so a single deprecated model name won't silently break scheme
-lookups. If you start seeing `grounded: false` with a reason mentioning 404s, check
-https://ai.google.dev/gemini-api/docs/models for the current model list and update `GEMINI_MODEL`.
-
-## Notes
-
-- Passwords are hashed with bcrypt; never stored in plain text.
-- Tokens are signed JWTs (`JWT_SECRET`), expire per `JWT_EXPIRES_IN` (default 7 days).
-- The `snapshot_json` column on `businesses` stores the full business input,
-  location, financials and decision result so an analysis can be re-opened
-  without recomputation.
+This runs all `src/**/*.test.js` files, verifying:
+- Prompt injection protection, character caps, and number grounding in `advisorService.test.js`.
+- Zod schema validation, length constraints, and deterministic fallback generation in `localFeasibilityService.test.js`.
+- Haversine coordinate math, Overpass QL clause builders, and API error handling in `placesService.test.js`.

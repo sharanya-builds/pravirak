@@ -18,10 +18,10 @@ function ConfidenceBadge({ confidence }: { confidence: GroundedScheme['confidenc
   const { t } = useLanguage();
   const styles =
     confidence === 'HIGH'
-      ? 'bg-emerald-100 text-emerald-950 border-emerald-300'
+      ? 'bg-emerald-100 text-emerald-950 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-800'
       : confidence === 'MEDIUM'
-      ? 'bg-amber-100 text-amber-950 border-amber-300'
-      : 'bg-slate-200 text-slate-900 border-slate-300';
+      ? 'bg-amber-100 text-amber-950 border-amber-300 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-800'
+      : 'bg-slate-200 text-slate-900 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
   return (
     <span className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full border ${styles}`}>
       {confidence} {t.confidence.toUpperCase()}

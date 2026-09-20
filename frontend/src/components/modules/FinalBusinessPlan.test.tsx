@@ -300,23 +300,28 @@ describe('FinalBusinessPlan - Presentation Redesign (Decision Summary & Accordio
     expect(marketBtn).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('expands and collapses all accordions via the "Expand all / Collapse all" button', () => {
-    renderPlan();
+  it('renders Jump to Section list on screen and navigates to the matching section', () => {
+    const handleNavigate = vi.fn();
+    render(
+      <LanguageProvider>
+        <FinalBusinessPlan
+          input={mockInput}
+          location={mockLocation}
+          financials={mockFinancials}
+          decisionResult={mockDecision}
+          recommendedScheme={mockScheme}
+          onReset={vi.fn()}
+          onNavigateToSection={handleNavigate}
+        />
+      </LanguageProvider>
+    );
 
-    const toggleAllBtn = screen.getByTestId('expand-collapse-all-btn');
-    expect(toggleAllBtn).toHaveTextContent(/Expand All/i);
+    const jumpList = screen.getByTestId('jump-to-sections-list');
+    expect(jumpList).toBeInTheDocument();
 
-    // Click Expand All
-    fireEvent.click(toggleAllBtn);
-    expect(toggleAllBtn).toHaveTextContent(/Collapse All/i);
-
-    const marketAccordion = screen.getByTestId('accordion-market-competitors');
-    expect(marketAccordion.querySelector('button')).toHaveAttribute('aria-expanded', 'true');
-
-    // Click Collapse All
-    fireEvent.click(toggleAllBtn);
-    expect(toggleAllBtn).toHaveTextContent(/Expand All/i);
-    expect(marketAccordion.querySelector('button')).toHaveAttribute('aria-expanded', 'false');
+    const jumpMarket = screen.getByTestId('jump-market');
+    fireEvent.click(jumpMarket);
+    expect(handleNavigate).toHaveBeenCalledWith('MARKET');
   });
 
   it('supports Short plan vs Full plan download mode toggling', () => {

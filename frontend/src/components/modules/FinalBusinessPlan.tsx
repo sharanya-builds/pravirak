@@ -19,7 +19,9 @@ import {
   Landmark,
   Layers,
   Calendar,
-  FileText
+  FileText,
+  ArrowRight,
+  TrendingUp
 } from 'lucide-react';
 import { 
   BusinessDecisionResult, 
@@ -35,7 +37,6 @@ import { reconcileSchemeLoan } from '../../engine/schemeReconciliation';
 import { SchemeLoanBreakdown } from '../common/SchemeLoanBreakdown';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { useLanguage } from '../../context/LanguageContext';
-import { LocalFeasibilityReportView } from './LocalFeasibilityReportView';
 import { fetchLocalFeasibilityReport } from '../../services/localFeasibilityService';
 
 interface FinalBusinessPlanProps {
@@ -46,6 +47,7 @@ interface FinalBusinessPlanProps {
   recommendedScheme: GovernmentScheme;
   onReset: () => void;
   feasibilityReport?: LocalFeasibilityReport | null;
+  onNavigateToSection?: (sectionKey: string) => void;
 }
 
 export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
@@ -55,7 +57,8 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
   decisionResult,
   recommendedScheme,
   onReset,
-  feasibilityReport
+  feasibilityReport,
+  onNavigateToSection
 }) => {
   const { t, language } = useLanguage();
   const [internalFeasibility, setInternalFeasibility] = useState<LocalFeasibilityReport | null>(null);
@@ -145,6 +148,18 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
     }
     return Math.round(financials.monthlyEMI * 3);
   }, [reconciliation, financials.monthlyEMI]);
+
+  const psLoanAmount = reconciliation?.calculationResult?.isEligible
+    ? reconciliation.calculationResult.loan
+    : financials.loanRequired;
+  const psSchemeName = reconciliation?.calculationResult?.isEligible
+    ? reconciliation.calculationResult.schemeName
+    : recommendedScheme.name;
+  const psInterestRate = reconciliation?.calculationResult?.isEligible
+    ? reconciliation.calculationResult.interestRate
+    : financials.interestRatePct;
+  const isFullyFunded = reconciliation ? reconciliation.isFullyFunded : true;
+  const shortfall = reconciliation ? reconciliation.shortfall : 0;
 
   // Top 3 reasons derived strictly from existing deterministic engine outputs
   const topReasons = useMemo(() => {
@@ -319,8 +334,13 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           </div>
           <div className="bg-slate-900/90 p-2 sm:p-2.5 rounded-xl border border-slate-800">
             <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium leading-tight">{t.loanWithSchemeLabel}</span>
-            <strong className="text-xs sm:text-sm font-mono font-black text-white block mt-0.5">{formatINR(financials.loanRequired)}</strong>
-            <span className="text-[9px] text-indigo-300 block truncate font-medium">{recommendedScheme.name} ({financials.interestRatePct}%)</span>
+            <strong className="text-xs sm:text-sm font-mono font-black text-white block mt-0.5">{formatINR(psLoanAmount)}</strong>
+            <span className="text-[9px] text-indigo-300 block truncate font-medium">{psSchemeName} ({psInterestRate}%)</span>
+            {!isFullyFunded && shortfall > 0 && (
+              <span className="text-[9px] text-rose-400 block font-bold truncate">
+                Shortfall: {formatINR(shortfall)}
+              </span>
+            )}
           </div>
           <div className="bg-slate-900/90 p-2 sm:p-2.5 rounded-xl border border-slate-800">
             <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium leading-tight">{t.quarterlyPaymentLabel}</span>
@@ -383,76 +403,160 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
         </div>
       </div>
 
-      {/* Accordion Expand / Collapse Controls (hidden in print) */}
-      <div className="no-print flex items-center justify-between px-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-          Detailed Business Dossier Sections
-        </span>
-        <button
-          type="button"
-          data-testid="expand-collapse-all-btn"
-          onClick={toggleAll}
-          className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-3 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5"
-        >
-          {allOpen ? (
-            <>
-              <ChevronUp className="w-3.5 h-3.5" />
-              {t.collapseAll}
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-3.5 h-3.5" />
-              {t.expandAll}
-            </>
-          )}
-        </button>
+      {/* 2. JUMP TO SECTION LIST (Navigates to the corresponding analysis tab; replaces duplicate accordions on screen) */}
+      <div 
+        data-testid="jump-to-sections-list" 
+        className="no-print bg-white dark:bg-[#0D111A] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-4"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide flex items-center gap-2">
+              <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span>Detailed Business Dossier & Analysis Sections</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Select any section below to jump directly to its full deep-dive in the Analysis View.
+            </p>
+          </div>
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700/60 self-start sm:self-auto">
+            {downloadMode === 'short' ? 'Short Report View' : 'Full Report View'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            {
+              id: 'jump-market',
+              sectionKey: 'MARKET',
+              title: t.sectionMarketAndCompetitors || '1. Market & Competitors',
+              desc: `${location.competitorsNearbyCount} competitors • 5 km & 10 km catchment`,
+              icon: Compass,
+              color: 'text-indigo-600 dark:text-indigo-400',
+              bgColor: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/40'
+            },
+            {
+              id: 'jump-opportunities',
+              sectionKey: 'OPPORTUNITIES',
+              title: t.sectionOpportunities || '2. Opportunities & Demand',
+              desc: 'Footfall, unserved demand & customer colonies',
+              icon: Lightbulb,
+              color: 'text-amber-600 dark:text-amber-400',
+              bgColor: 'bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-900/40'
+            },
+            {
+              id: 'jump-swot',
+              sectionKey: 'SWOT',
+              title: t.sectionSwot || '3. SWOT & Risk Mitigations',
+              desc: 'Strengths, weaknesses, opportunities & threats',
+              icon: Grid2X2,
+              color: 'text-purple-600 dark:text-purple-400',
+              bgColor: 'bg-purple-50 dark:bg-purple-950/40 border-purple-100 dark:border-purple-900/40'
+            },
+            {
+              id: 'jump-financials',
+              sectionKey: 'FINANCIALS',
+              title: t.sectionLoanStructure || '4. Loan Structure & Financials',
+              desc: 'Repayment schedule, break-even & stress test',
+              icon: Landmark,
+              color: 'text-emerald-600 dark:text-emerald-400',
+              bgColor: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40'
+            },
+            {
+              id: 'jump-schemes',
+              sectionKey: 'SCHEMES',
+              title: t.sectionSchemes || '5. Schemes & Compliance',
+              desc: 'PMEGP, MUDRA, CGTMSE & statutory rules',
+              icon: Tag,
+              color: 'text-blue-600 dark:text-blue-400',
+              bgColor: 'bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/40'
+            },
+            {
+              id: 'jump-decision',
+              sectionKey: 'DECISION',
+              title: t.decisionSummaryTitle || '6. Executive Recommendation',
+              desc: 'Decision rationale & 4-pillar scores',
+              icon: FileText,
+              color: 'text-teal-600 dark:text-teal-400',
+              bgColor: 'bg-teal-50 dark:bg-teal-950/40 border-teal-100 dark:border-teal-900/40'
+            }
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                data-testid={item.id}
+                onClick={() => onNavigateToSection?.(item.sectionKey)}
+                className="flex items-start justify-between p-3.5 rounded-xl border transition-all text-left group hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 bg-slate-50/70 hover:bg-white dark:bg-slate-900/40 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 cursor-pointer"
+              >
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className={`p-2 rounded-lg ${item.bgColor} shrink-0`}>
+                    <Icon className={`w-4 h-4 ${item.color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0 ml-2 mt-1" />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Official Government / Bank Report Document */}
-      <div className="bg-white rounded-2xl border border-slate-300 p-4 sm:p-8 shadow-sm relative overflow-hidden print:border-none print:shadow-none print:p-0 space-y-4 sm:space-y-6">
+      {/* Official Government / Bank Report Document (Hidden on screen to prevent duplicate rendering; visible in print) */}
+      <div 
+        data-testid="print-dossier-document"
+        className="hidden print:block bg-white dark:bg-[#0D111A] rounded-2xl border border-slate-300 dark:border-slate-800 p-4 sm:p-8 shadow-sm relative overflow-hidden print:border-none print:shadow-none print:p-0 space-y-4 sm:space-y-6"
+      >
         {/* Official Header */}
-        <div className="border-b-2 border-slate-900 pb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-950">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-slate-100">
                 PRAVIRAK
               </span>
-              <span className="text-xs uppercase font-bold tracking-wider px-2 py-0.5 bg-slate-100 text-slate-800 rounded-sm border border-slate-300">
+              <span className="text-xs uppercase font-bold tracking-wider px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-sm border border-slate-300 dark:border-slate-700">
                 {t.officialBusinessDossier}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-800 font-medium">
+            <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-300 font-medium">
               {t.nationalPlatformBadge}
             </p>
           </div>
 
-          <div className="text-right text-xs sm:text-sm text-slate-800 space-y-0.5 font-medium">
-            <div><strong>{t.dossierRef}</strong> <span className="font-mono text-slate-950 font-bold">{refId}</span></div>
-            <div><strong>{t.dateOfAppraisal}</strong> <span className="text-slate-900">{currentDate}</span></div>
-            <div><strong>{t.statusLabel}</strong> <span className="text-emerald-700 font-extrabold">{t.verifiedAnalysis}</span></div>
+          <div className="text-right text-xs sm:text-sm text-slate-800 dark:text-slate-300 space-y-0.5 font-medium">
+            <div><strong>{t.dossierRef}</strong> <span className="font-mono text-slate-950 dark:text-slate-100 font-bold">{refId}</span></div>
+            <div><strong>{t.dateOfAppraisal}</strong> <span className="text-slate-900 dark:text-slate-200">{currentDate}</span></div>
+            <div><strong>{t.statusLabel}</strong> <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">{t.verifiedAnalysis}</span></div>
           </div>
         </div>
 
         {/* Data Provenance Legend */}
-        <div className="bg-slate-50 rounded-xl px-3.5 py-2 border border-slate-200 flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-700">
-          <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+        <div className="bg-slate-50 dark:bg-slate-900/80 rounded-xl px-3.5 py-2 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-700 dark:text-slate-300">
+          <span className="font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-[11px]">
             {t.provenanceLegendTitle}:
           </span>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <strong className="text-emerald-800 font-semibold">{t.badgeMeasured}</strong>
-            <span className="text-slate-500 text-[11px]">({t.provenanceMeasuredDesc})</span>
+            <strong className="text-emerald-800 dark:text-emerald-300 font-semibold">{t.badgeMeasured}</strong>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px]">({t.provenanceMeasuredDesc})</span>
           </div>
-          <span className="text-slate-300 hidden sm:inline">•</span>
+          <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">•</span>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-            <strong className="text-amber-800 font-semibold">{t.badgeEstimated}</strong>
-            <span className="text-slate-500 text-[11px]">({t.provenanceEstimatedDesc})</span>
+            <strong className="text-amber-800 dark:text-amber-300 font-semibold">{t.badgeEstimated}</strong>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px]">({t.provenanceEstimatedDesc})</span>
           </div>
-          <span className="text-slate-300 hidden sm:inline">•</span>
+          <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">•</span>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-            <strong className="text-purple-800 font-semibold">{t.badgeAi}</strong>
+            <strong className="text-purple-800 dark:text-purple-300 font-semibold">{t.badgeAi}</strong>
             <span className="text-slate-500 text-[11px]">({t.provenanceAiDesc})</span>
           </div>
         </div>
@@ -464,7 +568,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="market-competitors"
             data-testid="accordion-market-competitors" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -523,12 +627,12 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
               </p>
 
               {location.competitors && location.competitors.length > 0 ? (
-                <div className="text-xs text-slate-700 bg-emerald-50/60 p-2.5 rounded-lg border border-emerald-200">
-                  <strong className="text-emerald-950 font-bold">{t.identifiedCompetitorsOsm} (OpenStreetMap - OSM):</strong>{' '}
+                <div className="text-xs text-slate-700 dark:text-slate-200 bg-emerald-50/60 dark:bg-emerald-950/30 p-2.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                  <strong className="text-emerald-950 dark:text-emerald-200 font-bold">{t.identifiedCompetitorsOsm} (OpenStreetMap - OSM):</strong>{' '}
                   {location.competitors.map((c) => c.name).filter(Boolean).join(', ')}
                 </div>
               ) : location.competitorsNote ? (
-                <div className="text-xs text-amber-900 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200">
+                <div className="text-xs text-amber-900 dark:text-amber-200 bg-amber-50/80 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800">
                   {location.competitorsNote}
                 </div>
               ) : null}
@@ -558,7 +662,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="opportunities"
             data-testid="accordion-opportunities" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -605,7 +709,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="swot"
             data-testid="accordion-swot" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -633,14 +737,14 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
             <div className={`p-4 space-y-3 border-t border-slate-200 ${openSections.swot ? 'block' : 'hidden'} print:block`}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Strengths */}
-                <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                  <span className="text-xs font-bold text-emerald-950 uppercase tracking-wider block mb-1.5">
+                <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/60">
+                  <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 uppercase tracking-wider block mb-1.5">
                     {t.swotStrengths} (Internal Advantages)
                   </span>
-                  <ul className="space-y-1 text-xs text-emerald-900 font-medium">
+                  <ul className="space-y-1 text-xs text-emerald-900 dark:text-emerald-300 font-medium">
                     {(activeFeasibility?.swot?.strengths || ['Low fixed operational cost', 'Direct promoter oversight', 'Favorable local demand']).slice(0, 3).map((s, i) => (
                       <li key={i} className="flex items-start gap-1">
-                        <span className="text-emerald-600 font-bold">•</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
                         <span>{s}</span>
                       </li>
                     ))}
@@ -648,14 +752,14 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 </div>
 
                 {/* Weaknesses */}
-                <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
-                  <span className="text-xs font-bold text-amber-950 uppercase tracking-wider block mb-1.5">
+                <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/60">
+                  <span className="text-xs font-bold text-amber-950 dark:text-amber-200 uppercase tracking-wider block mb-1.5">
                     {t.swotWeaknesses} (Internal Limitations)
                   </span>
-                  <ul className="space-y-1 text-xs text-amber-900 font-medium">
+                  <ul className="space-y-1 text-xs text-amber-900 dark:text-amber-300 font-medium">
                     {(activeFeasibility?.swot?.weaknesses || ['Limited initial working capital reserve', 'Reliance on single supplier base']).slice(0, 3).map((w, i) => (
                       <li key={i} className="flex items-start gap-1">
-                        <span className="text-amber-600 font-bold">•</span>
+                        <span className="text-amber-600 dark:text-amber-400 font-bold">•</span>
                         <span>{w}</span>
                       </li>
                     ))}
@@ -663,14 +767,14 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 </div>
 
                 {/* Opportunities */}
-                <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200">
-                  <span className="text-xs font-bold text-indigo-950 uppercase tracking-wider block mb-1.5">
+                <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-800/60">
+                  <span className="text-xs font-bold text-indigo-950 dark:text-indigo-200 uppercase tracking-wider block mb-1.5">
                     {t.swotOpportunities} (External Potentials)
                   </span>
-                  <ul className="space-y-1 text-xs text-indigo-900 font-medium">
+                  <ul className="space-y-1 text-xs text-indigo-900 dark:text-indigo-300 font-medium">
                     {(activeFeasibility?.swot?.opportunities || ['Expanding consumer base in radial colonies', 'Govt scheme subsidy benefits']).slice(0, 3).map((o, i) => (
                       <li key={i} className="flex items-start gap-1">
-                        <span className="text-indigo-600 font-bold">•</span>
+                        <span className="text-indigo-600 dark:text-indigo-400 font-bold">•</span>
                         <span>{o}</span>
                       </li>
                     ))}
@@ -678,14 +782,14 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 </div>
 
                 {/* Threats */}
-                <div className="p-3 rounded-xl bg-rose-50/70 border border-rose-200">
-                  <span className="text-xs font-bold text-rose-950 uppercase tracking-wider block mb-1.5">
+                <div className="p-3 rounded-xl bg-rose-50/70 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-800/60">
+                  <span className="text-xs font-bold text-rose-950 dark:text-rose-200 uppercase tracking-wider block mb-1.5">
                     {t.swotThreats} (External Hazards)
                   </span>
-                  <ul className="space-y-1 text-xs text-rose-900 font-medium">
+                  <ul className="space-y-1 text-xs text-rose-900 dark:text-rose-300 font-medium">
                     {(activeFeasibility?.swot?.threats || ['Seasonal demand variation', 'Unorganized competitor price cuts']).slice(0, 3).map((th, i) => (
                       <li key={i} className="flex items-start gap-1">
-                        <span className="text-rose-600 font-bold">•</span>
+                        <span className="text-rose-600 dark:text-rose-400 font-bold">•</span>
                         <span>{th}</span>
                       </li>
                     ))}
@@ -699,7 +803,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="threats"
             data-testid="accordion-threats" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -748,7 +852,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="pricing-guidance"
             data-testid="accordion-pricing-guidance" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -780,8 +884,9 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                   {activeFeasibility?.pricing?.strategy || 'Cost-plus margin with daily local rate alignment'}
                 </p>
               </div>
-              <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-xs text-amber-950 font-medium">
-                <strong>{t.pricingGuidanceNoteLabel}:</strong> {activeFeasibility?.pricing?.priceBandNote || 'Guidance only; verify daily prices at local mandi or market center.'}
+              <div className="p-3 bg-amber-50/80 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800 text-xs text-amber-950 dark:text-amber-200 font-medium">
+                <strong className="text-amber-900 dark:text-amber-200">{t.pricingGuidanceNoteLabel}:</strong>{' '}
+                <span>{activeFeasibility?.pricing?.priceBandNote || 'Guidance only; verify daily prices at local mandi or market center.'}</span>
               </div>
             </div>
           </div>
@@ -824,23 +929,23 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                 {/* Capital Reconciliation Banner */}
                 {reconciliation.isFullyFunded ? (
                   <div
-                    className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 space-y-2"
+                    className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 space-y-2"
                     data-testid="plan-fully-funded-banner"
                   >
-                    <div className="flex items-center gap-2 text-emerald-900 font-extrabold text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 font-extrabold text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>{t.fullyFundedTitle}</span>
                     </div>
-                    <p className="text-xs text-emerald-950 leading-relaxed font-medium">
+                    <p className="text-xs text-emerald-950 dark:text-emerald-100 leading-relaxed font-medium">
                       Your available capital of{' '}
                       <strong>₹{reconciliation.ownCapital.toLocaleString('en-IN')}</strong> meets the required 10% promoter contribution (
                       <strong>₹{reconciliation.requiredMargin.toLocaleString('en-IN')}</strong>) for the planned project cost of{' '}
                       <strong>₹{reconciliation.projectCost.toLocaleString('en-IN')}</strong>.
                     </p>
-                    <div className="text-xs font-bold text-emerald-900 pt-1 flex flex-wrap gap-4">
+                    <div className="text-xs font-bold text-emerald-900 dark:text-emerald-200 pt-1 flex flex-wrap gap-4">
                       <span>
                         {t.maxSupportableProjectCostTitle}:{' '}
-                        <strong className="font-mono text-emerald-950" data-testid="max-supportable-project">
+                        <strong className="font-mono text-emerald-950 dark:text-emerald-100" data-testid="max-supportable-project">
                           ₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}
                         </strong>
                       </span>
@@ -848,53 +953,53 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                   </div>
                 ) : (
                   <div
-                    className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3"
+                    className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 space-y-3"
                     data-testid="plan-shortfall-banner"
                   >
-                    <div className="flex items-start gap-2 text-amber-950">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 text-amber-950 dark:text-amber-200">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-extrabold text-xs sm:text-sm">
+                        <h4 className="font-extrabold text-xs sm:text-sm text-amber-950 dark:text-amber-200">
                           {t.shortfallAlertTitle}:{' '}
-                          <span className="text-rose-600 font-mono" data-testid="plan-shortfall-amount">
+                          <span className="text-rose-600 dark:text-rose-400 font-mono" data-testid="plan-shortfall-amount">
                             ₹{reconciliation.shortfall.toLocaleString('en-IN')}
                           </span>
                         </h4>
-                        <p className="text-xs text-amber-900 mt-1 leading-relaxed font-medium">
+                        <p className="text-xs text-amber-900 dark:text-amber-200 mt-1 leading-relaxed font-medium">
                           The estimated project cost of{' '}
-                          <strong>₹{reconciliation.projectCost.toLocaleString('en-IN')}</strong> requires a 10% promoter contribution of{' '}
-                          <strong>₹{reconciliation.requiredMargin.toLocaleString('en-IN')}</strong>, but your current available capital is{' '}
-                          <strong>₹{reconciliation.ownCapital.toLocaleString('en-IN')}</strong>.
+                          <strong className="text-amber-950 dark:text-amber-100">₹{reconciliation.projectCost.toLocaleString('en-IN')}</strong> requires a 10% promoter contribution of{' '}
+                          <strong className="text-amber-950 dark:text-amber-100">₹{reconciliation.requiredMargin.toLocaleString('en-IN')}</strong>, but your current available capital is{' '}
+                          <strong className="text-amber-950 dark:text-amber-100">₹{reconciliation.ownCapital.toLocaleString('en-IN')}</strong>.
                         </p>
-                        <p className="text-xs text-amber-800 mt-1 font-semibold">
+                        <p className="text-xs text-amber-800 dark:text-amber-300 mt-1 font-semibold">
                           The institutional scheme structure below is calculated for the largest project your current capital can support (
-                          <strong data-testid="max-supportable-shortfall-project">₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}</strong>).
+                          <strong className="text-amber-950 dark:text-amber-100" data-testid="max-supportable-shortfall-project">₹{reconciliation.maxSupportableProjectCost.toLocaleString('en-IN')}</strong>).
                         </p>
                       </div>
                     </div>
 
                     {/* 3 Actionable Options to Bridge Shortfall */}
                     {reconciliation.optionsIfShortfall && (
-                      <div className="bg-white/90 rounded-xl p-3 border border-amber-200/80 space-y-2 text-xs" data-testid="shortfall-options-card">
-                        <span className="font-extrabold text-slate-900 block text-xs uppercase tracking-wider">
+                      <div className="bg-white/90 dark:bg-slate-900/90 rounded-xl p-3 border border-amber-200/80 dark:border-amber-800/80 space-y-2 text-xs" data-testid="shortfall-options-card">
+                        <span className="font-extrabold text-slate-900 dark:text-slate-100 block text-xs uppercase tracking-wider">
                           {t.threeOptionsToProceed}:
                         </span>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-0.5">
-                          <div className="p-2.5 bg-amber-50/50 rounded-lg border border-amber-100 space-y-0.5">
-                            <strong className="text-slate-900 block font-bold">{t.optionAddCapitalTitle}</strong>
-                            <p className="text-slate-700 leading-relaxed font-medium text-[11px]">
+                          <div className="p-2.5 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg border border-amber-100 dark:border-amber-800/60 space-y-0.5">
+                            <strong className="text-slate-900 dark:text-slate-100 block font-bold">{t.optionAddCapitalTitle}</strong>
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium text-[11px]">
                               {reconciliation.optionsIfShortfall.addCapitalText}
                             </p>
                           </div>
-                          <div className="p-2.5 bg-amber-50/50 rounded-lg border border-amber-100 space-y-0.5">
-                            <strong className="text-slate-900 block font-bold">{t.optionScaleDownTitle}</strong>
-                            <p className="text-slate-700 leading-relaxed font-medium text-[11px]">
+                          <div className="p-2.5 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg border border-amber-100 dark:border-amber-800/60 space-y-0.5">
+                            <strong className="text-slate-900 dark:text-slate-100 block font-bold">{t.optionScaleDownTitle}</strong>
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium text-[11px]">
                               {reconciliation.optionsIfShortfall.scaleDownText}
                             </p>
                           </div>
-                          <div className="p-2.5 bg-amber-50/50 rounded-lg border border-amber-100 space-y-0.5">
-                            <strong className="text-slate-900 block font-bold">{t.optionPhasedTitle}</strong>
-                            <p className="text-slate-700 leading-relaxed font-medium text-[11px]">
+                          <div className="p-2.5 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg border border-amber-100 dark:border-amber-800/60 space-y-0.5">
+                            <strong className="text-slate-900 dark:text-slate-100 block font-bold">{t.optionPhasedTitle}</strong>
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium text-[11px]">
                               {reconciliation.optionsIfShortfall.phasedExecutionText}
                             </p>
                           </div>
@@ -919,7 +1024,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="breakeven-working-capital"
             data-testid="accordion-breakeven" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -973,7 +1078,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="stress-tests"
             data-testid="accordion-stress-tests" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"
@@ -1054,7 +1159,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
             <div 
               id="how-this-was-calculated"
               data-testid="accordion-how-calculated" 
-              className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+              className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
             >
               <button
                 type="button"
@@ -1133,7 +1238,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           <div 
             id="action-plan"
             data-testid="accordion-action-plan" 
-            className="border border-slate-200 rounded-xl overflow-hidden print:border-slate-300"
+            className={`border border-slate-200 rounded-xl overflow-hidden print:border-slate-300 ${downloadMode === 'short' ? 'print:hidden' : ''}`}
           >
             <button
               type="button"

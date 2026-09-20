@@ -89,6 +89,25 @@ export const MarketMap: React.FC<MarketMapProps> = ({
       .bindPopup(`<strong>${location.areaName}</strong><br/>${t.proposedLocationTitle}<br/>Coordinates: ${location.lat.toFixed(4)}°N, ${location.lng.toFixed(4)}°E`)
       .addTo(layerGroup);
 
+    // 5 km Micro-Catchment & 10 km Macro-Catchment Rings (PS Requirement)
+    L.circle([location.lat, location.lng], {
+      radius: 5000,
+      color: '#3B82F6',
+      weight: 1.5,
+      fillColor: '#3B82F6',
+      fillOpacity: 0.04,
+      dashArray: '4, 4'
+    }).bindTooltip('5 km Micro-Catchment', { permanent: false, direction: 'top' }).addTo(layerGroup);
+
+    L.circle([location.lat, location.lng], {
+      radius: 10000,
+      color: '#6366F1',
+      weight: 1.5,
+      fillColor: '#6366F1',
+      fillOpacity: 0.02,
+      dashArray: '6, 6'
+    }).bindTooltip('10 km Macro-Catchment', { permanent: false, direction: 'top' }).addTo(layerGroup);
+
     // 2. Alternative Recommended Site Marker
     if (location.alternativeLocation) {
       const altIcon = L.divIcon({
@@ -356,8 +375,8 @@ export const MarketMap: React.FC<MarketMapProps> = ({
               </div>
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm border ${
                 location.competitorsCountProvenance === 'MEASURED'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  : 'bg-amber-50 text-amber-900 border-amber-300'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800'
+                  : 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800'
               }`}>
                 {location.competitorsCountProvenance === 'MEASURED' ? 'Measured' : 'Estimated'}
               </span>
@@ -390,7 +409,7 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Users className="w-4 h-4 text-indigo-600" />
                 <span>{t.demandSignals}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800">
                 Estimated
               </span>
             </div>
@@ -409,7 +428,7 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Building2 className="w-4 h-4 text-emerald-600" />
                 <span>{t.customerColonies}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800">
                 Estimated
               </span>
             </div>
@@ -428,7 +447,7 @@ export const MarketMap: React.FC<MarketMapProps> = ({
                 <Briefcase className="w-4 h-4 text-blue-700" />
                 <span>{t.nearbyAnchors}</span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800">
                 Estimated
               </span>
             </div>
