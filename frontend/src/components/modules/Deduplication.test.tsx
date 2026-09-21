@@ -204,14 +204,14 @@ describe('Deduplication & Single-Home Content Verification', () => {
     expect(printDoc).toHaveClass('hidden');
     expect(printDoc).toHaveClass('print:block');
 
-    // Clicking a jump button invokes onNavigateToSection with the correct section key
+    // Clicking a jump button invokes onNavigateToSection with the correct section ID
     const jumpMarket = screen.getByTestId('jump-market');
     fireEvent.click(jumpMarket);
-    expect(handleNavigate).toHaveBeenCalledWith('MARKET');
+    expect(handleNavigate).toHaveBeenCalledWith('jump-market');
 
     const jumpFinancials = screen.getByTestId('jump-financials');
     fireEvent.click(jumpFinancials);
-    expect(handleNavigate).toHaveBeenCalledWith('FINANCIALS');
+    expect(handleNavigate).toHaveBeenCalledWith('jump-financials');
   });
 
   it('verifies headline loan in Decision Summary card is derived from psCalculator with quarterly payment matching schedule', () => {

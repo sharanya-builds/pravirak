@@ -3,6 +3,7 @@ import {
   ChevronDown,
   FileText,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Edit3,
   CheckCircle2,
@@ -36,6 +37,13 @@ import { formatINR } from '../../engine/financialEngine';
 import { getSectorCompliances } from '../../data/compliances';
 import { TRANSLATIONS } from '../../data/translations';
 import { formatLocationField } from '../../engine/locationParser';
+import {
+  SectionRegistryEntry,
+  getRegistryEntryByHash,
+  getRegistryEntryById,
+  getRegistryEntryByLegacyKey,
+  buildSectionHash
+} from '../../data/sectionRegistry';
 
 export type SectionKey = 'DECISION' | 'MAP' | 'LOCAL_FEASIBILITY' | 'FINANCIALS' | 'STRESS' | 'SCHEMES';
 
@@ -49,9 +57,11 @@ interface DecisionDashboardProps {
   currentLanguage: Language;
   isAlternativeAdopted: boolean;
   initialSection?: SectionKey;
+  targetSectionId?: string;
   onToggleAlternativeLocation: () => void;
   onEditInputs: () => void;
   onViewFullDossier: () => void;
+  onBackToSummary?: () => void;
   feasibilityReport?: LocalFeasibilityReport | null;
 }
 
@@ -76,12 +86,16 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   currentLanguage,
   isAlternativeAdopted,
   initialSection,
+  targetSectionId,
   onToggleAlternativeLocation,
   onEditInputs,
   onViewFullDossier,
+  onBackToSummary,
   feasibilityReport
 }) => {
   const [openSections, setOpenSections] = useState<Set<SectionKey>>(new Set([initialSection || 'DECISION']));
+  const [pendingTargetId, setPendingTargetId] = useState<string | null>(targetSectionId || null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const t = TRANSLATIONS[currentLanguage];
   const sectorCompliances = getSectorCompliances(businessInput.businessIdea);
 
@@ -125,14 +139,115 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
     }
   }, [feasibilityReport, loadFeasibilityReport]);
 
-  useEffect(() => {
-    if (initialSection) {
-      setOpenSections((prev) => new Set(prev).add(initialSection));
-      requestAnimationFrame(() => {
-        document.getElementById(`section-${initialSection}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+  // Smoothly scrolls to target element clearing the sticky top header (height 64px + 16px buffer = 80px)
+  const scrollToTargetElement = useCallback((targetId: string) => {
+    const el = document.getElementById(targetId);
+    if (!el) return false;
+
+    const HEADER_OFFSET = 80;
+    const rect = el.getBoundingClientRect();
+    const absoluteTop = rect.top + (window.pageYOffset || window.scrollY || 0);
+    const targetY = Math.max(0, absoluteTop - HEADER_OFFSET);
+
+    if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+      try {
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      } catch {
+        // fallback to scrollIntoView
+      }
     }
-  }, [initialSection]);
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
+      // ignore
+    }
+
+    el.classList.add('section-deep-highlight');
+    setHighlightedId(targetId);
+
+    setTimeout(() => {
+      el.classList.remove('section-deep-highlight');
+      setHighlightedId(null);
+    }, 1500);
+
+    return true;
+  }, []);
+
+  const jumpToRegistryEntry = useCallback((entry: SectionRegistryEntry, updateHash = true) => {
+    // Expand ONLY the target tab (collapse others)
+    setOpenSections(new Set([entry.tab]));
+    setPendingTargetId(entry.sectionId);
+
+    if (updateHash && typeof window !== 'undefined') {
+      const targetHash = buildSectionHash(entry);
+      if (window.location.hash !== targetHash) {
+        window.location.hash = targetHash;
+      }
+    }
+  }, []);
+
+  // Listen for browser URL hash changes (#section=swot, etc.)
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash;
+      if (!hash || hash === '#summary' || hash === '#') return;
+      const entry = getRegistryEntryByHash(hash);
+      if (entry) {
+        jumpToRegistryEntry(entry, false);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [jumpToRegistryEntry]);
+
+  // Handle initialSection or targetSectionId passed from props
+  useEffect(() => {
+    if (targetSectionId) {
+      const entry =
+        getRegistryEntryById(targetSectionId) ||
+        getRegistryEntryByHash(targetSectionId) ||
+        getRegistryEntryByLegacyKey(targetSectionId);
+      if (entry) {
+        jumpToRegistryEntry(entry, true);
+        return;
+      }
+      setPendingTargetId(targetSectionId);
+      return;
+    }
+    if (initialSection) {
+      const entry = getRegistryEntryByLegacyKey(initialSection);
+      if (entry) {
+        jumpToRegistryEntry(entry, true);
+      } else {
+        setOpenSections(new Set([initialSection]));
+        setPendingTargetId(`section-${initialSection}`);
+      }
+    }
+  }, [initialSection, targetSectionId, jumpToRegistryEntry]);
+
+  // Reactive scroll and highlight effect: executes once target element is mounted and settled
+  useEffect(() => {
+    if (!pendingTargetId) return;
+
+    let timer: any;
+    // Wait for the DOM reflow to finish after collapsing other sections and expanding target
+    const rafId = requestAnimationFrame(() => {
+      timer = setTimeout(() => {
+        const scrolled = scrollToTargetElement(pendingTargetId);
+        if (scrolled) {
+          setPendingTargetId(null);
+        }
+      }, 60);
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timer) clearTimeout(timer);
+    };
+  }, [pendingTargetId, activeFeasibilityReport, openSections, scrollToTargetElement]);
 
   const sectionTitles: Record<SectionKey, string> = {
     DECISION: t.sectionDecision,
@@ -144,22 +259,42 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   };
 
   const openSection = (key: SectionKey) => {
-    setOpenSections((prev) => new Set(prev).add(key));
-    requestAnimationFrame(() => {
-      document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    // Expand ONLY the target tab (collapse others)
+    setOpenSections(new Set([key]));
+    const entry = getRegistryEntryByLegacyKey(key);
+    if (entry && typeof window !== 'undefined') {
+      window.location.hash = buildSectionHash(entry);
+    }
+    setPendingTargetId(`section-${key}`);
   };
 
   const toggleSection = (key: SectionKey) => {
     setOpenSections((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
+      if (next.has(key)) {
+        next.delete(key);
+        return next;
+      }
+      // Expand ONLY the target section (collapse others)
+      return new Set([key]);
     });
+    // When toggled down (expanded), always scroll smoothly to the beginning of this analysis card
+    setPendingTargetId(`section-${key}`);
   };
 
   const advanceTo = (key: SectionKey) => openSection(key);
+
+  const handleBackToSummary = () => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#summary';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (onBackToSummary) {
+      onBackToSummary();
+    } else {
+      onViewFullDossier();
+    }
+  };
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -191,6 +326,15 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            data-testid="back-to-summary-btn"
+            onClick={handleBackToSummary}
+            className="px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] rounded-lg border border-slate-200 dark:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+            <span>{t.backToSummary}</span>
+          </button>
           <button
             onClick={onEditInputs}
             className="px-3.5 py-1.5 text-xs font-bold text-indigo-900 dark:text-white bg-indigo-50 dark:bg-[#1A1A1A] hover:bg-indigo-100 dark:hover:bg-[#262626] rounded-lg border border-indigo-200 dark:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5"
@@ -276,7 +420,7 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
       </div>
 
       {/* SECTION 1: DECISION & EVIDENCE */}
-      <Section id="DECISION" title={sectionTitles.DECISION} isOpen={openSections.has('DECISION')} onToggle={() => toggleSection('DECISION')}>
+      <Section id="DECISION" title={sectionTitles.DECISION} isOpen={openSections.has('DECISION')} onToggle={() => toggleSection('DECISION')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-6">
           <DecisionCard
             decisionResult={decisionResult}
@@ -308,12 +452,13 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             message={t.nextStepMapMsg}
             ctaLabel={t.nextStepMapCta}
             onClick={() => advanceTo('MAP')}
+            onBackToFinalPlan={handleBackToSummary}
           />
         </div>
       </Section>
 
       {/* SECTION 2: MARKET MAP */}
-      <Section id="MAP" title={sectionTitles.MAP} isOpen={openSections.has('MAP')} onToggle={() => toggleSection('MAP')}>
+      <Section id="MAP" title={sectionTitles.MAP} isOpen={openSections.has('MAP')} onToggle={() => toggleSection('MAP')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-6">
           <MarketMap location={activeLocation} onSelectAlternative={onToggleAlternativeLocation} />
           <LocationComparison
@@ -326,12 +471,13 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             message="Review empirical micro-catchment reach, SWOT matrix, and qualitative pricing strategy."
             ctaLabel={t.localFeasibilityReportTitle}
             onClick={() => advanceTo('LOCAL_FEASIBILITY')}
+            onBackToFinalPlan={handleBackToSummary}
           />
         </div>
       </Section>
 
       {/* SECTION 3: LOCAL FEASIBILITY REPORT */}
-      <Section id="LOCAL_FEASIBILITY" title={sectionTitles.LOCAL_FEASIBILITY} isOpen={openSections.has('LOCAL_FEASIBILITY')} onToggle={() => toggleSection('LOCAL_FEASIBILITY')}>
+      <Section id="LOCAL_FEASIBILITY" title={sectionTitles.LOCAL_FEASIBILITY} isOpen={openSections.has('LOCAL_FEASIBILITY')} onToggle={() => toggleSection('LOCAL_FEASIBILITY')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-6">
           <LocalFeasibilityReportView
             report={activeFeasibilityReport}
@@ -346,17 +492,18 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             message={t.nextStepFinMsg}
             ctaLabel={t.nextStepFinCta}
             onClick={() => advanceTo('FINANCIALS')}
+            onBackToFinalPlan={handleBackToSummary}
           />
         </div>
       </Section>
 
       {/* SECTION 4: FINANCIALS */}
-      <Section id="FINANCIALS" title={sectionTitles.FINANCIALS} isOpen={openSections.has('FINANCIALS')} onToggle={() => toggleSection('FINANCIALS')}>
+      <Section id="FINANCIALS" title={sectionTitles.FINANCIALS} isOpen={openSections.has('FINANCIALS')} onToggle={() => toggleSection('FINANCIALS')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-6">
           <FinancialFeasibility financials={financials} />
 
           {/* Loan Structure & Quarterly Repayment Schedule (psCalculator) */}
-          <div data-testid="analysis-loan-schedule-section" className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
+          <div id="analysis-loan-schedule-section" data-testid="analysis-loan-schedule-section" className="scroll-mt-24 transition-all duration-500 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 dark:border-neutral-800 pb-3">
               <div className="flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
@@ -461,7 +608,7 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
           </div>
 
           {/* Break-Even & Working Capital Buffer Details */}
-          <div data-testid="analysis-breakeven-section" className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
+          <div id="analysis-breakeven-section" data-testid="analysis-breakeven-section" className="scroll-mt-24 transition-all duration-500 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 dark:border-neutral-800 pb-3 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-indigo-700 dark:text-indigo-400" />
               <h3 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
@@ -519,12 +666,13 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             message={t.nextStepStressMsg}
             ctaLabel={t.nextStepStressCta}
             onClick={() => advanceTo('STRESS')}
+            onBackToFinalPlan={handleBackToSummary}
           />
         </div>
       </Section>
 
       {/* SECTION 5: STRESS TEST */}
-      <Section id="STRESS" title={sectionTitles.STRESS} isOpen={openSections.has('STRESS')} onToggle={() => toggleSection('STRESS')}>
+      <Section id="STRESS" title={sectionTitles.STRESS} isOpen={openSections.has('STRESS')} onToggle={() => toggleSection('STRESS')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-6">
           <StressTest financials={financials} categoryKey={businessInput.businessIdea} />
           <NextStepBanner
@@ -532,12 +680,13 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
             message={t.nextStepSchemesMsg}
             ctaLabel={t.nextStepSchemesCta}
             onClick={() => advanceTo('SCHEMES')}
+            onBackToFinalPlan={handleBackToSummary}
           />
         </div>
       </Section>
 
       {/* SECTION 6: SCHEMES & COMPLIANCE */}
-      <Section id="SCHEMES" title={sectionTitles.SCHEMES} isOpen={openSections.has('SCHEMES')} onToggle={() => toggleSection('SCHEMES')}>
+      <Section id="SCHEMES" title={sectionTitles.SCHEMES} isOpen={openSections.has('SCHEMES')} onToggle={() => toggleSection('SCHEMES')} onBackToFinalPlan={handleBackToSummary}>
         <div className="space-y-8">
           <div>
             <div className="mb-4">
@@ -643,6 +792,20 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
         </div>
       </div>
 
+      {/* Floating Quick Return Button to Final Plan */}
+      <aside aria-label="Quick navigation" className="fixed bottom-6 right-6 z-40 no-print">
+        <button
+          type="button"
+          onClick={handleBackToSummary}
+          data-testid="floating-back-to-plan-btn"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#1E3A8A] hover:bg-[#1E40AF] text-white rounded-full shadow-lg hover:shadow-xl font-extrabold text-xs transition-all cursor-pointer transform hover:-translate-y-0.5 border border-blue-400/40 backdrop-blur-sm"
+          title="Back to Final Plan Cards"
+        >
+          <ArrowLeft className="w-4 h-4 text-amber-300" />
+          <span>Back to Plan Cards</span>
+        </button>
+      </aside>
+
       {/* Mobile bottom quick-jump bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-3 shadow-lg flex items-center justify-between gap-2">
         <button
@@ -685,16 +848,37 @@ const Section: React.FC<{
   title: string;
   isOpen: boolean;
   onToggle: () => void;
+  onBackToFinalPlan?: () => void;
   children: React.ReactNode;
-}> = ({ id, title, isOpen, onToggle, children }) => (
-  <div id={`section-${id}`} className="scroll-mt-24">
-    <button
-      onClick={onToggle}
-      className="w-full flex items-center justify-between bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 px-5 py-4 shadow-2xs hover:border-indigo-200 dark:hover:border-neutral-700 transition-colors"
-    >
-      <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">{title}</span>
-      <ChevronDown className={`w-5 h-5 text-slate-400 dark:text-neutral-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-    </button>
+}> = ({ id, title, isOpen, onToggle, onBackToFinalPlan, children }) => (
+  <div id={`section-${id}`} className="scroll-mt-28">
+    <div className="w-full flex items-center justify-between bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 px-4 sm:px-5 py-3.5 sm:py-4 shadow-2xs hover:border-indigo-200 dark:hover:border-neutral-700 transition-colors">
+      <button
+        onClick={onToggle}
+        data-testid={`accordion-btn-${id}`}
+        data-open={isOpen ? 'true' : 'false'}
+        className="flex-1 flex items-center justify-between cursor-pointer text-left mr-2"
+      >
+        <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">{title}</span>
+        <ChevronDown className={`w-5 h-5 text-slate-400 dark:text-neutral-400 transition-transform shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && onBackToFinalPlan && (
+        <button
+          type="button"
+          data-testid={`back-to-plan-btn-${id}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onBackToFinalPlan();
+          }}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 border border-indigo-200 dark:border-indigo-800 transition-colors shadow-2xs cursor-pointer"
+          title="Back to Final Plan Cards"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+          <span className="hidden sm:inline">Back to Plan Cards</span>
+          <span className="sm:hidden">Plan</span>
+        </button>
+      )}
+    </div>
     {isOpen && <div className="mt-4">{children}</div>}
   </div>
 );
@@ -704,7 +888,8 @@ const NextStepBanner: React.FC<{
   message: React.ReactNode;
   ctaLabel: string;
   onClick: () => void;
-}> = ({ step, message, ctaLabel, onClick }) => (
+  onBackToFinalPlan?: () => void;
+}> = ({ step, message, ctaLabel, onClick, onBackToFinalPlan }) => (
   <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
     <div>
       <div className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
@@ -714,12 +899,24 @@ const NextStepBanner: React.FC<{
       <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">What should you do next?</h4>
       <p className="text-xs text-slate-300 mt-1">{message}</p>
     </div>
-    <button
-      onClick={onClick}
-      className="w-full sm:w-auto px-5 py-3 bg-[#1E3A8A] hover:bg-[#1E40AF] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors shrink-0 cursor-pointer"
-    >
-      <span>{ctaLabel}</span>
-      <ArrowRight className="w-4 h-4 text-white" />
-    </button>
+    <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+      {onBackToFinalPlan && (
+        <button
+          type="button"
+          onClick={onBackToFinalPlan}
+          className="flex-1 sm:flex-none px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4 text-slate-400" />
+          <span>Back to Plan Cards</span>
+        </button>
+      )}
+      <button
+        onClick={onClick}
+        className="flex-1 sm:flex-none px-5 py-3 bg-[#1E3A8A] hover:bg-[#1E40AF] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
+      >
+        <span>{ctaLabel}</span>
+        <ArrowRight className="w-4 h-4 text-white" />
+      </button>
+    </div>
   </div>
 );

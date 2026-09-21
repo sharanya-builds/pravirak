@@ -321,7 +321,7 @@ describe('FinalBusinessPlan - Presentation Redesign (Decision Summary & Accordio
 
     const jumpMarket = screen.getByTestId('jump-market');
     fireEvent.click(jumpMarket);
-    expect(handleNavigate).toHaveBeenCalledWith('MARKET');
+    expect(handleNavigate).toHaveBeenCalledWith('jump-market');
   });
 
   it('supports Short plan vs Full plan download mode toggling', () => {

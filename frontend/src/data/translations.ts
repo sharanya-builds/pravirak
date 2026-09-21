@@ -682,6 +682,24 @@ export interface TranslationStrings {
   promoterEquityExplanation: string;
   moratoriumExplanation: string;
 
+  // Repayment Schedule & Dossier Navigation
+  firstPaymentAfterMoratorium: string;
+  reducingPaymentNote: string;
+  backToSummary: string;
+  viewFullSchedule: string;
+  hideFullSchedule: string;
+  expandAllYears: string;
+  collapseAllYears: string;
+  yearLabel: string;
+  yearTotalPayment: string;
+  yearClosingBalance: string;
+  interestOnlyQuarters: string;
+  finalPayment: string;
+  totalInterest: string;
+  totalRepaid: string;
+  compactSummaryTitle: string;
+  appendixScheduleTitle: string;
+
   // Error & Progress & Map
   somethingWentWrong: string;
   unexpectedErrorDesc: string;
@@ -857,9 +875,9 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     viewFullDossier: 'View Full Dossier',
     sectionDecision: '1. Decision & Recommendation',
     sectionMap: '2. Market & Catchment Map',
-    sectionFinancials: '3. Financial Feasibility',
-    sectionStress: '4. Stress Testing',
-    sectionSchemes: '5. Schemes & Compliance',
+    sectionFinancials: '4. Financial Feasibility & Loan Amortization',
+    sectionStress: '5. Stress Testing',
+    sectionSchemes: '6. Schemes & Compliance',
     sectionAdvisor: '6. Ask Pravirak AI Advisor',
     verifiableAuditTrail: 'Verifiable Audit Trail',
     whyThisDecision: 'WHY THIS DECISION?',
@@ -1350,7 +1368,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     keyFiguresTitle: 'Key Financial Figures',
     projectCostLabel: 'Project Cost',
     loanWithSchemeLabel: 'Loan & Scheme',
-    quarterlyPaymentLabel: 'Quarterly Payment',
+    quarterlyPaymentLabel: 'First payment after moratorium',
     afterMoratoriumLabel: 'after moratorium',
     topReasonsTitle: 'Top 3 Positive Indicators',
     topRisksTitle: 'Top 3 Critical Risks to Watch',
@@ -1376,6 +1394,24 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dscrPlainExplanation: 'Debt coverage safety ratio (surplus vs EMI) — ability of profits to repay the loan',
     promoterEquityExplanation: 'Promoter Contribution (Margin Money) — your own cash investment',
     moratoriumExplanation: 'Moratorium — repayment holiday before principal EMIs start',
+
+    // Repayment Schedule & Dossier Navigation
+    firstPaymentAfterMoratorium: 'First payment after moratorium',
+    reducingPaymentNote: 'Later payments reduce each quarter as interest falls',
+    backToSummary: 'Back to summary',
+    viewFullSchedule: 'View full schedule ({n} quarters)',
+    hideFullSchedule: 'Hide full schedule',
+    expandAllYears: 'Expand all years',
+    collapseAllYears: 'Collapse all years',
+    yearLabel: 'Year {y}',
+    yearTotalPayment: 'Year Total Payment',
+    yearClosingBalance: 'Closing Balance',
+    interestOnlyQuarters: 'Interest-only Quarters',
+    finalPayment: 'Final Payment',
+    totalInterest: 'Total Interest',
+    totalRepaid: 'Total Repaid',
+    compactSummaryTitle: 'Repayment Summary',
+    appendixScheduleTitle: 'Appendix: Complete Quarterly Repayment Schedule',
 
     // Error & Progress & Map
     somethingWentWrong: 'Something went wrong',
@@ -1551,9 +1587,9 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     viewFullDossier: 'पूरा डोजियर देखें',
     sectionDecision: '1. निर्णय एवं सिफ़ारिश',
     sectionMap: '2. बाज़ार एवं स्थल मानचित्र',
-    sectionFinancials: '3. वित्तीय व्यवहार्यता',
-    sectionStress: '4. तनाव परीक्षण',
-    sectionSchemes: '5. योजनाएं एवं अनुपालन',
+    sectionFinancials: '4. वित्तीय व्यवहार्यता एवं ऋण परिशोधन',
+    sectionStress: '5. तनाव परीक्षण',
+    sectionSchemes: '6. योजनाएं एवं अनुपालन',
     sectionAdvisor: '6. प्रवीरक एआई सलाहकार से पूछें',
     verifiableAuditTrail: 'सत्यापन योग्य ऑडिट ट्रेल',
     whyThisDecision: 'यह निर्णय क्यों?',
@@ -2044,7 +2080,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     keyFiguresTitle: 'प्रमुख वित्तीय आंकड़े',
     projectCostLabel: 'परियोजना लागत',
     loanWithSchemeLabel: 'ऋण और योजना',
-    quarterlyPaymentLabel: 'त्रैमासिक किस्त',
+    quarterlyPaymentLabel: 'मोरेटोरियम के बाद पहला भुगतान',
     afterMoratoriumLabel: 'मोराटोरियम के बाद',
     topReasonsTitle: 'शीर्ष 3 सकारात्मक कारण',
     topRisksTitle: 'शीर्ष 3 महत्वपूर्ण जोखिम',
@@ -2070,6 +2106,24 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dscrPlainExplanation: 'ऋण सुरक्षा अनुपात (अधिशेष बनाम ईएमआई) — लाभ से ऋण चुकाने की क्षमता',
     promoterEquityExplanation: 'प्रमोटर योगदान (मार्जिन मनी) — आपका स्वयं का नकद निवेश',
     moratoriumExplanation: 'मोराटोरियम — मूल ईएमआई शुरू होने से पहले चुकौती की छूट',
+
+    // Repayment Schedule & Dossier Navigation
+    firstPaymentAfterMoratorium: 'मोरेटोरियम के बाद पहला भुगतान',
+    reducingPaymentNote: 'जैसे-जैसे ब्याज कम होता है, बाद के भुगतान हर तिमाही कम होते हैं',
+    backToSummary: 'सारांश पर वापस जाएं',
+    viewFullSchedule: 'पूर्ण अनुसूची देखें ({n} तिमाही)',
+    hideFullSchedule: 'पूर्ण अनुसूची छुपाएं',
+    expandAllYears: 'सभी वर्ष विस्तारित करें',
+    collapseAllYears: 'सभी वर्ष संक्षिप्त करें',
+    yearLabel: 'वर्ष {y}',
+    yearTotalPayment: 'वार्षिक कुल भुगतान',
+    yearClosingBalance: 'अंतिम शेष',
+    interestOnlyQuarters: 'केवल ब्याज वाली तिमाहियां',
+    finalPayment: 'अंतिम भुगतान',
+    totalInterest: 'कुल ब्याज',
+    totalRepaid: 'कुल चुकाया गया',
+    compactSummaryTitle: 'पुनर्भुगतान सारांश',
+    appendixScheduleTitle: 'परिशिष्ट: पूर्ण त्रैमासिक पुनर्भुगतान अनुसूची',
 
     // Error & Progress & Map
     somethingWentWrong: 'कुछ गलत हो गया',
@@ -2226,9 +2280,9 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     viewFullDossier: 'పూర్తి నివేదికను చూడండి',
     sectionDecision: '1. వ్యాపార నిర్ణయం & సిఫార్సు',
     sectionMap: '2. మార్కెట్ & క్యాచ్‌మెంట్ మ్యాప్',
-    sectionFinancials: '3. ఆర్థిక సాధ్యత & EMI',
-    sectionStress: '4. ఒత్తిడి పరీక్ష & నష్టాల తనిఖీ',
-    sectionSchemes: '5. ప్రభుత్వ పథకాలు & అనుమతులు',
+    sectionFinancials: '4. ఆర్థిక సాధ్యత & రుణ చెల్లింపులు',
+    sectionStress: '5. ఒత్తిడి పరీక్ష & నష్టాల తనిఖీ',
+    sectionSchemes: '6. ప్రభుత్వ పథకాలు & అనుమతులు',
     sectionAdvisor: '6. ప్రవీరక్ ఏఐ సలహాదారుని అడగండి',
     verifiableAuditTrail: 'ధృవీకరించదగిన ఆడిట్ వివరాలు',
     whyThisDecision: 'ఈ నిర్ణయానికి కారణాలు',
@@ -2693,7 +2747,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     keyFiguresTitle: 'ముఖ్య ఆర్థిక గణాంకాలు',
     projectCostLabel: 'ప్రాజెక్ట్ ఖర్చు',
     loanWithSchemeLabel: 'రుణం & పథకం',
-    quarterlyPaymentLabel: 'త్రైమాసిక చెల్లింపు',
+    quarterlyPaymentLabel: 'మొరటోరియం తర్వాత మొదటి చెల్లింపు',
     afterMoratoriumLabel: 'మొరటోరియం తర్వాత',
     topReasonsTitle: 'టాప్ 3 సానుకూల కారణాలు',
     topRisksTitle: 'గమనించవలసిన టాప్ 3 ప్రమాదాలు',
@@ -2719,6 +2773,24 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     dscrPlainExplanation: 'రుణ రక్షణ భద్రతా నిష్పత్తి (మిగులు vs ఈఎంఐ) — లాభాల నుండి రుణం తిరిగి చెల్లించే సామర్థ్యం',
     promoterEquityExplanation: 'ప్రమోటర్ వాటా (మార్జిన్ మనీ) — మీ స్వంత నగదు పెట్టుబడి',
     moratoriumExplanation: 'మొరటోరియం — అసలు ఈఎంఐ ప్రారంభానికి ముందు చెల్లింపు విరామం',
+
+    // Repayment Schedule & Dossier Navigation
+    firstPaymentAfterMoratorium: 'మొరటోరియం తర్వాత మొదటి చెల్లింపు',
+    reducingPaymentNote: 'వడ్డీ తగ్గేకొద్దీ తర్వాతి త్రైమాసిక చెల్లింపులు తగ్గుతాయి',
+    backToSummary: 'సారాంశానికి తిరిగి వెళ్లండి',
+    viewFullSchedule: 'పూర్తి షెడ్యూల్ చూడండి ({n} త్రైమాసికాలు)',
+    hideFullSchedule: 'పూర్తి షెడ్యూల్ దాచండి',
+    expandAllYears: 'అన్ని సంవత్సరాలను విస్తరించండి',
+    collapseAllYears: 'అన్ని సంవత్సరాలను కుదించండి',
+    yearLabel: 'సంవత్సరం {y}',
+    yearTotalPayment: 'వార్షిక మొత్తం చెల్లింపు',
+    yearClosingBalance: 'ముగింపు నిల్వ',
+    interestOnlyQuarters: 'వడ్డీ మాత్రమే చెల్లించే త్రైమాసికాలు',
+    finalPayment: 'చివరి చెల్లింపు',
+    totalInterest: 'మొత్తం వడ్డీ',
+    totalRepaid: 'మొత్తం తిరిగి చెల్లించినది',
+    compactSummaryTitle: 'రుణ చెల్లింపు సారాంశం',
+    appendixScheduleTitle: 'అనుబంధం: పూర్తి త్రైమాసిక రుణ చెల్లింపు షెడ్యూల్',
 
     // Error & Progress & Map
     somethingWentWrong: 'ఏదో పొరపాటు జరిగింది',
