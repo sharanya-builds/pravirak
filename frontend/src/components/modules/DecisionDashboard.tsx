@@ -3,6 +3,7 @@ import {
   ChevronDown,
   FileText,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Edit3,
   CheckCircle2,
@@ -36,6 +37,13 @@ import { formatINR } from '../../engine/financialEngine';
 import { getSectorCompliances } from '../../data/compliances';
 import { TRANSLATIONS } from '../../data/translations';
 import { formatLocationField } from '../../engine/locationParser';
+import {
+  SectionRegistryEntry,
+  getRegistryEntryByHash,
+  getRegistryEntryById,
+  getRegistryEntryByLegacyKey,
+  buildSectionHash
+} from '../../data/sectionRegistry';
 
 export type SectionKey = 'DECISION' | 'MAP' | 'LOCAL_FEASIBILITY' | 'FINANCIALS' | 'STRESS' | 'SCHEMES';
 
@@ -49,9 +57,11 @@ interface DecisionDashboardProps {
   currentLanguage: Language;
   isAlternativeAdopted: boolean;
   initialSection?: SectionKey;
+  targetSectionId?: string;
   onToggleAlternativeLocation: () => void;
   onEditInputs: () => void;
   onViewFullDossier: () => void;
+  onBackToSummary?: () => void;
   feasibilityReport?: LocalFeasibilityReport | null;
 }
 
@@ -76,12 +86,16 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   currentLanguage,
   isAlternativeAdopted,
   initialSection,
+  targetSectionId,
   onToggleAlternativeLocation,
   onEditInputs,
   onViewFullDossier,
+  onBackToSummary,
   feasibilityReport
 }) => {
   const [openSections, setOpenSections] = useState<Set<SectionKey>>(new Set([initialSection || 'DECISION']));
+  const [pendingTargetId, setPendingTargetId] = useState<string | null>(targetSectionId || null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const t = TRANSLATIONS[currentLanguage];
   const sectorCompliances = getSectorCompliances(businessInput.businessIdea);
 
@@ -125,14 +139,85 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
     }
   }, [feasibilityReport, loadFeasibilityReport]);
 
-  useEffect(() => {
-    if (initialSection) {
-      setOpenSections((prev) => new Set(prev).add(initialSection));
-      requestAnimationFrame(() => {
-        document.getElementById(`section-${initialSection}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+  const jumpToRegistryEntry = useCallback((entry: SectionRegistryEntry, updateHash = true) => {
+    // Expand ONLY the target tab (collapse others)
+    setOpenSections(new Set([entry.tab]));
+    setPendingTargetId(entry.sectionId);
+
+    if (updateHash && typeof window !== 'undefined') {
+      const targetHash = buildSectionHash(entry);
+      if (window.location.hash !== targetHash) {
+        window.location.hash = targetHash;
+      }
     }
-  }, [initialSection]);
+  }, []);
+
+  // Listen for browser URL hash changes (#section=swot, etc.)
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash;
+      if (!hash || hash === '#summary' || hash === '#') return;
+      const entry = getRegistryEntryByHash(hash);
+      if (entry) {
+        jumpToRegistryEntry(entry, false);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [jumpToRegistryEntry]);
+
+  // Handle initialSection or targetSectionId passed from props
+  useEffect(() => {
+    if (targetSectionId) {
+      const entry =
+        getRegistryEntryById(targetSectionId) ||
+        getRegistryEntryByHash(targetSectionId) ||
+        getRegistryEntryByLegacyKey(targetSectionId);
+      if (entry) {
+        jumpToRegistryEntry(entry, true);
+        return;
+      }
+      setPendingTargetId(targetSectionId);
+      return;
+    }
+    if (initialSection) {
+      const entry = getRegistryEntryByLegacyKey(initialSection);
+      if (entry) {
+        jumpToRegistryEntry(entry, true);
+      } else {
+        setOpenSections(new Set([initialSection]));
+        setPendingTargetId(`section-${initialSection}`);
+      }
+    }
+  }, [initialSection, targetSectionId, jumpToRegistryEntry]);
+
+  // Reactive scroll and highlight effect: executes once target element is in DOM (even if async/lazy)
+  useEffect(() => {
+    if (!pendingTargetId) return;
+
+    const el = document.getElementById(pendingTargetId);
+    if (!el) {
+      // Element not in DOM yet (e.g. async feasibility report is still loading)
+      return;
+    }
+
+    // Target element is mounted! Scroll smoothly clearing sticky header and trigger highlight
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.add('section-deep-highlight');
+    setHighlightedId(pendingTargetId);
+
+    const timer = setTimeout(() => {
+      el.classList.remove('section-deep-highlight');
+      setHighlightedId(null);
+    }, 1500);
+
+    setPendingTargetId(null);
+
+    return () => clearTimeout(timer);
+  }, [pendingTargetId, activeFeasibilityReport, openSections]);
 
   const sectionTitles: Record<SectionKey, string> = {
     DECISION: t.sectionDecision,
@@ -144,22 +229,40 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
   };
 
   const openSection = (key: SectionKey) => {
-    setOpenSections((prev) => new Set(prev).add(key));
-    requestAnimationFrame(() => {
-      document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    // Expand ONLY the target tab (collapse others)
+    setOpenSections(new Set([key]));
+    const entry = getRegistryEntryByLegacyKey(key);
+    if (entry && typeof window !== 'undefined') {
+      window.location.hash = buildSectionHash(entry);
+    }
+    setPendingTargetId(`section-${key}`);
   };
 
   const toggleSection = (key: SectionKey) => {
     setOpenSections((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
-      else next.add(key);
+      else {
+        // Expand ONLY the target section (collapse others)
+        return new Set([key]);
+      }
       return next;
     });
   };
 
   const advanceTo = (key: SectionKey) => openSection(key);
+
+  const handleBackToSummary = () => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#section=summary';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (onBackToSummary) {
+      onBackToSummary();
+    } else {
+      onViewFullDossier();
+    }
+  };
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -191,6 +294,15 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            data-testid="back-to-summary-btn"
+            onClick={handleBackToSummary}
+            className="px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1A] dark:hover:bg-[#262626] rounded-lg border border-slate-200 dark:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+            <span>{t.backToSummary}</span>
+          </button>
           <button
             onClick={onEditInputs}
             className="px-3.5 py-1.5 text-xs font-bold text-indigo-900 dark:text-white bg-indigo-50 dark:bg-[#1A1A1A] hover:bg-indigo-100 dark:hover:bg-[#262626] rounded-lg border border-indigo-200 dark:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5"
@@ -356,7 +468,7 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
           <FinancialFeasibility financials={financials} />
 
           {/* Loan Structure & Quarterly Repayment Schedule (psCalculator) */}
-          <div data-testid="analysis-loan-schedule-section" className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
+          <div id="analysis-loan-schedule-section" data-testid="analysis-loan-schedule-section" className="scroll-mt-24 transition-all duration-500 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 dark:border-neutral-800 pb-3">
               <div className="flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
@@ -461,7 +573,7 @@ export const DecisionDashboard: React.FC<DecisionDashboardProps> = ({
           </div>
 
           {/* Break-Even & Working Capital Buffer Details */}
-          <div data-testid="analysis-breakeven-section" className="bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
+          <div id="analysis-breakeven-section" data-testid="analysis-breakeven-section" className="scroll-mt-24 transition-all duration-500 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 dark:border-neutral-800 pb-3 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-indigo-700 dark:text-indigo-400" />
               <h3 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
@@ -690,7 +802,9 @@ const Section: React.FC<{
   <div id={`section-${id}`} className="scroll-mt-24">
     <button
       onClick={onToggle}
-      className="w-full flex items-center justify-between bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 px-5 py-4 shadow-2xs hover:border-indigo-200 dark:hover:border-neutral-700 transition-colors"
+      data-testid={`accordion-btn-${id}`}
+      data-open={isOpen ? 'true' : 'false'}
+      className="w-full flex items-center justify-between bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 px-5 py-4 shadow-2xs hover:border-indigo-200 dark:hover:border-neutral-700 transition-colors cursor-pointer"
     >
       <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">{title}</span>
       <ChevronDown className={`w-5 h-5 text-slate-400 dark:text-neutral-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />

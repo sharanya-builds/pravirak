@@ -182,3 +182,25 @@
     border-right-color: var(--border);
   }
 }
+
+/* Deep link target highlight animation (approx 1.5 seconds) */
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.85);
+    background-color: rgba(99, 102, 241, 0.08);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.85);
+    background-color: rgba(99, 102, 241, 0.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0px rgba(99, 102, 241, 0);
+    background-color: transparent;
+  }
+}
+
+.section-deep-highlight {
+  animation: highlight-pulse 1.5s ease-out forwards !important;
+  border-radius: 1rem;
+}
+

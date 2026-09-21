@@ -38,6 +38,7 @@ import { SchemeLoanBreakdown } from '../common/SchemeLoanBreakdown';
 import { PrimaryButton } from '../common/PrimaryButton';
 import { useLanguage } from '../../context/LanguageContext';
 import { fetchLocalFeasibilityReport } from '../../services/localFeasibilityService';
+import { SECTION_REGISTRY } from '../../data/sectionRegistry';
 
 interface FinalBusinessPlanProps {
   input: BusinessInput;
@@ -342,10 +343,10 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
               </span>
             )}
           </div>
-          <div className="bg-slate-900/90 p-2 sm:p-2.5 rounded-xl border border-slate-800">
-            <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium leading-tight">{t.quarterlyPaymentLabel}</span>
+          <div className="bg-slate-900/90 p-2 sm:p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium leading-tight">{t.firstPaymentAfterMoratorium || t.quarterlyPaymentLabel}</span>
             <strong className="text-xs sm:text-sm font-mono font-black text-emerald-400 block mt-0.5">{formatINR(quarterlyPayment)}</strong>
-            <span className="text-[9px] text-slate-400 block font-medium">({t.afterMoratoriumLabel})</span>
+            <span className="text-[8px] sm:text-[9px] text-slate-400 block font-normal leading-tight mt-0.5">{t.reducingPaymentNote}</span>
           </div>
         </div>
 
@@ -424,81 +425,30 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[
-            {
-              id: 'jump-market',
-              sectionKey: 'MARKET',
-              title: t.sectionMarketAndCompetitors || '1. Market & Competitors',
-              desc: `${location.competitorsNearbyCount} competitors • 5 km & 10 km catchment`,
-              icon: Compass,
-              color: 'text-indigo-600 dark:text-indigo-400',
-              bgColor: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/40'
-            },
-            {
-              id: 'jump-opportunities',
-              sectionKey: 'OPPORTUNITIES',
-              title: t.sectionOpportunities || '2. Opportunities & Demand',
-              desc: 'Footfall, unserved demand & customer colonies',
-              icon: Lightbulb,
-              color: 'text-amber-600 dark:text-amber-400',
-              bgColor: 'bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-900/40'
-            },
-            {
-              id: 'jump-swot',
-              sectionKey: 'SWOT',
-              title: t.sectionSwot || '3. SWOT & Risk Mitigations',
-              desc: 'Strengths, weaknesses, opportunities & threats',
-              icon: Grid2X2,
-              color: 'text-purple-600 dark:text-purple-400',
-              bgColor: 'bg-purple-50 dark:bg-purple-950/40 border-purple-100 dark:border-purple-900/40'
-            },
-            {
-              id: 'jump-financials',
-              sectionKey: 'FINANCIALS',
-              title: t.sectionLoanStructure || '4. Loan Structure & Financials',
-              desc: 'Repayment schedule, break-even & stress test',
-              icon: Landmark,
-              color: 'text-emerald-600 dark:text-emerald-400',
-              bgColor: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40'
-            },
-            {
-              id: 'jump-schemes',
-              sectionKey: 'SCHEMES',
-              title: t.sectionSchemes || '5. Schemes & Compliance',
-              desc: 'PMEGP, MUDRA, CGTMSE & statutory rules',
-              icon: Tag,
-              color: 'text-blue-600 dark:text-blue-400',
-              bgColor: 'bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/40'
-            },
-            {
-              id: 'jump-decision',
-              sectionKey: 'DECISION',
-              title: t.decisionSummaryTitle || '6. Executive Recommendation',
-              desc: 'Decision rationale & 4-pillar scores',
-              icon: FileText,
-              color: 'text-teal-600 dark:text-teal-400',
-              bgColor: 'bg-teal-50 dark:bg-teal-950/40 border-teal-100 dark:border-teal-900/40'
-            }
-          ].map((item) => {
+          {SECTION_REGISTRY.map((item) => {
             const Icon = item.icon;
+            const translatedTitle = (t as any)[item.labelKey] || item.defaultLabel;
+            const cardDesc = item.id === 'jump-market'
+              ? `${location.competitorsNearbyCount} competitors • 5 km & 10 km catchment`
+              : item.defaultDesc;
             return (
               <button
                 key={item.id}
                 type="button"
                 data-testid={item.id}
-                onClick={() => onNavigateToSection?.(item.sectionKey)}
+                onClick={() => onNavigateToSection?.(item.id)}
                 className="flex items-start justify-between p-3.5 rounded-xl border transition-all text-left group hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 bg-slate-50/70 hover:bg-white dark:bg-slate-900/40 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 cursor-pointer"
               >
-                <div className="flex items-start gap-3 min-w-0">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
                   <div className={`p-2 rounded-lg ${item.bgColor} shrink-0`}>
                     <Icon className={`w-4 h-4 ${item.color}`} />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
-                      {item.title}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                      {translatedTitle}
                     </h3>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
-                      {item.desc}
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-snug">
+                      {cardDesc}
                     </p>
                   </div>
                 </div>
@@ -1015,6 +965,7 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
                   availableMargin={reconciliation.appliedMargin}
                   businessCategory={input.businessIdea}
                   locationSummary={location.areaName}
+                  printMode={downloadMode}
                 />
               </div>
             </div>
@@ -1303,6 +1254,29 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           {/* Hidden anchor element to preserve testid for plan-local-feasibility-section */}
           <div data-testid="plan-local-feasibility-section" className="hidden" aria-hidden="true" />
 
+          {/* APPENDIX: Full Repayment Schedule (Only rendered in print for Full Plan) */}
+          {downloadMode === 'full' && reconciliation?.calculationResult && (
+            <div 
+              data-testid="print-appendix-schedule-section" 
+              className="hidden print:block pt-6 border-t-2 border-slate-900 break-before-page"
+            >
+              <div className="mb-3">
+                <h2 className="text-base font-black text-slate-950 uppercase tracking-wide">
+                  {t.appendixScheduleTitle || 'Appendix: Full Loan Repayment Schedule'}
+                </h2>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  Complete quarter-by-quarter amortisation schedule for {psSchemeName} ({psInterestRate}% p.a., {reconciliation.calculationResult.isEligible ? reconciliation.calculationResult.tenureYears : 0} years).
+                </p>
+              </div>
+              <SchemeLoanBreakdown
+                result={reconciliation.calculationResult}
+                availableMargin={reconciliation.appliedMargin}
+                businessCategory={input.businessIdea}
+                locationSummary={location.areaName}
+                isPrintAppendix={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* Official Footer & Sign-off */}

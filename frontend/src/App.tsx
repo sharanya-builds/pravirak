@@ -48,6 +48,12 @@ import { synthesizeDecision } from './engine/decisionEngine';
 import { analyzeLocationForBusiness } from './engine/locationAnalysisEngine';
 import { fetchNearbyPlaces } from './services/placesService';
 import { fetchLocalFeasibilityReport } from './services/localFeasibilityService';
+import {
+  getRegistryEntryByHash,
+  getRegistryEntryById,
+  getRegistryEntryByLegacyKey,
+  buildSectionHash
+} from './data/sectionRegistry';
 
 import { HelpCircle, X, ShieldCheck } from 'lucide-react';
 
@@ -100,6 +106,31 @@ function AppShellRouter() {
   const [hasActiveAnalysis, setHasActiveAnalysis] = useState(false);
   const [realCompetitors, setRealCompetitors] = useState<NearbyPlacesResult | null>(null);
   const [activeDashboardSection, setActiveDashboardSection] = useState<SectionKey>('DECISION');
+  const [activeDashboardTargetId, setActiveDashboardTargetId] = useState<string | undefined>(undefined);
+
+  // Sync browser back/forward and URL hash with analysis & dossier views
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash;
+      if (!hash) return;
+      if (hash === '#summary' || hash === '#dossier') {
+        if (hasActiveAnalysis) {
+          setCurrentView('FINAL_PLAN');
+        }
+      } else if (hash.startsWith('#section=')) {
+        const entry = getRegistryEntryByHash(hash);
+        if (entry && hasActiveAnalysis) {
+          setActiveDashboardSection(entry.tab);
+          setActiveDashboardTargetId(entry.sectionId);
+          setCurrentView('DECISION_DASHBOARD');
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [hasActiveAnalysis]);
 
   // Fetch real competitor places from Overpass API proxy when location/category changes
   useEffect(() => {
@@ -284,6 +315,9 @@ function AppShellRouter() {
   };
 
   const handleViewFullDossier = async () => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = 'summary';
+    }
     setCurrentView('FINAL_PLAN');
     if (user && activeBusinessDbId) {
       try {
@@ -443,8 +477,15 @@ function AppShellRouter() {
           onToggleAlternativeLocation={toggleAlternativeLocation}
           onEditInputs={() => setCurrentView('NEW_INPUT')}
           onViewFullDossier={handleViewFullDossier}
+          onBackToSummary={() => {
+            if (typeof window !== 'undefined') {
+              window.location.hash = 'summary';
+            }
+            setCurrentView('FINAL_PLAN');
+          }}
           feasibilityReport={feasibilityReport}
           initialSection={activeDashboardSection}
+          targetSectionId={activeDashboardTargetId}
         />
       )}
 
@@ -457,8 +498,23 @@ function AppShellRouter() {
           recommendedScheme={schemes[0]}
           onReset={() => setCurrentView('NEW_INPUT')}
           feasibilityReport={feasibilityReport}
-          onNavigateToSection={(sectionKey) => {
-            setActiveDashboardSection(sectionKey as SectionKey);
+          onNavigateToSection={(sectionIdOrKey) => {
+            const entry =
+              getRegistryEntryById(sectionIdOrKey) ||
+              getRegistryEntryByLegacyKey(sectionIdOrKey) ||
+              getRegistryEntryByHash(sectionIdOrKey);
+            if (entry) {
+              setActiveDashboardSection(entry.tab);
+              setActiveDashboardTargetId(entry.sectionId);
+              if (typeof window !== 'undefined') {
+                const targetHash = buildSectionHash(entry);
+                if (window.location.hash !== targetHash) {
+                  window.location.hash = targetHash;
+                }
+              }
+            } else {
+              setActiveDashboardTargetId(sectionIdOrKey);
+            }
             setCurrentView('DECISION_DASHBOARD');
           }}
         />

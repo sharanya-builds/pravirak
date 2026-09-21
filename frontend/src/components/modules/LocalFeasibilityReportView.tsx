@@ -150,18 +150,18 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </div>
 
       {/* Subsection 1: Market Reach & Catchment */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section id="section-market-reach" className="scroll-mt-24 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300">
               <Compass className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
+            <h3 className="text-base font-extrabold text-slate-950 dark:text-white">
               {t.marketReachTitle}
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-900 border border-indigo-200 font-mono">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-mono">
               {report.marketReach.catchmentKm} km
             </span>
             {renderBadge(report.provenance)}
@@ -239,13 +239,13 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </section>
 
       {/* Subsection 2: Opportunity Analysis (Underserved Niches) */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section id="section-opportunities" className="scroll-mt-24 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-300">
               <Lightbulb className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
+            <h3 className="text-base font-extrabold text-slate-950 dark:text-white">
               {t.opportunityAnalysisTitle}
             </h3>
           </div>
@@ -279,17 +279,17 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </section>
 
       {/* Subsection 3: SWOT Analysis (2x2 Grid) */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section id="section-swot" className="scroll-mt-24 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300">
               <Grid2X2 className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-950">
+              <h3 className="text-base font-extrabold text-slate-950 dark:text-white">
                 {t.swotTitle}
               </h3>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-neutral-400 font-medium">
                 Strengths, Weaknesses, Opportunities, Threats (SWOT)
               </p>
             </div>
@@ -385,13 +385,13 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </section>
 
       {/* Subsection 4: Threats & Mitigations */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section id="section-threats" className="scroll-mt-24 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-700">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-100 dark:border-rose-800 flex items-center justify-center text-rose-700 dark:text-rose-300">
               <ShieldAlert className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-950">
+            <h3 className="text-base font-extrabold text-slate-950 dark:text-white">
               {t.threatsTitle}
             </h3>
           </div>
@@ -433,14 +433,14 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </section>
 
       {/* Subsection 5: Competitor Map (from Overpass) */}
-      <section className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <section id="section-competitor-map" className="scroll-mt-24 bg-white dark:bg-[#0D0D0D] rounded-2xl border border-slate-200 dark:border-neutral-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-950">
+              <h3 className="text-base font-extrabold text-slate-950 dark:text-white">
                 {t.competitorMapTitle} (OpenStreetMap - OSM)
               </h3>
             </div>
@@ -487,7 +487,7 @@ export const LocalFeasibilityReportView: React.FC<LocalFeasibilityReportViewProp
       </section>
 
       {/* Subsection 6: Pricing Guidance */}
-      <section className="bg-white dark:bg-[#11192C] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-2xs">
+      <section id="section-pricing" className="scroll-mt-24 bg-white dark:bg-[#11192C] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-2xs transition-all duration-500">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300">
