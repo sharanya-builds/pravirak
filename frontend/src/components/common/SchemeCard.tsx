@@ -102,11 +102,11 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
       </div>
 
       {/* Footer Actions & Disclaimers */}
-      <div className="mt-5 pt-3.5 border-t border-slate-200">
-        <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 mb-3.5 flex items-start gap-2.5 text-sm sm:text-base text-amber-950 font-medium leading-relaxed">
-          <Info className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+      <div className="mt-5 pt-3.5 border-t border-slate-200 dark:border-slate-800">
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-lg p-3 mb-3.5 flex items-start gap-2.5 text-sm sm:text-base text-amber-950 dark:text-amber-200 font-medium leading-relaxed">
+          <Info className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0 mt-0.5" />
           <span>
-            <strong className="font-bold">{t.officialVerificationNote}</strong> {t.verificationDisclaimer}
+            <strong className="font-bold text-amber-950 dark:text-amber-100">{t.officialVerificationNote}</strong> {t.verificationDisclaimer}
           </span>
         </div>
 

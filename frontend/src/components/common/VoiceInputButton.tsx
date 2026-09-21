@@ -67,10 +67,11 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
 
   const isPermissionError = error === 'not-allowed' || error === 'permission-denied';
   const isNetworkError = error === 'network';
+  const isActuallyOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
   const errorMessage = isPermissionError
     ? t.voiceInputErrorPermission
     : isNetworkError
-    ? t.voiceInputErrorNetwork
+    ? (isActuallyOffline ? t.voiceInputErrorNetwork : t.voiceInputErrorServiceUnavailable)
     : t.voiceInputErrorGeneric;
 
   return (

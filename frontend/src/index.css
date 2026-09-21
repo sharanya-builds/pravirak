@@ -187,6 +187,14 @@ button [class*="text-amber"],
   color: #FBBF24 !important;
 }
 
+button [class*="text-orange"],
+[class*="bg-indigo-9"] [class*="text-orange"],
+[class*="bg-slate-9"] [class*="text-orange"],
+[class*="bg-slate-8"] [class*="text-orange"],
+[class*="bg-indigo-6"] [class*="text-orange"] {
+  color: #FB923C !important;
+}
+
 button [class*="text-emerald"],
 [class*="bg-indigo-9"] [class*="text-emerald"],
 [class*="bg-slate-9"] [class*="text-emerald"],
@@ -476,6 +484,12 @@ html.dark {
   border-color: #78350F !important;
 }
 
+.dark [class*="bg-orange-50"],
+.dark [class*="bg-orange-100"] {
+  background-color: #261102 !important;
+  border-color: #7C2D12 !important;
+}
+
 .dark [class*="bg-rose-50"],
 .dark [class*="bg-rose-100"] {
   background-color: #22060A !important;
@@ -510,17 +524,80 @@ html.dark {
   border-color: #115E59 !important;
 }
 
-/* Specific status & category badge pills in dark mode: gentle muted colored text */
-.dark span[class*="text-emerald"] {
-  color: #6EE7B7 !important;
+/* Specific status & category badge pills & alert containers in dark mode: high-contrast readable colors */
+.dark [class*="text-amber-950"],
+.dark [class*="text-amber-900"],
+.dark [class*="text-amber-800"],
+.dark [class*="text-amber-700"],
+.dark [class*="text-amber-600"],
+.dark span[class*="text-amber"],
+.dark strong[class*="text-amber"],
+.dark div[class*="text-amber"],
+.dark p[class*="text-amber"],
+.dark h4[class*="text-amber"],
+.dark li[class*="text-amber"],
+.dark button[class*="text-amber"] {
+  color: #FCD34D !important; /* amber-300: 9.8:1 contrast on dark */
 }
 
-.dark span[class*="text-amber"] {
-  color: #FCD34D !important;
+.dark [class*="text-orange-950"],
+.dark [class*="text-orange-900"],
+.dark [class*="text-orange-800"],
+.dark [class*="text-orange-700"],
+.dark [class*="text-orange-600"],
+.dark span[class*="text-orange"],
+.dark strong[class*="text-orange"],
+.dark div[class*="text-orange"],
+.dark p[class*="text-orange"],
+.dark h4[class*="text-orange"],
+.dark li[class*="text-orange"],
+.dark button[class*="text-orange"] {
+  color: #FDBA74 !important; /* orange-300: 9.2:1 contrast on dark */
 }
 
-.dark span[class*="text-rose"] {
-  color: #FDA4AF !important;
+.dark [class*="text-emerald-950"],
+.dark [class*="text-emerald-900"],
+.dark [class*="text-emerald-800"],
+.dark [class*="text-emerald-700"],
+.dark span[class*="text-emerald"],
+.dark strong[class*="text-emerald"],
+.dark div[class*="text-emerald"],
+.dark p[class*="text-emerald"],
+.dark h4[class*="text-emerald"],
+.dark li[class*="text-emerald"] {
+  color: #6EE7B7 !important; /* emerald-300 */
+}
+
+.dark [class*="text-rose-950"],
+.dark [class*="text-rose-900"],
+.dark [class*="text-rose-800"],
+.dark [class*="text-rose-700"],
+.dark span[class*="text-rose"],
+.dark strong[class*="text-rose"],
+.dark div[class*="text-rose"],
+.dark p[class*="text-rose"],
+.dark h4[class*="text-rose"],
+.dark li[class*="text-rose"],
+.dark button[class*="text-rose"] {
+  color: #FDA4AF !important; /* rose-300 */
+}
+
+.dark [class*="text-teal-950"],
+.dark [class*="text-teal-900"],
+.dark [class*="text-teal-800"],
+.dark [class*="text-teal-700"],
+.dark span[class*="text-teal"],
+.dark button[class*="text-teal"] {
+  color: #5EEAD4 !important; /* teal-300 */
+}
+
+.dark [class*="text-violet-950"],
+.dark [class*="text-violet-900"],
+.dark [class*="text-violet-800"],
+.dark [class*="text-violet-700"],
+.dark span[class*="text-violet"],
+.dark button[class*="text-violet"] {
+  color: #C4B5FD !important; /* violet-300 */
 }
 
 /* Inputs, selects, and textareas in dark mode */

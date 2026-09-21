@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { FinalBusinessPlan } from './FinalBusinessPlan';
 import { LanguageProvider } from '../../context/LanguageContext';
 import { BusinessInput, LocationData, FinancialAnalysis, BusinessDecisionResult, GovernmentScheme } from '../../types';
@@ -235,3 +235,133 @@ describe('FinalBusinessPlan - Government Scheme Loan Structure & Location', () =
     expect(screen.queryByTestId('plan-scheme-loan-section')).not.toBeInTheDocument();
   });
 });
+
+describe('FinalBusinessPlan - Presentation Redesign (Decision Summary & Accordions)', () => {
+  it('renders Decision Summary card with key numbers and derived reasons/risks without extra calls', () => {
+    renderPlan();
+
+    const summaryCard = screen.getByTestId('decision-summary-card');
+    expect(summaryCard).toBeInTheDocument();
+
+    // Decision badge and headline
+    expect(summaryCard).toHaveTextContent('START HERE');
+    expect(summaryCard).toHaveTextContent('Strong demand and viability');
+
+    // 3 Key Figures
+    expect(summaryCard).toHaveTextContent('10,00,000'); // Project cost
+    expect(summaryCard).toHaveTextContent('9,00,000');  // Loan amount
+    expect(summaryCard).toHaveTextContent('Term Loan Scheme'); // Scheme name
+    expect(summaryCard).toHaveTextContent('8%'); // Interest rate
+    expect(summaryCard).toHaveTextContent('52,615'); // Quarterly payment after moratorium from psCalculator schedule
+
+    // Top reasons and risks
+    expect(summaryCard).toHaveTextContent(/Top 3 Positive Indicators/i);
+    expect(summaryCard).toHaveTextContent(/Top 3 Critical Risks/i);
+
+    // "Do this first" next step
+    expect(summaryCard).toHaveTextContent(/Do This First/i);
+    expect(summaryCard).toHaveTextContent('Secure Premises');
+  });
+
+  it('renders all section accordions collapsed by default and toggles correctly', () => {
+    renderPlan();
+
+    // Accordions exist
+    const marketAccordion = screen.getByTestId('accordion-market-competitors');
+    const opportunitiesAccordion = screen.getByTestId('accordion-opportunities');
+    const swotAccordion = screen.getByTestId('accordion-swot');
+    const threatsAccordion = screen.getByTestId('accordion-threats');
+    const pricingAccordion = screen.getByTestId('accordion-pricing-guidance');
+    const breakevenAccordion = screen.getByTestId('accordion-breakeven');
+    const stressAccordion = screen.getByTestId('accordion-stress-tests');
+    const howCalcAccordion = screen.getByTestId('accordion-how-calculated');
+    const actionPlanAccordion = screen.getByTestId('accordion-action-plan');
+
+    expect(marketAccordion).toBeInTheDocument();
+    expect(opportunitiesAccordion).toBeInTheDocument();
+    expect(swotAccordion).toBeInTheDocument();
+    expect(threatsAccordion).toBeInTheDocument();
+    expect(pricingAccordion).toBeInTheDocument();
+    expect(breakevenAccordion).toBeInTheDocument();
+    expect(stressAccordion).toBeInTheDocument();
+    expect(howCalcAccordion).toBeInTheDocument();
+    expect(actionPlanAccordion).toBeInTheDocument();
+
+    // Collapsed by default (button aria-expanded is false)
+    const marketBtn = marketAccordion.querySelector('button');
+    expect(marketBtn).toHaveAttribute('aria-expanded', 'false');
+
+    // Click to expand
+    fireEvent.click(marketBtn!);
+    expect(marketBtn).toHaveAttribute('aria-expanded', 'true');
+
+    // Click again to collapse
+    fireEvent.click(marketBtn!);
+    expect(marketBtn).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('renders Jump to Section list on screen and navigates to the matching section', () => {
+    const handleNavigate = vi.fn();
+    render(
+      <LanguageProvider>
+        <FinalBusinessPlan
+          input={mockInput}
+          location={mockLocation}
+          financials={mockFinancials}
+          decisionResult={mockDecision}
+          recommendedScheme={mockScheme}
+          onReset={vi.fn()}
+          onNavigateToSection={handleNavigate}
+        />
+      </LanguageProvider>
+    );
+
+    const jumpList = screen.getByTestId('jump-to-sections-list');
+    expect(jumpList).toBeInTheDocument();
+
+    const jumpMarket = screen.getByTestId('jump-market');
+    fireEvent.click(jumpMarket);
+    expect(handleNavigate).toHaveBeenCalledWith('MARKET');
+  });
+
+  it('supports Short plan vs Full plan download mode toggling', () => {
+    renderPlan();
+
+    const shortBtn = screen.getByTestId('download-mode-short');
+    const fullBtn = screen.getByTestId('download-mode-full');
+
+    expect(shortBtn).toBeInTheDocument();
+    expect(fullBtn).toBeInTheDocument();
+
+    // Short plan is active by default
+    expect(shortBtn).toHaveClass('font-bold');
+
+    // Toggle to Full plan
+    fireEvent.click(fullBtn);
+    expect(fullBtn).toHaveClass('font-bold');
+  });
+
+  it('asserts no section was removed and all critical previous IDs/testids exist in the DOM', () => {
+    renderPlan();
+
+    // Critical section IDs and testids from the original document
+    expect(screen.getByTestId('plan-village')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-block')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-district')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-state')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-scheme-loan-section')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-fully-funded-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('max-supportable-project')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calculated-card')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calc-m')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calc-b')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calc-required-margin')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calc-max-supportable')).toBeInTheDocument();
+    expect(screen.getByTestId('how-calc-applied-case')).toBeInTheDocument();
+    expect(screen.getByTestId('scheme-loan-breakdown')).toBeInTheDocument();
+    expect(screen.getByTestId('val-project-cost')).toBeInTheDocument();
+    expect(screen.getByTestId('val-max-loan')).toBeInTheDocument();
+    expect(screen.getByTestId('plan-local-feasibility-section')).toBeInTheDocument();
+  });
+});
+

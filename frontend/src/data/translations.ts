@@ -647,6 +647,40 @@ export interface TranslationStrings {
   voiceInputErrorNetwork: string;
   voiceInputErrorGeneric: string;
   aiAnswerAttribution: string;
+  voiceInputErrorServiceUnavailable: string;
+
+  // Plan Presentation Redesign
+  decisionSummaryTitle: string;
+  oneSentenceReasonLabel: string;
+  keyFiguresTitle: string;
+  projectCostLabel: string;
+  loanWithSchemeLabel: string;
+  quarterlyPaymentLabel: string;
+  afterMoratoriumLabel: string;
+  topReasonsTitle: string;
+  topRisksTitle: string;
+  doThisFirstTitle: string;
+  expandAll: string;
+  collapseAll: string;
+  shortPlan: string;
+  shortPlanDesc: string;
+  fullPlan: string;
+  fullPlanDesc: string;
+  showMore: string;
+  showLess: string;
+  sectionMarketAndCompetitors: string;
+  sectionOpportunities: string;
+  sectionSwot: string;
+  sectionThreats: string;
+  sectionPricingGuidance: string;
+  sectionLoanStructure: string;
+  sectionBreakeven: string;
+  sectionStressTests: string;
+  sectionHowCalculated: string;
+  sectionNextSteps: string;
+  dscrPlainExplanation: string;
+  promoterEquityExplanation: string;
+  moratoriumExplanation: string;
 
   // Error & Progress & Map
   somethingWentWrong: string;
@@ -1248,7 +1282,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     shareSummaryTitle: 'Share summary',
     observationsLabel: 'Observations:',
     selectionReasonLabel: 'Selection Reason:',
-    footfallInRadialCatchment: 'within 1.5 km radial catchment. Monthly estimated consumer pedestrian footfall stands at',
+    footfallInRadialCatchment: 'across 5 km and 10 km radial catchments. Monthly estimated consumer pedestrian footfall stands at',
 
     // Local Feasibility View
     loadingFeasibilityScanning: 'Scanning spatial catchment radius (5 km & 10 km) via OpenStreetMap and compiling multi-dimensional feasibility schedule.',
@@ -1256,7 +1290,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     expanded10kmCatchment: 'Expanded 10 km trade catchment',
     calculatedAgainstPop: 'Calculated against verified population',
     mitigationStrategyLabel: 'Mitigation Strategy:',
-    withinPrimary15kmZone: 'within the primary 1.5 km zone of',
+    withinPrimary15kmZone: 'within the primary 5 km & 10 km zones of',
     competitorNameHeader: 'Competitor Name',
     distanceFromSiteHeader: 'Distance from Site',
     categoryTagHeader: 'Category Tag',
@@ -1308,6 +1342,40 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     voiceInputErrorNetwork: 'Voice recognition needs an internet connection. Please check your network.',
     voiceInputErrorGeneric: 'Could not recognize speech. Please try speaking again.',
     aiAnswerAttribution: 'AI-generated explanation. Numbers come from PRAVIRAK\u2019s calculations.',
+    voiceInputErrorServiceUnavailable: 'Voice recognition service is unavailable in this browser. Please type directly or check browser microphone settings.',
+
+    // Plan Presentation Redesign
+    decisionSummaryTitle: 'Decision Summary',
+    oneSentenceReasonLabel: 'Decision Reason',
+    keyFiguresTitle: 'Key Financial Figures',
+    projectCostLabel: 'Project Cost',
+    loanWithSchemeLabel: 'Loan & Scheme',
+    quarterlyPaymentLabel: 'Quarterly Payment',
+    afterMoratoriumLabel: 'after moratorium',
+    topReasonsTitle: 'Top 3 Positive Indicators',
+    topRisksTitle: 'Top 3 Critical Risks to Watch',
+    doThisFirstTitle: 'Do This First',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+    shortPlan: 'Short Plan',
+    shortPlanDesc: 'Summary & loan schedule (max 2 pages)',
+    fullPlan: 'Full Plan',
+    fullPlanDesc: 'Complete dossier with detailed appendix',
+    showMore: 'Show More',
+    showLess: 'Show Less',
+    sectionMarketAndCompetitors: 'Market & Competitors',
+    sectionOpportunities: 'Opportunities & Underserved Niches',
+    sectionSwot: 'SWOT Analysis',
+    sectionThreats: 'Operational Threats & Mitigations',
+    sectionPricingGuidance: 'Pricing Guidance',
+    sectionLoanStructure: 'Loan Structure & Quarterly Schedule',
+    sectionBreakeven: 'Break-Even & Working Capital Buffer',
+    sectionStressTests: 'Stress Tests & Sensitivity',
+    sectionHowCalculated: 'How This Was Calculated',
+    sectionNextSteps: 'Action Plan & Next Steps',
+    dscrPlainExplanation: 'Debt coverage safety ratio (surplus vs EMI) — ability of profits to repay the loan',
+    promoterEquityExplanation: 'Promoter Contribution (Margin Money) — your own cash investment',
+    moratoriumExplanation: 'Moratorium — repayment holiday before principal EMIs start',
 
     // Error & Progress & Map
     somethingWentWrong: 'Something went wrong',
@@ -1908,7 +1976,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     shareSummaryTitle: 'सारांश साझा करें',
     observationsLabel: 'अवलोकन:',
     selectionReasonLabel: 'चयन का कारण:',
-    footfallInRadialCatchment: '1.5 किमी के दायरे में। अनुमानित मासिक ग्राहक फुटफॉल है',
+    footfallInRadialCatchment: '5 किमी और 10 किमी के दायरे में। अनुमानित मासिक ग्राहक फुटफॉल है',
 
     // Local Feasibility View
     loadingFeasibilityScanning: 'OpenStreetMap के माध्यम से 5 किमी और 10 किमी के दायरे को स्कैन किया जा रहा है और बहु-आयामी व्यवहार्यता रिपोर्ट तैयार की जा रही है।',
@@ -1916,7 +1984,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     expanded10kmCatchment: 'विस्तारित 10 किमी व्यापार क्षेत्र',
     calculatedAgainstPop: 'सत्यापित जनसंख्या के आधार पर गणना',
     mitigationStrategyLabel: 'निवारण रणनीति:',
-    withinPrimary15kmZone: 'के प्राथमिक 1.5 किमी क्षेत्र में',
+    withinPrimary15kmZone: 'के प्राथमिक 5 किमी व 10 किमी क्षेत्र में',
     competitorNameHeader: 'प्रतिस्पर्धी का नाम',
     distanceFromSiteHeader: 'स्थान से दूरी',
     categoryTagHeader: 'श्रेणी टैग',
@@ -1968,6 +2036,40 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     voiceInputErrorNetwork: 'वॉइस पहचान के लिए इंटरनेट कनेक्शन चाहिए। कृपया नेटवर्क जांचें।',
     voiceInputErrorGeneric: 'आवाज़ पहचानी नहीं जा सकी। कृपया पुनः बोलें।',
     aiAnswerAttribution: 'AI-जनित विवरण। संख्याएँ PRAVIRAK की गणनाओं से आती हैं।',
+    voiceInputErrorServiceUnavailable: 'इस ब्राउज़र में वॉइस पहचान सेवा उपलब्ध नहीं है। कृपया लिखकर दर्ज करें।',
+
+    // Plan Presentation Redesign
+    decisionSummaryTitle: 'निर्णय सारांश',
+    oneSentenceReasonLabel: 'निर्णय का कारण',
+    keyFiguresTitle: 'प्रमुख वित्तीय आंकड़े',
+    projectCostLabel: 'परियोजना लागत',
+    loanWithSchemeLabel: 'ऋण और योजना',
+    quarterlyPaymentLabel: 'त्रैमासिक किस्त',
+    afterMoratoriumLabel: 'मोराटोरियम के बाद',
+    topReasonsTitle: 'शीर्ष 3 सकारात्मक कारण',
+    topRisksTitle: 'शीर्ष 3 महत्वपूर्ण जोखिम',
+    doThisFirstTitle: 'पहले यह कदम उठाएं',
+    expandAll: 'सभी खोलें',
+    collapseAll: 'सभी बंद करें',
+    shortPlan: 'संक्षिप्त योजना',
+    shortPlanDesc: 'सारांश और ऋण अनुसूची (अधिकतम 2 पृष्ठ)',
+    fullPlan: 'पूर्ण योजना',
+    fullPlanDesc: 'विस्तृत परिशिष्ट सहित संपूर्ण डोजियर',
+    showMore: 'और देखें',
+    showLess: 'कम देखें',
+    sectionMarketAndCompetitors: 'बाजार और प्रतियोगी',
+    sectionOpportunities: 'अवसर और विशिष्ट बाजार',
+    sectionSwot: 'SWOT विश्लेषण',
+    sectionThreats: 'व्यावसायिक खतरे और शमन',
+    sectionPricingGuidance: 'मूल्य निर्धारण मार्गदर्शन',
+    sectionLoanStructure: 'ऋण संरचना और त्रैमासिक अनुसूची',
+    sectionBreakeven: 'ब्रेक-इवेन और कार्यशील पूंजी',
+    sectionStressTests: 'तनाव परीक्षण और संवेदनशीलता',
+    sectionHowCalculated: 'इसकी गणना कैसे की गई',
+    sectionNextSteps: 'कार्य योजना और अगले कदम',
+    dscrPlainExplanation: 'ऋण सुरक्षा अनुपात (अधिशेष बनाम ईएमआई) — लाभ से ऋण चुकाने की क्षमता',
+    promoterEquityExplanation: 'प्रमोटर योगदान (मार्जिन मनी) — आपका स्वयं का नकद निवेश',
+    moratoriumExplanation: 'मोराटोरियम — मूल ईएमआई शुरू होने से पहले चुकौती की छूट',
 
     // Error & Progress & Map
     somethingWentWrong: 'कुछ गलत हो गया',
@@ -2523,7 +2625,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     shareSummaryTitle: 'సారాంశాన్ని పంచుకోండి',
     observationsLabel: 'గమనికలు:',
     selectionReasonLabel: 'ఎంపిక కారణం:',
-    footfallInRadialCatchment: '1.5 కి.మీ పరిధిలో. అంచనా వేసిన నెలవారీ కస్టమర్ రద్దీ',
+    footfallInRadialCatchment: '5 కి.మీ & 10 కి.మీ పరిధిలో. అంచనా వేసిన నెలవారీ కస్టమర్ రద్దీ',
 
     // Local Feasibility View
     loadingFeasibilityScanning: 'OpenStreetMap ద్వారా 5 కి.మీ & 10 కి.మీ ప్రాంతాన్ని స్కాన్ చేస్తూ బహుముఖ సాధ్యాసాధ్యాల నివేదికను రూపొందిస్తున్నాము.',
@@ -2531,7 +2633,7 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     expanded10kmCatchment: 'విస్తరించిన 10 కి.మీ వ్యాపార ప్రాంతం',
     calculatedAgainstPop: 'ధృవీకరించబడిన జనాభా ఆధారంగా లెక్కించబడింది',
     mitigationStrategyLabel: 'పరిష్కార వ్యూహం:',
-    withinPrimary15kmZone: 'యొక్క ప్రధాన 1.5 కి.మీ పరిధిలో',
+    withinPrimary15kmZone: 'యొక్క ప్రధాన 5 కి.మీ & 10 కి.మీ పరిధిలో',
     competitorNameHeader: 'పోటీదారు పేరు',
     distanceFromSiteHeader: 'వ్యాపార స్థలం నుండి దూరం',
     categoryTagHeader: 'వర్గం ట్యాగ్',
@@ -2583,6 +2685,40 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
     voiceInputErrorNetwork: 'వాయిస్ గుర్తింపుకు ఇంటర్నెట్ అవసరం. దయచేసి నెట్‌వర్క్ తనిఖీ చేయండి.',
     voiceInputErrorGeneric: 'వాయిస్‌ను గుర్తించలేకపోయాము. దయచేసి మళ్ళీ మాట్లాడండి.',
     aiAnswerAttribution: 'AI రూపొందించిన వివరణ. సంఖ్యలు PRAVIRAK లెక్కల నుండి వస్తాయి.',
+    voiceInputErrorServiceUnavailable: 'ఈ బ్రౌజర్‌లో వాయిస్ రికగ్నిషన్ సేవ అందుబాటులో లేదు. దయచేసి నేరుగా టైప్ చేయండి.',
+
+    // Plan Presentation Redesign
+    decisionSummaryTitle: 'నిర్ణయ సారాంశం',
+    oneSentenceReasonLabel: 'నిర్ణయం కారణం',
+    keyFiguresTitle: 'ముఖ్య ఆర్థిక గణాంకాలు',
+    projectCostLabel: 'ప్రాజెక్ట్ ఖర్చు',
+    loanWithSchemeLabel: 'రుణం & పథకం',
+    quarterlyPaymentLabel: 'త్రైమాసిక చెల్లింపు',
+    afterMoratoriumLabel: 'మొరటోరియం తర్వాత',
+    topReasonsTitle: 'టాప్ 3 సానుకూల కారణాలు',
+    topRisksTitle: 'గమనించవలసిన టాప్ 3 ప్రమాదాలు',
+    doThisFirstTitle: 'ముందుగా ఇది చేయండి',
+    expandAll: 'అన్నీ విస్తరించండి',
+    collapseAll: 'అన్నీ మూసివేయండి',
+    shortPlan: 'సంక్షిప్త ప్రణాళిక',
+    shortPlanDesc: 'సారాంశం & రుణ షెడ్యూల్ (గరిష్టంగా 2 పేజీలు)',
+    fullPlan: 'పూర్తి ప్రణాళిక',
+    fullPlanDesc: 'వివరణాత్మక అనుబంధంతో పూర్తి నివేదిక',
+    showMore: 'మరిన్ని చూడండి',
+    showLess: 'తక్కువ చూడండి',
+    sectionMarketAndCompetitors: 'మార్కెట్ & పోటీదారులు',
+    sectionOpportunities: 'అవకాశాలు & అనువైన విభాగాలు',
+    sectionSwot: 'SWOT విశ్లేషణ',
+    sectionThreats: 'కార్యాచరణ బెదిరింపులు & పరిష్కారాలు',
+    sectionPricingGuidance: 'ధరల మార్గదర్శకత్వం',
+    sectionLoanStructure: 'రుణ నిర్మాణం & త్రైమాసిక షెడ్యూల్',
+    sectionBreakeven: 'బ్రేక్-ఈవెన్ & వర్కింగ్ క్యాపిటల్ బఫర్',
+    sectionStressTests: 'స్ట్రెస్ టెస్ట్‌లు & సున్నితత్వ విశ్లేషణ',
+    sectionHowCalculated: 'ఇది ఎలా లెక్కించబడింది',
+    sectionNextSteps: 'కార్యాచరణ ప్రణాళిక & తదుపరి దశలు',
+    dscrPlainExplanation: 'రుణ రక్షణ భద్రతా నిష్పత్తి (మిగులు vs ఈఎంఐ) — లాభాల నుండి రుణం తిరిగి చెల్లించే సామర్థ్యం',
+    promoterEquityExplanation: 'ప్రమోటర్ వాటా (మార్జిన్ మనీ) — మీ స్వంత నగదు పెట్టుబడి',
+    moratoriumExplanation: 'మొరటోరియం — అసలు ఈఎంఐ ప్రారంభానికి ముందు చెల్లింపు విరామం',
 
     // Error & Progress & Map
     somethingWentWrong: 'ఏదో పొరపాటు జరిగింది',

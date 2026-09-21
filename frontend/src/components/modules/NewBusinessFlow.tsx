@@ -379,13 +379,13 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
                 <div className="flex flex-wrap gap-2">
                   {quickIdeas.map((idea, idx) => {
                     const pillThemes = [
-                      'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200/90',
-                      'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200/90',
-                      'bg-sky-50 hover:bg-sky-100 text-sky-950 border-sky-200/90',
-                      'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-200/90',
-                      'bg-teal-50 hover:bg-teal-100 text-teal-950 border-teal-200/90',
-                      'bg-violet-50 hover:bg-violet-100 text-violet-950 border-violet-200/90',
-                      'bg-orange-50 hover:bg-orange-100 text-orange-950 border-orange-200/90',
+                      'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200/90 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 dark:text-amber-200 dark:border-amber-800/80',
+                      'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200/90 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 dark:text-emerald-200 dark:border-emerald-800/80',
+                      'bg-sky-50 hover:bg-sky-100 text-sky-950 border-sky-200/90 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 dark:text-sky-200 dark:border-sky-800/80',
+                      'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-200/90 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-200 dark:border-rose-800/80',
+                      'bg-teal-50 hover:bg-teal-100 text-teal-950 border-teal-200/90 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 dark:text-teal-200 dark:border-teal-800/80',
+                      'bg-violet-50 hover:bg-violet-100 text-violet-950 border-violet-200/90 dark:bg-violet-950/40 dark:hover:bg-violet-900/50 dark:text-violet-200 dark:border-violet-800/80',
+                      'bg-orange-50 hover:bg-orange-100 text-orange-950 border-orange-200/90 dark:bg-orange-950/40 dark:hover:bg-orange-900/50 dark:text-orange-200 dark:border-orange-800/80',
                     ];
                     const inactiveTheme = pillThemes[idx % pillThemes.length];
 
@@ -489,12 +489,12 @@ export const NewBusinessFlow: React.FC<NewBusinessFlowProps> = ({
                   <div
                     className={`mt-4 p-3.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2.5 transition-all ${
                       liveSchemePreview.eligible
-                        ? 'bg-indigo-50/70 border-indigo-200/80 text-indigo-950'
-                        : 'bg-amber-50 border-amber-200 text-amber-900'
+                        ? 'bg-indigo-50/70 border-indigo-200/80 text-indigo-950 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-200'
+                        : 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200'
                     }`}
                     data-testid="capital-live-preview"
                   >
-                    <Landmark className="w-4 h-4 text-indigo-900 shrink-0" />
+                    <Landmark className="w-4 h-4 text-indigo-900 dark:text-amber-400 shrink-0" />
                     <span>{liveSchemePreview.text}</span>
                   </div>
                 )}

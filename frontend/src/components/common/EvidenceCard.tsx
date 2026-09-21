@@ -11,8 +11,8 @@ interface EvidenceBadgeProps {
 export const EvidenceBadge: React.FC<EvidenceBadgeProps> = ({ type, provenance }) => {
   const { language } = useLanguage();
 
-  const isMeasured = provenance === 'MEASURED' || type === 'Observed' || type === 'Sourced';
-  const isAi = provenance === 'AI_GENERATED' || type === 'AI interpretation';
+  const isMeasured = provenance === 'MEASURED';
+  const isAi = provenance === 'AI_GENERATED' || provenance === 'AI INTERPRETATION' || type === 'AI interpretation';
 
   if (isMeasured) {
     return (
@@ -47,14 +47,20 @@ interface EvidenceCardProps {
 export const EvidenceCard: React.FC<EvidenceCardProps> = ({ item }) => {
   const { language } = useLanguage();
 
+  // Audit: "Remove HIGH CONFIDENCE from anything not MEASURED"
+  const isMeasured = item.provenance === 'MEASURED';
+  const effectiveConfidence: ConfidenceLevel = (isMeasured && item.confidence === 'HIGH')
+    ? 'HIGH'
+    : (item.confidence === 'LOW' ? 'LOW' : 'MEDIUM');
+
   const getConfidenceBadge = (confidence: ConfidenceLevel) => {
     switch (confidence) {
       case 'HIGH':
-        return 'bg-emerald-100 text-emerald-900 border-emerald-300';
+        return 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800';
       case 'MEDIUM':
-        return 'bg-amber-100 text-amber-900 border-amber-300';
+        return 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800';
       case 'LOW':
-        return 'bg-slate-100 text-slate-700 border-slate-300';
+        return 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
     }
   };
 
@@ -89,8 +95,8 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({ item }) => {
                 {item.vintage}
               </span>
             )}
-            <span className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md border uppercase ${getConfidenceBadge(item.confidence)}`}>
-              {getConfidenceText(item.confidence)}
+            <span className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md border uppercase ${getConfidenceBadge(effectiveConfidence)}`}>
+              {getConfidenceText(effectiveConfidence)}
             </span>
           </div>
         </div>
