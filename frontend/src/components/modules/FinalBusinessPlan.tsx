@@ -21,6 +21,7 @@ import {
   Calendar,
   FileText,
   ArrowRight,
+  ArrowLeft,
   TrendingUp
 } from 'lucide-react';
 import { 
@@ -290,6 +291,19 @@ export const FinalBusinessPlan: React.FC<FinalBusinessPlanProps> = ({
           >
             {t.downloadPrintPlan}
           </PrimaryButton>
+
+          {onNavigateToSection && (
+            <button
+              type="button"
+              data-testid="back-to-analysis-cards-btn"
+              onClick={() => onNavigateToSection('DECISION')}
+              className="px-3.5 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#2A2A2A] rounded-xl border border-slate-300 dark:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+              title="Back to Original Analysis Cards"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Back to Analysis Cards</span>
+            </button>
+          )}
 
           <PrimaryButton
             onClick={onReset}

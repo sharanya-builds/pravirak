@@ -281,4 +281,72 @@ describe('Section Registry & Deep Links (PART 1)', () => {
     fireEvent.click(screen.getByTestId('accordion-btn-LOCAL_FEASIBILITY'));
     expect(container.querySelector('#section-LOCAL_FEASIBILITY')).not.toBeNull();
   });
+
+  it('provides back-to-plan button in open accordion headers and floating back button that return to plan/summary', () => {
+    const handleBack = vi.fn();
+    render(
+      <LanguageProvider>
+        <DecisionDashboard
+          businessInput={mockInput}
+          baseLocation={mockLocation}
+          activeLocation={mockLocation}
+          financials={mockFinancials}
+          decisionResult={mockDecision}
+          schemes={GOVERNMENT_SCHEMES}
+          currentLanguage="en"
+          isAlternativeAdopted={false}
+          onToggleAlternativeLocation={vi.fn()}
+          onEditInputs={vi.fn()}
+          onViewFullDossier={vi.fn()}
+          onBackToSummary={handleBack}
+          initialSection="DECISION"
+        />
+      </LanguageProvider>
+    );
+
+    // Open card has a back-to-plan button in its header
+    const cardBackBtn = screen.getByTestId('back-to-plan-btn-DECISION');
+    expect(cardBackBtn).toBeInTheDocument();
+    fireEvent.click(cardBackBtn);
+    expect(handleBack).toHaveBeenCalledTimes(1);
+
+    // Floating back button exists on screen
+    const floatingBtn = screen.getByTestId('floating-back-to-plan-btn');
+    expect(floatingBtn).toBeInTheDocument();
+    fireEvent.click(floatingBtn);
+    expect(handleBack).toHaveBeenCalledTimes(2);
+  });
+
+  it('toggling an accordion down triggers scrolling to the beginning of that analysis section', async () => {
+    render(
+      <LanguageProvider>
+        <DecisionDashboard
+          businessInput={mockInput}
+          baseLocation={mockLocation}
+          activeLocation={mockLocation}
+          financials={mockFinancials}
+          decisionResult={mockDecision}
+          schemes={GOVERNMENT_SCHEMES}
+          currentLanguage="en"
+          isAlternativeAdopted={false}
+          onToggleAlternativeLocation={vi.fn()}
+          onEditInputs={vi.fn()}
+          onViewFullDossier={vi.fn()}
+          initialSection="DECISION"
+        />
+      </LanguageProvider>
+    );
+
+    // Toggle FINANCIALS card down (open)
+    fireEvent.click(screen.getByTestId('accordion-btn-FINANCIALS'));
+
+    // Verify FINANCIALS is now open
+    expect(screen.getByTestId('accordion-btn-FINANCIALS')).toHaveAttribute('data-open', 'true');
+
+    // Verify scroll was invoked for the section
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+    });
+  });
 });
+
