@@ -23,43 +23,42 @@ PRAVIRAK solves this by coupling server-side geospatial intelligence (OpenStreet
 Guides first-generation entrepreneurs through business selection, OpenStreetMap location search (with village/block/district parsing), and promoter margin entry. Interactively displays a live preview of the eligible scheme, project cost, and maximum loan before submission.
 - **Implementation**: [`frontend/src/components/modules/NewBusinessFlow.tsx`](frontend/src/components/modules/NewBusinessFlow.tsx), [`frontend/src/engine/psCalculator.ts`](frontend/src/engine/psCalculator.ts)
 - **Test File**: [`frontend/src/components/modules/NewBusinessFlow.test.tsx`](frontend/src/components/modules/NewBusinessFlow.test.tsx)
-- **Screenshot**: `docs/screenshots/01-landing-and-input.png`, `docs/screenshots/02-live-scheme-preview.png`
 
 ### 2. Decision Summary Card (Mobile-First 360x800)
 A concise header card fitting single-screen viewport displaying the synthesis decision (START HERE / MOVE / CHANGE / ADJUST / VALIDATE FIRST), three key numbers (project cost, loan with scheme name and rate, quarterly payment after moratorium), top 3 reasons, top 3 risks, and one clear "Do this first" launch action.
 - **Implementation**: [`frontend/src/components/modules/FinalBusinessPlan.tsx`](frontend/src/components/modules/FinalBusinessPlan.tsx) (lines 325-420), [`frontend/src/engine/decisionEngine.ts`](frontend/src/engine/decisionEngine.ts)
 - **Test File**: [`frontend/src/components/modules/FinalBusinessPlan.test.tsx`](frontend/src/components/modules/FinalBusinessPlan.test.tsx), [`frontend/src/components/modules/Deduplication.test.tsx`](frontend/src/components/modules/Deduplication.test.tsx)
-- **Screenshot**: `docs/screenshots/03-decision-summary.png`
+
 
 ### 3. Interactive Spatial Catchment & Competitor Map
 Interactive Leaflet map illustrating the business location alongside 5 km Micro-Catchment and 10 km Macro-Catchment radial boundary circles, competitor markers queried from OpenStreetMap via Overpass API, and nearby transit and residential hubs.
 - **Implementation**: [`frontend/src/components/modules/MarketMap.tsx`](frontend/src/components/modules/MarketMap.tsx), [`backend/src/services/placesService.js`](backend/src/services/placesService.js)
 - **Test File**: [`backend/src/services/placesService.test.js`](backend/src/services/placesService.test.js), [`frontend/src/engine/locationAnalysisEngine.test.ts`](frontend/src/engine/locationAnalysisEngine.test.ts)
-- **Screenshot**: `docs/screenshots/04-market-map-catchment.png`
+
 
 ### 4. Deterministic Scheme Loan Breakdown & Quarterly Amortization
 Provides statutory institutional loan sizing based on promoter margin capital ($M$) and project cost ($B$). Displays fully funded status ($M \ge 0.10 \times B$) or shortfall alerts ($M < 0.10 \times B$) with 3 actionable bridge options, complete quarterly schedule, and statutory math breakdown card.
 - **Implementation**: [`frontend/src/components/common/SchemeLoanBreakdown.tsx`](frontend/src/components/common/SchemeLoanBreakdown.tsx), [`frontend/src/engine/schemeReconciliation.ts`](frontend/src/engine/schemeReconciliation.ts), [`frontend/src/engine/psCalculator.ts`](frontend/src/engine/psCalculator.ts)
 - **Test File**: [`frontend/src/components/common/SchemeLoanBreakdown.test.tsx`](frontend/src/components/common/SchemeLoanBreakdown.test.tsx), [`frontend/src/engine/schemeReconciliation.test.ts`](frontend/src/engine/schemeReconciliation.test.ts), [`frontend/src/engine/psCalculator.test.ts`](frontend/src/engine/psCalculator.test.ts)
-- **Screenshot**: `docs/screenshots/05-financial-amortization.png`
+
 
 ### 5. De-Duplicated Single-Home Dossier & Tabbed Analysis
 Cleanly partitions content so each insight has one primary home. Analysis tabs house detailed breakdowns for Market, Opportunities, SWOT, Threats, Financials, and Schemes. The Dossier view on screen provides a "Jump to Section" navigator, while the printable document renders Short (summary + loan overview) or Full appraisals.
 - **Implementation**: [`frontend/src/components/modules/FinalBusinessPlan.tsx`](frontend/src/components/modules/FinalBusinessPlan.tsx), [`frontend/src/components/modules/DecisionDashboard.tsx`](frontend/src/components/modules/DecisionDashboard.tsx), [`frontend/src/App.tsx`](frontend/src/App.tsx)
 - **Test File**: [`frontend/src/components/modules/Deduplication.test.tsx`](frontend/src/components/modules/Deduplication.test.tsx)
-- **Screenshot**: `docs/screenshots/06-dossier-jump-list.png`
+
 
 ### 6. Grounded AI Business Advisor
 Persistent floating conversational assistant grounded strictly in deterministic analysis context and MSME credit guidelines. Protected by sliding-window rate limiting, character caps, and prompt-injection defenses.
 - **Implementation**: [`backend/src/services/openRouterAdvisorService.js`](backend/src/services/openRouterAdvisorService.js), [`backend/src/routes/advisorRoutes.js`](backend/src/routes/advisorRoutes.js), [`frontend/src/components/chat/SidePanelChatbot.tsx`](frontend/src/components/chat/SidePanelChatbot.tsx)
 - **Test File**: [`backend/src/services/advisorService.test.js`](backend/src/services/advisorService.test.js)
-- **Screenshot**: `docs/screenshots/07-ai-advisor-chat.png`
+`
 
 ### 7. Trilingual Rural Localization (EN, HI, TE)
 Full application localization across English, Hindi (हिंदी), and Telugu (తెలుగు), featuring voice-to-text input with offline-resilient error detection, unabbreviated business terms (SWOT, DSCR, EMI, Capex, Opex, PMEGP, MUDRA), and high-contrast dark/light mode styles.
 - **Implementation**: [`frontend/src/data/translations.ts`](frontend/src/data/translations.ts), [`frontend/src/context/LanguageContext.tsx`](frontend/src/context/LanguageContext.tsx), [`frontend/src/components/common/VoiceInputButton.tsx`](frontend/src/components/common/VoiceInputButton.tsx)
 - **Test File**: [`frontend/src/data/translations.test.ts`](frontend/src/data/translations.test.ts), [`frontend/src/components/common/VoiceInputButton.test.tsx`](frontend/src/components/common/VoiceInputButton.test.tsx)
-- **Screenshot**: `docs/screenshots/08-multilingual-telugu.png`
+
 
 ---
 
